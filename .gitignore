@@ -11,6 +11,8 @@ node_modules/
 out/
 build/
 dist/
+*.tsbuildinfo
+next-env.d.ts
 
 # Entorno — NUNCA commitear credenciales reales
 .env
