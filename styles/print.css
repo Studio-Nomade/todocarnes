@@ -1,0 +1,33 @@
+@page {
+  size: 1440px 810px;
+  margin: 0;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.catalog-page {
+  break-after: page;
+  page-break-after: always;
+}
+
+.catalog-page:last-of-type {
+  break-after: auto;
+  page-break-after: auto;
+}
+
+@media print {
+  html,
+  body {
+    height: 810px;
+    width: 1440px;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
