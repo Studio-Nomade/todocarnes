@@ -32,10 +32,10 @@ export async function POST(_request: Request, { params }: ExportContext) {
 
     await page.waitForFunction(() => window.__CATALOG_READY__ === true, null, { timeout: 60_000 });
     const pdf = await page.pdf({
-      height: "810px",
-      preferCSSPageSize: true,
+      height: "11.25in",
       printBackground: true,
-      width: "1440px",
+      scale: 4 / 3,
+      width: "20in",
     });
     const body = Uint8Array.from(pdf);
 

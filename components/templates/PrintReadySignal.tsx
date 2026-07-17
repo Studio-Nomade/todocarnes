@@ -6,7 +6,7 @@ export function PrintReadySignal() {
   useEffect(() => {
     async function signalReady() {
       await document.fonts.ready;
-      await Promise.all(Array.from(document.images).map((image) => image.decode()));
+      await Promise.allSettled(Array.from(document.images).map((image) => image.decode()));
       window.__CATALOG_READY__ = true;
     }
 

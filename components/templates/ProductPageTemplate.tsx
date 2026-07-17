@@ -47,6 +47,7 @@ export function ProductPageTemplate({ product, scale }: ProductPageTemplateProps
           className="absolute top-[591px] h-[169px] w-[272px] object-cover"
           height={700}
           key={`${src}-${index}`}
+          priority
           src={src}
           style={{ left: [510, 802, 1094][index] }}
           width={1200}

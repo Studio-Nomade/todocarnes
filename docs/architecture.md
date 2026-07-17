@@ -242,10 +242,10 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 810 } });
 await page.goto(`${APP_URL}/print/${catalogId}?token=${PRINT_TOKEN}`, { waitUntil: 'networkidle' });
 await page.waitForFunction(() => (window as any).__CATALOG_READY__ === true, { timeout: 60_000 });
 const pdf = await page.pdf({
-  width: '1440px',
-  height: '810px',
+  width: '20in',
+  height: '11.25in',
+  scale: 4 / 3,
   printBackground: true,
-  preferCSSPageSize: true,
 });
 ```
 
@@ -255,11 +255,13 @@ Requisitos, no consejos. Los cuatro son fallos silenciosos: se ven bien en el na
 
 1. **Fuentes.** Montserrat auto-hospedada en `/public/fonts/*.woff2` con `font-display: block`.
    El CDN de Google Fonts hace que Chromium headless renderice con fallback.
-2. **Imágenes.** `/print` setea `window.__CATALOG_READY__ = true` **solo** después de
-   `await document.fonts.ready` **y** `Promise.all([...document.images].map(i => i.decode()))`.
-   `networkidle` por sí solo no basta.
+2. **Imágenes.** Ninguna imagen de `/print` usa carga lazy. La vista setea
+   `window.__CATALOG_READY__ = true` **solo** después de `await document.fonts.ready` y
+   `Promise.allSettled([...document.images].map(i => i.decode()))`. `networkidle` por sí solo no
+   basta, y una imagen fallida no puede bloquear el catálogo completo.
 3. **Paginación.** Cada página es `<section>` de exactamente `1440px × 810px` con
-   `break-after: page`. `@page { size: 1440px 810px; margin: 0 }` + `preferCSSPageSize: true`.
+   `break-after: page`. `page.pdf()` define el papel de `20in × 11.25in` y escala el contenido
+   `×4/3`, para producir un MediaBox de `1440 × 810 pt`; `@page` solo define `margin: 0`.
    Nada de `height: 100vh` — produce páginas en blanco intercaladas.
 4. **Autenticación.** Playwright corre en el server y no tiene la cookie de sesión del usuario.
    `/print/[id]` se protege con un token de env comparado en tiempo constante
