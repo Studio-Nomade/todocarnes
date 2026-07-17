@@ -11,16 +11,21 @@ y el PDF manda para la estructura general del catálogo.
 
 ## Lienzo
 
-**1440 × 810 px.** No 1920×1080.
+**1440 × 810 puntos** = **1920 × 1080 CSS px** a 96 DPI.
+Son la misma página física, en dos unidades.
 
 | Evidencia | Valor |
 |---|---|
-| MediaBox del PDF | `0 7.92 1440 817.92` → 1440 × 810 |
-| viewBox del SVG | `0 0 1440 810` |
-| Atributos `width`/`height` del SVG | 1920 × 1080 |
+| MediaBox del PDF | `0 7.92 1440 817.92` → 1440 × 810 **pt** |
+| viewBox del SVG | `0 0 1440 810` (espacio de coordenadas, en pt) |
+| width/height del SVG | 1920 × 1080 (**px**) |
 
-El 1920×1080 del handoff es solo el tamaño de presentación del SVG. Mismo 16:9, factor 1.333.
-**Todo el código trabaja en 1440×810.**
+El handoff no estaba equivocado: 1920×1080 es la medida en píxeles de la misma página. 1440×810 es
+la misma medida en puntos.
+
+**La plantilla se maqueta en 1440×810 CSS px** — es el espacio de coordenadas del viewBox, y toda la
+geometría de este documento vive ahí. **El export escala ×4/3 para que el PDF salga en 1440×810 pt**,
+idéntico al catálogo real. Ver `architecture.md` §Export PDF.
 
 ---
 

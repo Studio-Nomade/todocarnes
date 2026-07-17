@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title description">
+  <title id="title">Imagen de producto pendiente</title>
+  <desc id="description">Fondo temporal para la ficha de producto.</desc>
+  <rect width="1200" height="700" fill="#f8f8f9"/>
+  <circle cx="820" cy="210" r="250" fill="#eff4fe"/>
+  <path d="M0 590 280 330l190 170 190-230 540 430H0Z" fill="#98c0fd" opacity=".36"/>
+  <path d="M0 635 285 390l190 170 185-220 540 360H0Z" fill="#8ab1fd" opacity=".28"/>
+</svg>
