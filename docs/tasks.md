@@ -9,9 +9,9 @@ El detalle ejecutable de cada uno vive en `prompts/milestones/`.
 
 | Hito | Rama | Estado | Prompt |
 |---|---|---|---|
-| **M0** — Setup | `feature/m0-setup` | ⬜ Pendiente | [m0-setup.md](../prompts/milestones/m0-setup.md) |
-| **M1** — Plantilla + PDF | `feature/m1-template-pdf` | ⬜ Pendiente | [m1-template-pdf.md](../prompts/milestones/m1-template-pdf.md) |
-| **M2** — DB + Auth | `feature/m2-db-auth` | ⬜ Pendiente | [m2-db-auth.md](../prompts/milestones/m2-db-auth.md) |
+| **M0** — Setup | `feature/m0-setup` | ✅ Mergeado | [m0-setup.md](../prompts/milestones/m0-setup.md) |
+| **M1** — Plantilla + PDF | `feature/m1-template-pdf` | ✅ Mergeado | [m1-template-pdf.md](../prompts/milestones/m1-template-pdf.md) |
+| **M2** — DB + Auth | `feature/m2-db-auth` | 🟨 En curso | [m2-db-auth.md](../prompts/milestones/m2-db-auth.md) |
 | **M3** — Productos | `feature/m3-products` | ⬜ Pendiente | [m3-products.md](../prompts/milestones/m3-products.md) |
 | **M4** — Imágenes | `feature/m4-images` | ⬜ Pendiente | [m4-images.md](../prompts/milestones/m4-images.md) |
 | **M5** — Constructor | `feature/m5-builder` | ⬜ Pendiente | [m5-builder.md](../prompts/milestones/m5-builder.md) |
@@ -19,6 +19,24 @@ El detalle ejecutable de cada uno vive en `prompts/milestones/`.
 | **M7** — Polish | `feature/m7-polish` | ⬜ Pendiente | [m7-polish.md](../prompts/milestones/m7-polish.md) |
 
 Leyenda: ⬜ Pendiente · 🟨 En curso · 🟧 En auditoría · 🟥 Devuelto · ✅ Mergeado
+
+### Lo que M1 dejó probado
+
+El riesgo grande del proyecto está cerrado. Verificado sobre el PDF exportado, no en el navegador:
+
+- `pdfinfo` del export y del catálogo de julio dan la **misma línea**: `Page size: 1440 x 810 pts`.
+- `pdffonts`: solo Montserrat, embebida y subseteada. Sin fallbacks.
+- Comparación rasterizada contra la página 5 del catálogo real: la ficha es fiel.
+- Casos límite OK: título largo hace wrap, código multilínea renderiza como lista, campo nulo no
+  rompe la caja.
+
+Herramienta: `brew install poppler` → `pdfinfo`, `pdffonts`, `pdftoppm`. **Es como se auditan los
+hitos visuales.** Para comparar contra el catálogo real:
+
+```bash
+pdftoppm -png -r 72 -f 5 -l 5 "-context/.../Todo Carnes - Catálogo v01-light.pdf" julio_p5
+pdftoppm -png -r 72 salida.pdf export
+```
 
 ---
 

@@ -50,6 +50,9 @@ Corré `docs/audit-checklist.md` sobre el diff local (`git diff develop...HEAD`)
 
 Reglas:
 
+- **Verificá corriendo, no leyendo.** Levantá la app, exportá el PDF, medilo. Los dos hallazgos más
+  caros de M1 (imágenes lazy, tamaño del PDF) eran invisibles en el diff y evidentes en 30 segundos
+  de ejecución.
 - Los ítems marcados **bloqueante** devuelven el hito. No hay "lo arreglamos después" — los ítems
   bloqueantes son justamente los que nunca se arreglan después.
 - El checklist atrapa lo mecánico. Tu trabajo real son las 5 preguntas de juicio del final del
@@ -57,6 +60,22 @@ Reglas:
 - Reportá el outcome tal cual es. Si algo falla, decilo con la evidencia. No suavices.
 - Un hallazgo sin un caso de falla concreto no es un hallazgo, es una opinión. Escribí qué input
   produce qué comportamiento roto.
+- **Cuando el error sea de tus docs, decilo.** Pasó dos veces en M1: la unidad ambigua del lienzo y
+  el `—` en vez de `N/A`. Codex implementó lo que decía el documento. Corregí el documento y seguí.
+
+### Herramientas de auditoría visual
+
+`brew install poppler`:
+
+```bash
+pdfinfo export.pdf | grep -i "page size"    # debe decir 1440 x 810 pts
+pdffonts export.pdf                         # solo Montserrat, emb=yes
+pdftoppm -png -r 72 export.pdf out          # rasterizar para comparar
+pdftoppm -png -r 72 -f 5 -l 5 "-context/.../v01-light.pdf" julio_p5
+```
+
+Comparar el export contra una página real del catálogo de julio es el test más valioso que tenés, y
+se puede correr desde M1 — no hay que esperar a M7.
 
 ## Las decisiones ya tomadas — no relitigar
 

@@ -47,13 +47,15 @@ git log -p | grep -iE "sk-[a-zA-Z0-9]{20}|eyJhbGciOi"
 - [ ] Captura de la plantilla superpuesta al SVG, adjunta al reporte
 - [ ] **Montserrat en el PDF exportado**, no fallback. Verificar con `pdffonts salida.pdf`, no
       mirando el navegador — es exactamente donde falla
-- [ ] Cada página del PDF mide exactamente 1440×810, sin páginas en blanco ni cortes
+- [ ] `pdfinfo salida.pdf` → **`Page size: 1440 x 810 pts`**, la misma línea que el catálogo real.
+      Sin páginas en blanco ni cortes
 - [ ] Paleta = tokens de Tailwind. Cero hex sueltos en el JSX
 - [ ] Título largo (60+ caracteres) hace wrap sin desbordar
-- [ ] Campo vacío o null → `—`. Nunca `undefined`, nunca caja rota
+- [ ] Campo vacío o null → `N/A` (lo que usa el catálogo real). Nunca `undefined`, nunca caja rota
 - [ ] Valores con `\n` se renderizan como lista (caso Pollo Entero)
 - [ ] Secundarias en la grilla normalizada **510 / 802 / 1094**, no en los valores crudos del SVG
 - [ ] Imágenes con `object-fit: cover`, sin deformación
+- [ ] **Ninguna imagen de `/print` es lazy** — `[...document.images].filter(i => i.loading === 'lazy').length === 0`
 - [ ] Preview y PDF usan **los mismos componentes**
 - [ ] El PDF parece pieza de diseño, no reporte administrativo
 

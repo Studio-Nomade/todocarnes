@@ -107,6 +107,14 @@ En el orden del catálogo, uno por fila:
 5. Formato
 6. Unidades
 
+**Los valores van en MAYÚSCULAS.** El catálogo real muestra `LITERA MEAT`, `ESPAÑA`, `18 KG APROX`,
+`3-4 KG POR UN`. Es estilo de la plantilla, no del dato: el dato se guarda con su case natural
+(`Brasil`, `Vacío`) y la ficha lo transforma. Así el formulario de M3 se lee normal y la ficha sale
+como el catálogo.
+
+**El campo vacío se muestra `N/A`**, no `—`. Confirmado contra la página 5 del catálogo de julio,
+donde Unidades dice `N/A`. El handoff §9 permitía `N/A`, `-` o vacío; el catálogo real usa `N/A`.
+
 ---
 
 ## Cómo calibrar
@@ -127,12 +135,28 @@ Al revés se pierde un día. Está en las trampas conocidas de M1 por algo.
 
 ---
 
+## Diferencias conocidas contra el catálogo real
+
+Salieron de rasterizar el PDF exportado en M1 y compararlo contra la página 5 del catálogo de julio.
+Ninguna es estructural. **Se cierran en M7.**
+
+| Diferencia | Estado |
+|---|---|
+| Valores de campo en mayúsculas | Documentado arriba. Falta aplicarlo en la plantilla |
+| Vacío = `N/A`, no `—` | Documentado arriba. Falta aplicarlo |
+| El divisor va **entre el título y los campos**; hoy está entre el eyebrow y el título | Falta mover |
+| El logo tiene recuadros visibles alrededor del isotipo y del texto | Bloqueado: falta el logo vectorial |
+
+---
+
 ## Assets que faltan
 
 Nadie los entregó todavía. `-context/` solo trae los 2 PDFs y el SVG.
 
-- **Logo vectorial.** El del SVG está embebido como PNG de 1800px escalado a 0.069 — usable pero
-  no ideal.
+- **Logo vectorial.** El del SVG está embebido como PNG de 1800px escalado a 0.069. El PNG que se
+  extrajo para M1 **trae recuadros visibles** alrededor del isotipo y del wordmark que el catálogo
+  real no tiene — se ven en el PDF exportado. Es el asset faltante más urgente: es lo único que hoy
+  delata que la ficha no es la original.
 - **Íconos de categoría** (Cerdo, Pollo, Vacuno, Trimming). Usados en índice, separadores y header.
 - **Íconos de los 6 campos técnicos.**
 - **Elementos gráficos de fondo** de portada y separador de categoría.

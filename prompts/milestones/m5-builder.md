@@ -114,6 +114,26 @@ Mantené intacto lo que M1 dejó funcionando:
 - El token de `PRINT_TOKEN`, **no** Supabase Auth. Playwright no tiene la cookie del usuario
 - `window.__CATALOG_READY__` tras `document.fonts.ready` + `img.decode()` de **todas** las imágenes.
   Con 48 páginas esto importa mucho más que con una
+- El escalado `×4/3` en `page.pdf()`. Sin eso el PDF sale a 1080×607.5 pt en vez de 1440×810
+- **Ninguna imagen puede ser lazy.** Ver trampa #5, abajo — es la que te va a morder
+
+### Ninguna imagen lazy, nunca
+
+`next/image` pone `loading="lazy"` por defecto salvo que lleve `priority`. **Toda imagen que
+renderice `/print` necesita `priority`.**
+
+En M1 esto no se notaba: la única página estaba dentro del viewport y las imágenes cargaban igual.
+En M5 tenés 48 páginas apiladas: de la página 2 en adelante quedan muy por debajo del fold, el lazy
+nunca dispara, `img.decode()` sobre una imagen que jamás empezó a cargar no resuelve, y
+`__CATALOG_READY__` no se setea nunca. El export muere a los 60s con un timeout que no explica nada.
+
+M1 ya lo corrigió en `ProductPageTemplate`. **`CatalogCover`, `CatalogIndex` y `CategoryDivider` son
+nuevos: la trampa está intacta para ellos.**
+
+Verificalo, no lo asumas:
+```js
+[...document.images].filter(i => i.loading === 'lazy').length   // debe ser 0
+```
 
 ### Export
 
@@ -146,10 +166,13 @@ Subí el `maxDuration` si hace falta: 48 páginas con imágenes tarda.
    y el PDF deja de coincidir con el preview.
 4. **Índice hardcodeado** con las 4 categorías. Tiene que derivarse: si el catálogo de agosto no
    tiene Vacuno, el índice no lo lista.
-5. **Olvidar que `__CATALOG_READY__` ahora espera 48 páginas de imágenes.** Subí el timeout. Un
+5. **Una imagen lazy en las plantillas nuevas** → export colgado a los 60s. Es la trampa #1 de este
+   hito: en M1 era invisible, acá es fatal. Ver arriba. `priority` en todas, y verificá el contador
+   de lazy en 0 antes de entregar.
+6. **Olvidar que `__CATALOG_READY__` ahora espera 48 páginas de imágenes.** Subí el timeout. Un
    export que devuelve cajas vacías de forma intermitente es peor que uno que falla.
-6. **Inventar el copy institucional de la portada.** Pedilo.
-7. **Agregar "duplicar catálogo del mes pasado".** No está pedido. Es la mejor venta de fase 2 —
+7. **Inventar el copy institucional de la portada.** Pedilo.
+8. **Agregar "duplicar catálogo del mes pasado".** No está pedido. Es la mejor venta de fase 2 —
    no la quemes gratis.
 
 ## Entrega

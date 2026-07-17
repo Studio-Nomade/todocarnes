@@ -55,8 +55,26 @@ el número sube.
 
 ### Calibración visual
 
-Poné el PDF exportado y el de julio lado a lado, al mismo zoom. Ajustá lo que salte a la vista:
-tamaños de fuente, pesos, tracking, espaciados, colores.
+Poné el PDF exportado y el de julio lado a lado, al mismo zoom. Los dos miden 1440×810 pt, así que
+comparan directo:
+
+```bash
+pdftoppm -png -r 72 -f 5 -l 5 "-context/.../Todo Carnes - Catálogo v01-light.pdf" julio_p5
+pdftoppm -png -r 72 export.pdf export
+```
+
+**Cuatro diferencias ya detectadas en M1**, contra la página 5 del catálogo real. Están en
+`docs/assets.md` §Diferencias conocidas. Arreglá las tres primeras:
+
+1. **Valores de campo en MAYÚSCULAS.** El real muestra `LITERA MEAT`, `ESPAÑA`, `18 KG APROX`.
+   Es estilo de plantilla, no del dato: el dato sigue guardándose `Brasil`, `Vacío`, y la ficha lo
+   transforma. No toques los datos ni el formulario.
+2. **Campo vacío = `N/A`**, no `—`. El real usa `N/A` en Unidades.
+3. **El divisor va entre el título y los campos.** Hoy está entre el eyebrow y el título.
+4. **El logo tiene recuadros.** Bloqueado hasta que llegue el vectorial — si no llega, reportálo,
+   no lo maquilles.
+
+Después de esas, seguí buscando: tamaños de fuente, pesos, tracking, espaciados, colores.
 
 La pregunta de la auditoría no es "¿tiene los mismos elementos?" sino: **¿un diseñador de Studio
 Nomade firmaría esto?**
