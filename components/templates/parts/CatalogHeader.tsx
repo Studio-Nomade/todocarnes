@@ -14,14 +14,17 @@ const widths = [136, 151, 152, 186];
 export function CatalogHeader({ activeCategory, activeCut, cuts }: CatalogHeaderProps) {
   return (
     <header className="absolute inset-x-0 top-0 h-[122px] border-b-2 border-ink/35 bg-gray-50">
-      <Image
-        alt="Todo Carnes"
-        className="absolute left-7 top-[29px] h-[67px] w-[322px] object-contain object-left"
-        height={67}
-        priority
-        src="/brand/todo-carnes.png"
-        width={321}
-      />
+      <div className="absolute left-7 top-[22px] flex h-[78px] w-[322px] items-center gap-4">
+        <Image
+          alt="Todo Carnes"
+          className="h-[67px] w-[67px] object-contain"
+          height={4500}
+          priority
+          src="/brand/isologo_completo.png"
+          width={4501}
+        />
+        <span className="text-[28px] font-bold italic tracking-tight text-navy">TodoCarnes</span>
+      </div>
       <nav aria-label="Categorías" className="absolute left-[815px] top-0 flex h-[121px]">
         {categories.map((category, index) => {
           const active = category === activeCategory;

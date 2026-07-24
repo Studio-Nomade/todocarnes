@@ -7,7 +7,7 @@ type ProductFieldRowProps = {
 };
 
 export function ProductFieldRow({ icon, label, value }: ProductFieldRowProps) {
-  const values = value?.trim() ? value.split("\n") : ["—"];
+  const values = value?.trim() ? value.split("\n") : ["N/A"];
 
   return (
     <div className="grid h-[66px] grid-cols-[73px_1fr] border-b border-ink/20 last:border-b-0">
@@ -16,9 +16,9 @@ export function ProductFieldRow({ icon, label, value }: ProductFieldRowProps) {
       </div>
       <div className="flex flex-col justify-center pl-6">
         <span className="text-[13px] font-normal uppercase leading-none text-blue">{label}</span>
-        <ul className="mt-1 list-none text-[18px] font-normal leading-[19px] text-ink">
+        <ul className="mt-1 list-none text-[18px] font-normal uppercase leading-[19px] text-ink">
           {values.map((item, index) => (
-            <li key={`${item}-${index}`}>{item || "—"}</li>
+            <li key={`${item}-${index}`}>{item || "N/A"}</li>
           ))}
         </ul>
       </div>

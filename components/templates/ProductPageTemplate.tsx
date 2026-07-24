@@ -3,6 +3,10 @@ import { CatalogPage } from "./CatalogPage";
 import { CatalogHeader } from "./parts/CatalogHeader";
 import { ProductFieldRow } from "./parts/ProductFieldRow";
 import { ProductFooter } from "./parts/ProductFooter";
+import {
+  hasMultipleVariants,
+  ProductVariantTable,
+} from "./parts/ProductVariantTable";
 
 export type ProductPageData = {
   category: "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
@@ -37,7 +41,24 @@ const fields = [
 ] as const;
 
 export function ProductPageTemplate({ product, scale, period, pageNumber }: ProductPageTemplateProps) {
-  const longTitle = product.title.length > 50;
+  const titleLength = product.title.length;
+  const titleSize =
+    titleLength > 70
+      ? "text-[20px] leading-[1.05]"
+        : titleLength > 55
+        ? "text-[23px] leading-[1.08]"
+        : titleLength > 38
+          ? "text-[26px] leading-[1.08]"
+          : titleLength > 24
+            ? "text-[34px] leading-[1.12]"
+            : "text-[40px] leading-[1.15]";
+  const variantValues = {
+    boxWeight: product.boxWeight,
+    code: product.code,
+    format: product.format,
+    units: product.units,
+  };
+  const multipleVariants = hasMultipleVariants(variantValues);
 
   return (
     <CatalogPage scale={scale}>
@@ -58,15 +79,23 @@ export function ProductPageTemplate({ product, scale, period, pageNumber }: Prod
       ))}
       <div className="absolute left-11 top-[181px] w-[380px]">
         <div className="text-[20px] font-normal uppercase leading-6 text-blue">{product.eyebrow || "—"}</div>
-        <div className="mt-3 h-px w-[232px] bg-blue/45" />
       </div>
-      <h1 className={`absolute left-11 top-[239px] h-[105px] w-[380px] break-words font-semibold uppercase text-navy ${longTitle ? "text-[24px] leading-[1.08]" : "text-[40px] leading-[1.2]"}`}>
+      <h1 className={`absolute left-11 top-[226px] flex h-[112px] w-[380px] items-center break-words font-semibold uppercase text-navy ${titleSize}`}>
         {product.title || "—"}
       </h1>
+      <div className="absolute left-11 top-[347px] h-px w-[348px] bg-blue/45" />
       <div className="absolute left-11 top-[364px] w-[348px]">
-        {fields.map(([icon, label, key]) => (
-          <ProductFieldRow icon={icon} key={key} label={label} value={product[key]} />
-        ))}
+        {multipleVariants ? (
+          <>
+            <ProductVariantTable {...variantValues} />
+            <ProductFieldRow icon="brand" label="Marca" value={product.brand} />
+            <ProductFieldRow icon="origin" label="Procedencia" value={product.origin} />
+          </>
+        ) : (
+          fields.map(([icon, label, key]) => (
+            <ProductFieldRow icon={icon} key={key} label={label} value={product[key]} />
+          ))
+        )}
       </div>
       <ProductFooter pageNumber={pageNumber} period={period} />
     </CatalogPage>

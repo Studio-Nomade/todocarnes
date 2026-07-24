@@ -1,21 +1,18 @@
 "use client";
 
 import { useState } from "react";
-
-const statusLabels: Record<string, string> = {
-  draft: "Borrador",
-  exported: "Exportado",
-  ready: "Listo",
-};
+import { catalogPdfFilename } from "@/lib/catalogs/format";
 
 export function ExportButton({
   catalogId,
   disabled,
   label = "Exportar PDF",
+  month,
 }: {
   catalogId: string;
   disabled?: boolean;
   label?: string;
+  month: number;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -33,7 +30,7 @@ export function ExportButton({
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `catalogo-${catalogId}.pdf`;
+      anchor.download = catalogPdfFilename(month);
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
@@ -60,5 +57,3 @@ export function ExportButton({
     </span>
   );
 }
-
-export { statusLabels };

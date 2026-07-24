@@ -22,6 +22,8 @@ next-env.d.ts
 
 # Salidas de export / trabajo local
 /exports/
+/output/
+/tmp/
 *.pdf
 !docs/**/*.pdf
 

@@ -12,11 +12,14 @@ type CatalogCoverProps = {
 export function CatalogCover({ title, month, year, scale }: CatalogCoverProps) {
   return (
     <CatalogPage scale={scale}>
-      <div className="absolute inset-0 bg-navy" />
-      {/* Elementos gráficos de fondo — provisorios hasta que llegue el arte de portada */}
-      <div className="absolute -right-40 -top-40 h-[720px] w-[720px] rounded-full bg-blue/10" />
-      <div className="absolute -bottom-52 -left-24 h-[560px] w-[560px] rounded-full bg-blue/10" />
-      <div className="absolute right-[120px] top-[150px] h-[420px] w-[420px] rotate-6 rounded-[64px] border border-blue/20" />
+      <Image
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+        height={941}
+        priority
+        src="/brand/cover-bg.webp"
+        width={1672}
+      />
 
       <div className="absolute left-[120px] top-[150px] flex items-center gap-6">
         <Image alt="Todo Carnes" height={4500} priority src="/brand/isologo_blanco.png" width={4501} className="h-24 w-24 object-contain" />

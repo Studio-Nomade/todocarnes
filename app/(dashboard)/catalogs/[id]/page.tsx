@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CatalogBuilder } from "@/components/catalogs/CatalogBuilder";
-import { ExportButton, statusLabels } from "@/components/catalogs/ExportButton";
+import { ExportButton } from "@/components/catalogs/ExportButton";
 import { requireRole } from "@/lib/auth/requireRole";
 import { getCatalog, getCatalogItems } from "@/lib/catalogs/data";
-import { catalogPeriod } from "@/lib/catalogs/format";
+import { catalogPeriod, catalogStatusLabels } from "@/lib/catalogs/format";
 import { listProducts } from "@/lib/actions/products";
 
 export const dynamic = "force-dynamic";
@@ -33,14 +33,14 @@ export default async function CatalogBuilderPage({ params }: BuilderPageProps) {
           <Link className="text-sm font-medium text-blue hover:underline" href="/catalogs">← Volver a catálogos</Link>
           <h1 className="mt-2 text-3xl font-semibold text-navy">{catalog.title}</h1>
           <p className="mt-1 text-sm text-ink/60">
-            {catalogPeriod(catalog.month, catalog.year)} · <span className="font-medium">{statusLabels[catalog.status]}</span>
+            {catalogPeriod(catalog.month, catalog.year)} · <span className="font-medium">{catalogStatusLabels[catalog.status]}</span>
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Link className="rounded-lg border border-ink/15 px-4 py-2 text-sm font-semibold text-navy hover:bg-gray-50" href={`/catalogs/${catalog.id}/preview`}>
             Previsualizar
           </Link>
-          <ExportButton catalogId={catalog.id} disabled={items.length === 0} />
+          <ExportButton catalogId={catalog.id} disabled={items.length === 0} month={catalog.month} />
         </div>
       </div>
 

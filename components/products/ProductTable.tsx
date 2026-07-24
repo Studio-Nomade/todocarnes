@@ -44,7 +44,13 @@ export function ProductTable({ products }: { products: ProductRecord[] }) {
           {products.map((product) => (
             <tr className="align-middle hover:bg-blue-50/30" key={product.id}>
               <td className="px-4 py-3">
-                <Image alt="" className="h-12 w-16 rounded-md object-cover" height={70} src="/placeholders/product-placeholder.svg" width={120} />
+                <Image
+                  alt=""
+                  className="h-12 w-16 rounded-md object-cover"
+                  height={70}
+                  src={product.mainImageUrl ?? "/placeholders/product-placeholder.svg"}
+                  width={120}
+                />
               </td>
               <td className="max-w-28 whitespace-pre-line px-4 py-3 font-mono text-xs text-ink/70">{product.code || "—"}</td>
               <td className="max-w-64 px-4 py-3">

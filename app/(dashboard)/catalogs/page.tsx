@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { CatalogCreateForm } from "@/components/catalogs/CatalogCreateForm";
-import { ExportButton, statusLabels } from "@/components/catalogs/ExportButton";
+import { ExportButton } from "@/components/catalogs/ExportButton";
 import { listCatalogs } from "@/lib/catalogs/data";
-import { catalogPeriod } from "@/lib/catalogs/format";
+import { catalogPeriod, catalogStatusLabels } from "@/lib/catalogs/format";
 import { requireRole } from "@/lib/auth/requireRole";
 
 export const dynamic = "force-dynamic";
@@ -53,13 +53,13 @@ export default async function CatalogsPage() {
                   <td className="px-4 py-3 text-ink/70">{catalogPeriod(catalog.month, catalog.year)}</td>
                   <td className="px-4 py-3 text-ink/70">{catalog.itemCount}</td>
                   <td className="px-4 py-3">
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[catalog.status]}`}>{statusLabels[catalog.status]}</span>
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[catalog.status]}`}>{catalogStatusLabels[catalog.status]}</span>
                   </td>
                   <td className="px-4 py-3 text-ink/55">{new Date(catalog.updatedAt).toLocaleDateString("es-CL")}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <Link className="text-xs font-semibold text-blue hover:underline" href={`/catalogs/${catalog.id}`}>Abrir</Link>
-                      <ExportButton catalogId={catalog.id} disabled={catalog.itemCount === 0} label="Exportar" />
+                      <ExportButton catalogId={catalog.id} disabled={catalog.itemCount === 0} label="Exportar" month={catalog.month} />
                     </div>
                   </td>
                 </tr>

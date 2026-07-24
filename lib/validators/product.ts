@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 const optionalText = (max: number) => z.string().trim().max(max);
+const optionalFilter = <Schema extends z.ZodType>(schema: Schema) =>
+  z.preprocess((value) => (value === "" ? undefined : value), schema.optional());
 
 export const productStatusSchema = z.enum(["draft", "active", "inactive"]);
 
@@ -24,10 +26,10 @@ export const productIdSchema = z.string().uuid("El producto no es válido.");
 
 export const productFiltersSchema = z.object({
   brand: z.string().trim().max(120).optional().default(""),
-  category: z.string().uuid().optional(),
-  cut: z.string().uuid().optional(),
+  category: optionalFilter(z.string().uuid()),
+  cut: optionalFilter(z.string().uuid()),
   q: z.string().trim().max(120).optional().default(""),
-  status: productStatusSchema.optional(),
+  status: optionalFilter(productStatusSchema),
 });
 
 export type ProductInput = z.infer<typeof productSchema>;
