@@ -33,7 +33,7 @@ export function CatalogCreateForm() {
   }
 
   return (
-    <form className="grid gap-4 rounded-xl border border-ink/10 bg-white p-6 shadow-sm md:grid-cols-[2fr_1fr_1fr_auto] md:items-end" onSubmit={handleSubmit}>
+    <form className="grid gap-4 rounded-xl border border-ink/10 bg-white p-4 shadow-sm sm:p-6 lg:grid-cols-[2fr_1fr_1fr_auto] lg:items-end" onSubmit={handleSubmit}>
       <label className="text-sm font-medium text-navy">
         Título del catálogo
         <input className={inputClass} maxLength={160} onChange={(event) => setTitle(event.target.value)} placeholder="Ej. Catálogo Mensual" required value={title} />
@@ -57,7 +57,7 @@ export function CatalogCreateForm() {
       <button className="h-11 rounded-lg bg-navy px-5 text-sm font-semibold text-white hover:bg-navy/90 disabled:opacity-60" disabled={isPending} type="submit">
         {isPending ? "Creando…" : "Crear catálogo"}
       </button>
-      {error ? <p className="text-sm text-red-700 md:col-span-4" role="alert">{error}</p> : null}
+      {error ? <p className="text-sm text-red-700 lg:col-span-4" role="alert">{error}</p> : null}
     </form>
   );
 }

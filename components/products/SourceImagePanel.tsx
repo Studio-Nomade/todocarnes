@@ -46,8 +46,8 @@ export function SourceImagePanel({
         <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/60">
           Subí una foto clara del producto. Es la referencia obligatoria para generar las cuatro vistas sin inventar el corte ni el empaque.
         </p>
-        <div className="mt-4 flex items-center gap-3">
-          <label className="cursor-pointer rounded-lg bg-navy px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy/90">
+        <div className="mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+          <label className="w-full cursor-pointer rounded-lg bg-navy px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-navy/90 sm:w-auto">
             {isPending ? "Subiendo…" : image ? "Reemplazar fuente" : "Subir imagen fuente"}
             <input
               accept="image/jpeg,image/png,image/webp"

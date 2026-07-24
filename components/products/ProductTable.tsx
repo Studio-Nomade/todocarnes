@@ -26,8 +26,44 @@ export function ProductTable({ products }: { products: ProductRecord[] }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-ink/10 bg-white shadow-sm">
-      <table className="w-full min-w-[1040px] text-left text-sm">
+    <div className="rounded-xl border border-ink/10 bg-white shadow-sm">
+      <div className="divide-y divide-ink/10 xl:hidden">
+        {products.map((product) => (
+          <details className="group" key={product.id}>
+            <summary className="flex cursor-pointer list-none items-center gap-3 p-4">
+              <Image
+                alt=""
+                className="h-14 w-16 shrink-0 rounded-md object-cover"
+                height={70}
+                src={product.mainImageUrl ?? "/placeholders/product-placeholder.svg"}
+                width={120}
+              />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-navy">{product.title}</p>
+                <p className="mt-1 text-xs text-ink/55">{product.category.name} · {product.cut.name}</p>
+              </div>
+              <span className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold ${statusStyles[product.status]}`}>
+                {statusLabels[product.status]}
+              </span>
+              <span aria-hidden className="text-lg text-blue group-open:rotate-45">＋</span>
+            </summary>
+            <div className="border-t border-ink/10 bg-gray-50/70 p-4">
+              <dl className="grid gap-3 text-sm sm:grid-cols-2">
+                <ProductDetail label="Código" value={product.code || "—"} />
+                <ProductDetail label="Marca" value={product.brand || "—"} />
+                <ProductDetail label="Categoría" value={product.category.name} />
+                <ProductDetail label="Corte" value={product.cut.name} />
+              </dl>
+              <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-ink/10 pt-4">
+                <Link className="text-sm font-semibold text-blue hover:underline" href={`/products/${product.id}`}>Editar ficha</Link>
+                <ProductActions id={product.id} inactive={product.status === "inactive"} />
+              </div>
+            </div>
+          </details>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto xl:block">
+        <table className="w-full min-w-[1040px] text-left text-sm">
         <thead className="border-b border-ink/10 bg-gray-50 text-xs uppercase tracking-wide text-ink/55">
           <tr>
             <th className="px-4 py-3 font-medium">Imagen</th>
@@ -71,7 +107,17 @@ export function ProductTable({ products }: { products: ProductRecord[] }) {
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function ProductDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-xs font-medium uppercase tracking-wide text-ink/45">{label}</dt>
+      <dd className="mt-1 whitespace-pre-line font-medium text-navy">{value}</dd>
     </div>
   );
 }

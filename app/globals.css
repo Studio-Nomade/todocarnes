@@ -44,4 +44,15 @@
 
 body {
   font-family: "Montserrat", sans-serif;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+html {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+summary::-webkit-details-marker {
+  display: none;
 }

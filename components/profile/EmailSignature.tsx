@@ -18,18 +18,18 @@ export function EmailSignature({
   return (
     <div
       aria-label={`Firma de correo de ${name || "usuario"}`}
-      className="flex min-w-[470px] items-center gap-5 bg-white px-5 py-4 text-left text-[#0a0a0a]"
+      className="flex w-full flex-col items-start gap-3 bg-white px-4 py-4 text-left text-[#0a0a0a] sm:flex-row sm:items-center sm:gap-5 sm:px-5"
     >
-      <div className="flex w-44 shrink-0 justify-center">
+      <div className="flex w-full justify-center sm:w-40 sm:shrink-0">
         <Image
           alt="Todo Carnes"
-          className="h-28 w-40 object-contain"
+          className="h-24 w-36 object-contain sm:h-28 sm:w-40"
           height={4500}
           src="/brand/logo_completo.png"
           width={4500}
         />
       </div>
-      <div className="min-h-28 border-l-4 border-[#477fe5] pl-5">
+      <div className="w-full border-t-4 border-[#477fe5] pt-3 sm:min-h-28 sm:border-l-4 sm:border-t-0 sm:pl-5 sm:pt-0">
         <p className="text-lg font-bold leading-6">{name || "Nombre y apellido"}</p>
         <p className="text-base leading-6">{jobTitle || "Cargo"}</p>
         <SignatureLine icon="mail" value={email || "correo@tdcarnes.cl"} />

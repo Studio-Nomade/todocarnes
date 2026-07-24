@@ -43,9 +43,9 @@ export function ExportButton({
   }
 
   return (
-    <span className="inline-flex flex-col items-end gap-1">
+    <span className="inline-flex w-full flex-col items-stretch gap-1 sm:w-auto sm:items-end">
       <button
-        className="rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-45"
+        className="w-full rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-45"
         disabled={busy || disabled}
         onClick={exportPdf}
         title={disabled ? "Agregá productos antes de exportar" : "Generar y descargar el PDF"}

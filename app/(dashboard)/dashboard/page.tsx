@@ -17,14 +17,14 @@ export default async function DashboardPage() {
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue">Panel principal</p>
-          <h1 className="mt-2 text-3xl font-semibold text-navy">Creador de catálogo</h1>
+          <h1 className="mt-2 text-2xl font-semibold text-navy sm:text-3xl">Creador de catálogo</h1>
           <p className="mt-3 max-w-2xl leading-7 text-ink/70">
             Gestioná la base comercial, completá las imágenes y publicá el próximo catálogo.
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <Link className="rounded-lg border border-navy/20 bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:bg-blue-50" href="/products/new">Crear producto</Link>
-          <Link className="rounded-lg bg-navy px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy/90" href="/catalogs">Crear catálogo</Link>
+        <div className="grid w-full grid-cols-2 gap-3 sm:w-auto">
+          <Link className="rounded-lg border border-navy/20 bg-white px-4 py-2.5 text-center text-sm font-semibold text-navy hover:bg-blue-50" href="/products/new">Crear producto</Link>
+          <Link className="rounded-lg bg-navy px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-navy/90" href="/catalogs">Crear catálogo</Link>
         </div>
       </div>
 
@@ -41,7 +41,7 @@ export default async function DashboardPage() {
       <ProductPriceTrend />
 
       <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-xl border border-ink/10 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-ink/10 bg-white p-4 shadow-sm sm:p-6">
           <h2 className="font-semibold text-navy">Últimas generaciones de imágenes</h2>
           {data.generations.length ? (
             <ul className="mt-4 divide-y divide-ink/10">
@@ -64,7 +64,7 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-xl border border-dashed border-blue/35 bg-blue-50/60 p-6">
+        <div className="rounded-xl border border-dashed border-blue/35 bg-blue-50/60 p-4 sm:p-6">
           <PotentialLabel />
           <h2 className="mt-3 font-semibold text-navy">Productos por categoría</h2>
           <div className="mt-5 grid grid-cols-2 gap-3">
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-dashed border-blue/35 bg-blue-50/60 p-6">
+      <div className="rounded-xl border border-dashed border-blue/35 bg-blue-50/60 p-4 sm:p-6">
         <PotentialLabel />
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <MockMetric label="Ventas por categoría" value="Vacuno 42%" detail="+8% vs. mes anterior" />

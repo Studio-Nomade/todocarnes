@@ -32,7 +32,7 @@ export function ProductPriceTrend() {
   const gridValues = [max, Math.round((max + min) / 2), min];
 
   return (
-    <div className="rounded-xl border border-dashed border-blue/35 bg-blue-50/60 p-6">
+    <div className="rounded-xl border border-dashed border-blue/35 bg-blue-50/60 p-4 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blue">
@@ -41,10 +41,10 @@ export function ProductPriceTrend() {
           <h2 className="mt-2 text-lg font-semibold text-navy">Evolución de precio por campaña</h2>
           <p className="mt-1 text-sm text-ink/55">Datos demostrativos en pesos chilenos por kilo.</p>
         </div>
-        <label className="text-xs font-semibold uppercase tracking-wide text-ink/55">
+        <label className="w-full text-xs font-semibold uppercase tracking-wide text-ink/55 sm:w-auto">
           Producto
           <select
-            className="mt-1.5 block min-w-64 rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-navy outline-none focus:border-blue"
+            className="mt-1.5 block w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-navy outline-none focus:border-blue sm:min-w-64"
             onChange={(event) => setProduct(event.target.value as ProductName)}
             value={product}
           >
@@ -56,8 +56,8 @@ export function ProductPriceTrend() {
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_180px]">
-        <div className="overflow-x-auto rounded-xl bg-white p-3">
-          <svg aria-label={`Evolución del precio de ${product}`} className="h-auto min-w-[620px] w-full" role="img" viewBox="0 0 760 285">
+        <div className="rounded-xl bg-white p-1 sm:p-3">
+          <svg aria-label={`Evolución del precio de ${product}`} className="h-auto w-full" role="img" viewBox="0 0 760 285">
             {gridValues.map((value) => (
               <g key={value}>
                 <line stroke="#dce3ef" strokeDasharray="5 5" x1={chart.left} x2={chart.left + chart.width} y1={y(value)} y2={y(value)} />
@@ -86,7 +86,7 @@ export function ProductPriceTrend() {
           </svg>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
+        <div className="grid gap-3 min-[380px]:grid-cols-2 lg:grid-cols-1">
           <PriceCard label="Última campaña" value={currency.format(values.at(-1)!)} />
           <PriceCard label="Variación período" positive={change >= 0} value={`${change >= 0 ? "+" : ""}${change.toFixed(1)}%`} />
           <PriceCard label="Promedio" value={currency.format(Math.round(values.reduce((sum, value) => sum + value, 0) / values.length))} />

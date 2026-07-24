@@ -32,8 +32,34 @@ export default async function CatalogsPage() {
           <p className="mt-2 text-sm text-ink/55">Creá el primero con el formulario de arriba.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-ink/10 bg-white shadow-sm">
-          <table className="w-full min-w-[820px] text-left text-sm">
+        <div className="rounded-xl border border-ink/10 bg-white shadow-sm">
+          <div className="divide-y divide-ink/10 lg:hidden">
+            {catalogs.map((catalog) => (
+              <details className="group" key={catalog.id}>
+                <summary className="flex cursor-pointer list-none items-start gap-3 p-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-navy">{catalog.title}</p>
+                    <p className="mt-1 text-xs text-ink/55">{catalogPeriod(catalog.month, catalog.year)} · {catalog.itemCount} productos</p>
+                  </div>
+                  <span className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold ${statusStyles[catalog.status]}`}>
+                    {catalogStatusLabels[catalog.status]}
+                  </span>
+                  <span aria-hidden className="text-lg text-blue group-open:rotate-45">＋</span>
+                </summary>
+                <div className="border-t border-ink/10 bg-gray-50/70 p-4">
+                  <p className="text-xs text-ink/55">
+                    Actualizado {new Date(catalog.updatedAt).toLocaleDateString("es-CL")}
+                  </p>
+                  <div className="mt-4 flex flex-wrap items-center gap-4">
+                    <Link className="text-sm font-semibold text-blue hover:underline" href={`/catalogs/${catalog.id}`}>Abrir catálogo</Link>
+                    <ExportButton catalogId={catalog.id} disabled={catalog.itemCount === 0} label="Exportar" month={catalog.month} />
+                  </div>
+                </div>
+              </details>
+            ))}
+          </div>
+          <div className="hidden overflow-x-auto lg:block">
+            <table className="w-full min-w-[820px] text-left text-sm">
             <thead className="border-b border-ink/10 bg-gray-50 text-xs uppercase tracking-wide text-ink/55">
               <tr>
                 <th className="px-4 py-3 font-medium">Título</th>
@@ -65,7 +91,8 @@ export default async function CatalogsPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       )}
     </section>

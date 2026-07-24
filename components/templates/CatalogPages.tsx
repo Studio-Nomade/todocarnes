@@ -6,6 +6,7 @@ import { CatalogCover } from "./CatalogCover";
 import { CatalogIndex } from "./CatalogIndex";
 import { CategoryDivider } from "./CategoryDivider";
 import { ProductPageTemplate } from "./ProductPageTemplate";
+import { ResponsiveCatalogFrame } from "./ResponsiveCatalogFrame";
 
 type CatalogMeta = { title: string; month: number; year: number };
 
@@ -64,20 +65,16 @@ export function CatalogPages({ meta, pages, scale, framed = false }: CatalogPage
   return (
     <>
       {pages.map((page) => {
-        const element = renderPage(page, meta, period, scale);
         if (!framed) {
+          const element = renderPage(page, meta, period, scale);
           // Fragment: sin nodo DOM, para que las <section> queden hermanas
           // directas y break-after:page + :last-of-type funcionen en el PDF.
           return <Fragment key={`${page.kind}-${page.pageNumber}`}>{element}</Fragment>;
         }
         return (
-          <div
-            className="overflow-hidden rounded-lg border border-ink/10 shadow-sm"
-            key={`${page.kind}-${page.pageNumber}`}
-            style={{ height: 810 * (scale ?? 1), width: 1440 * (scale ?? 1) }}
-          >
-            {element}
-          </div>
+          <ResponsiveCatalogFrame key={`${page.kind}-${page.pageNumber}`} maxScale={scale}>
+            {renderPage(page, meta, period, 1)}
+          </ResponsiveCatalogFrame>
         );
       })}
     </>

@@ -41,10 +41,10 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
   return (
     <section>
       <Link className="text-sm font-medium text-ink/55 hover:text-navy" href="/products">← Volver a productos</Link>
-      <div className="mb-7 mt-4 flex items-end justify-between gap-6">
-        <div>
+      <div className="mb-7 mt-4 flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
           <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue">Editar ficha</p>
-          <h1 className="mt-2 text-3xl font-semibold text-navy">{product.title}</h1>
+          <h1 className="mt-2 break-words text-2xl font-semibold text-navy sm:text-3xl">{product.title}</h1>
         </div>
         {query.saved ? <p className="rounded-lg bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">Cambios guardados</p> : null}
       </div>

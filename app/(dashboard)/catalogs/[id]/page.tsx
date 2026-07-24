@@ -32,14 +32,14 @@ export default async function CatalogBuilderPage({ params }: BuilderPageProps) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Link className="text-sm font-medium text-blue hover:underline" href="/catalogs">← Volver a catálogos</Link>
-          <h1 className="mt-2 text-3xl font-semibold text-navy">{catalog.title}</h1>
+          <h1 className="mt-2 break-words text-2xl font-semibold text-navy sm:text-3xl">{catalog.title}</h1>
           <p className="mt-1 text-sm text-ink/60">
             {catalogPeriod(catalog.month, catalog.year)} · <span className="font-medium">{catalogStatusLabels[catalog.status]}</span>
           </p>
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-3">
-          <form action={`/catalogs/${catalog.id}/preview`} method="get">
-            <button className="rounded-lg border border-ink/15 px-4 py-2 text-sm font-semibold text-navy hover:bg-gray-50" type="submit">
+        <div className="grid w-full grid-cols-1 gap-3 min-[420px]:grid-cols-3 sm:w-auto">
+          <form action={`/catalogs/${catalog.id}/preview`} className="w-full" method="get">
+            <button className="w-full rounded-lg border border-ink/15 px-4 py-2 text-sm font-semibold text-navy hover:bg-gray-50" type="submit">
               Previsualizar
             </button>
           </form>

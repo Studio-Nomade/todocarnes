@@ -132,13 +132,11 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
   return (
     <div className="grid min-w-0 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]">
       <div className="min-w-0 space-y-6">
-        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-ink/10 bg-white px-5 py-4 text-sm shadow-sm">
+        <div className="grid grid-cols-2 gap-3 rounded-xl border border-ink/10 bg-white px-4 py-4 text-sm shadow-sm sm:flex sm:flex-wrap sm:items-center sm:gap-4 sm:px-5">
           <span className="font-semibold text-navy">{items.length} productos</span>
-          <span className="text-ink/40">·</span>
           <span className="text-ink/65">{categoriesPresent} categorías</span>
-          <span className="text-ink/40">·</span>
           <span className="text-ink/65">~{pageCount} páginas</span>
-          {isPending ? <span className="ml-auto text-xs text-blue">Guardando…</span> : null}
+          {isPending ? <span className="text-right text-xs text-blue sm:ml-auto">Guardando…</span> : null}
         </div>
 
         {error ? <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">{error}</p> : null}

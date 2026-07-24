@@ -38,8 +38,8 @@ export function CatalogCategoryCard({
       {!collapsed ? (
         <ul className="divide-y divide-ink/10 border-t border-ink/10">
           {products.map((item, index) => (
-            <li className="flex min-w-0 flex-wrap items-center gap-3 px-5 py-3 sm:flex-nowrap" key={item.productId}>
-              <div className="flex shrink-0 flex-col">
+            <li className="grid min-w-0 grid-cols-[auto_1fr] gap-3 px-4 py-4 sm:flex sm:flex-nowrap sm:items-center sm:px-5 sm:py-3" key={item.productId}>
+              <div className="row-span-2 flex shrink-0 flex-col">
                 <button
                   aria-label={`Subir ${item.title}`}
                   className="text-ink/40 hover:text-navy disabled:opacity-25"
@@ -60,10 +60,10 @@ export function CatalogCategoryCard({
                 </button>
               </div>
               <div className="min-w-0 flex-1 basis-52">
-                <p className="truncate font-medium text-navy">{item.title}</p>
+                <p className="break-words font-medium text-navy sm:truncate">{item.title}</p>
                 <p className="text-xs text-ink/55">{item.cut}</p>
               </div>
-              <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
+              <span className={`w-fit shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
                 item.hasApprovedImages
                   ? "bg-emerald-50 text-emerald-700"
                   : "bg-amber-50 text-amber-700"
@@ -71,7 +71,7 @@ export function CatalogCategoryCard({
                 {item.hasApprovedImages ? "4 imágenes" : "sin imágenes"}
               </span>
               <button
-                className="shrink-0 text-xs font-semibold text-red-700 hover:underline disabled:opacity-50"
+                className="justify-self-end text-xs font-semibold text-red-700 hover:underline disabled:opacity-50 sm:shrink-0"
                 disabled={isPending}
                 onClick={() => removeProduct(item.productId)}
                 type="button"

@@ -37,7 +37,7 @@ export function SendCatalogEmail({
   return (
     <>
       <button
-        className="rounded-lg border border-blue/30 bg-blue-50 px-4 py-2 text-sm font-semibold text-navy hover:bg-blue-100"
+        className="w-full rounded-lg border border-blue/30 bg-blue-50 px-4 py-2 text-sm font-semibold text-navy hover:bg-blue-100 sm:w-auto"
         onClick={() => setOpen(true)}
         type="button"
       >
@@ -47,7 +47,7 @@ export function SendCatalogEmail({
       {sent ? (
         <div
           aria-live="polite"
-          className="fixed bottom-6 right-6 z-[60] rounded-xl bg-emerald-700 px-5 py-4 text-sm font-semibold text-white shadow-xl"
+          className="fixed bottom-4 left-4 right-4 z-[60] rounded-xl bg-emerald-700 px-5 py-4 text-center text-sm font-semibold text-white shadow-xl sm:bottom-6 sm:left-auto sm:right-6"
           role="status"
         >
           Correo enviado exitosamente
@@ -55,14 +55,14 @@ export function SendCatalogEmail({
       ) : null}
 
       {open ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/55 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/55 p-2 sm:p-4">
           <div
             aria-labelledby="send-catalog-title"
             aria-modal="true"
             className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
             role="dialog"
           >
-            <div className="flex items-start justify-between border-b border-ink/10 px-6 py-5">
+            <div className="flex items-start justify-between border-b border-ink/10 px-4 py-4 sm:px-6 sm:py-5">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue">
                   Compartir catálogo
@@ -81,7 +81,7 @@ export function SendCatalogEmail({
               </button>
             </div>
 
-            <form className="space-y-4 p-6" onSubmit={submit}>
+            <form className="space-y-4 p-4 sm:p-6" onSubmit={submit}>
               <EmailField label="De" name="from" readOnly value={senderEmail} />
               <div className="grid gap-4 sm:grid-cols-2">
                 <EmailField label="Para" name="to" placeholder="cliente@empresa.cl" required />
@@ -108,7 +108,7 @@ export function SendCatalogEmail({
 
               <div>
                 <p className="text-sm font-medium text-navy">Firma automática</p>
-                <div className="mt-1.5 overflow-x-auto rounded-xl border border-ink/10">
+                <div className="mt-1.5 rounded-xl border border-ink/10">
                   <EmailSignature
                     email={senderEmail}
                     jobTitle={senderJobTitle}
@@ -136,7 +136,7 @@ export function SendCatalogEmail({
               <p className="text-xs leading-5 text-ink/45">
                 Modo prototipo: esta acción simula el envío y no contacta al destinatario.
               </p>
-              <div className="flex justify-end gap-3 border-t border-ink/10 pt-5">
+              <div className="flex flex-col-reverse gap-3 border-t border-ink/10 pt-5 sm:flex-row sm:justify-end">
                 <button
                   className="rounded-lg px-4 py-2.5 text-sm font-semibold text-ink/60 hover:bg-gray-100"
                   onClick={() => setOpen(false)}
