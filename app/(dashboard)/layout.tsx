@@ -20,6 +20,7 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
           <div className="flex items-center gap-6 text-sm">
             <nav className="flex gap-5" aria-label="Principal">
               <Link href="/dashboard">Inicio</Link>
+              <Link href="/products">Productos</Link>
               {profile.role === "admin" ? <Link href="/settings">Configuración</Link> : null}
             </nav>
             <span className="text-ink/60">{profile.name}</span>
