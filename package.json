@@ -7,13 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import tsx --test lib/pdf/page-order.test.ts",
+    "test": "node --import tsx --test lib/pdf/page-order.test.ts lib/images/errors.test.ts",
     "seed": "tsx --env-file=.env.local data/seed/index.ts"
   },
   "dependencies": {
     "@supabase/ssr": "0.10.0",
     "@supabase/supabase-js": "2.100.1",
     "next": "15.5.20",
+    "openai": "^6.49.0",
     "playwright": "1.61.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
