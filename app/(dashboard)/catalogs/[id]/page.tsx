@@ -48,6 +48,9 @@ export default async function CatalogBuilderPage({ params }: BuilderPageProps) {
             catalogTitle={catalog.title}
             month={catalog.month}
             senderEmail={profile.email}
+            senderJobTitle={profile.jobTitle}
+            senderName={profile.name}
+            senderPhone={profile.phone}
             year={catalog.year}
           />
         </div>

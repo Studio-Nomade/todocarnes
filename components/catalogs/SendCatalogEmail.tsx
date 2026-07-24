@@ -1,12 +1,16 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { EmailSignature } from "@/components/profile/EmailSignature";
 import { catalogPdfFilename, catalogPeriod } from "@/lib/catalogs/format";
 
 type SendCatalogEmailProps = {
   catalogTitle: string;
   month: number;
   senderEmail: string;
+  senderJobTitle: string;
+  senderName: string;
+  senderPhone: string;
   year: number;
 };
 
@@ -14,6 +18,9 @@ export function SendCatalogEmail({
   catalogTitle,
   month,
   senderEmail,
+  senderJobTitle,
+  senderName,
+  senderPhone,
   year,
 }: SendCatalogEmailProps) {
   const period = catalogPeriod(month, year);
@@ -98,6 +105,18 @@ export function SendCatalogEmail({
                   required
                 />
               </label>
+
+              <div>
+                <p className="text-sm font-medium text-navy">Firma automática</p>
+                <div className="mt-1.5 overflow-x-auto rounded-xl border border-ink/10">
+                  <EmailSignature
+                    email={senderEmail}
+                    jobTitle={senderJobTitle}
+                    name={senderName}
+                    phone={senderPhone}
+                  />
+                </div>
+              </div>
 
               <div className="rounded-xl border border-ink/10 bg-gray-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-ink/45">Adjunto</p>

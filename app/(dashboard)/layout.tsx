@@ -24,7 +24,12 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
               <Link href="/catalogs">Catálogos</Link>
               {profile.role === "admin" ? <Link href="/settings">Configuración</Link> : null}
             </nav>
-            <span className="text-ink/60">{profile.name}</span>
+            <Link
+              className="rounded-lg border border-ink/10 px-3 py-2 font-medium text-navy hover:bg-gray-50"
+              href="/profile"
+            >
+              {profile.name}
+            </Link>
             <form action={logout}>
               <button className="font-medium text-navy" type="submit">Salir</button>
             </form>

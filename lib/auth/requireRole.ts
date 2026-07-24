@@ -7,8 +7,11 @@ import { createClient } from "@/lib/supabase/server";
 import { roles, type Profile, type Role } from "./types";
 
 const profileSchema = z.object({
+  contact_email: z.string().email(),
   id: z.string().uuid(),
+  job_title: z.string(),
   name: z.string().min(1),
+  phone: z.string(),
   role: z.enum(roles),
   status: z.enum(["active", "inactive"]),
 });
@@ -24,7 +27,11 @@ export async function requireRole(allowedRoles: Role[]): Promise<Profile> {
   }
 
   const admin = createAdminClient();
-  const result = await admin.from("profiles").select("id,name,role,status").eq("id", userId).single();
+  const result = await admin
+    .from("profiles")
+    .select("id,name,contact_email,job_title,phone,role,status")
+    .eq("id", userId)
+    .single();
   const profile = profileSchema.safeParse(result.data);
 
   if (result.error || !profile.success || profile.data.status !== "active") {
@@ -35,5 +42,13 @@ export async function requireRole(allowedRoles: Role[]): Promise<Profile> {
     forbidden();
   }
 
-  return { ...profile.data, email: email.data };
+  return {
+    email: profile.data.contact_email || email.data,
+    id: profile.data.id,
+    jobTitle: profile.data.job_title,
+    name: profile.data.name,
+    phone: profile.data.phone,
+    role: profile.data.role,
+    status: profile.data.status,
+  };
 }
