@@ -6,8 +6,8 @@ centralizada → selección → preview con su identidad visual → export PDF.
 Hoy son **48 páginas maquetadas a mano cada mes**, dependiendo del equipo de diseño de Studio Nomade,
 sin una base de productos reutilizable entre meses.
 
-> **Estado: scaffold.** Todavía no hay código de aplicación. El plan está completo y los 8 hitos
-> tienen su prompt listo. El desarrollo arranca en M0.
+> **Estado: MVP completo, en calibración final para la demo.** El flujo de productos, imágenes,
+> armado de catálogo y exportación PDF está operativo.
 
 ---
 
@@ -165,4 +165,51 @@ assets mandan.
 
 ## Guion de demo
 
-Se escribe en M7.
+Duración objetivo: **5 minutos**. Antes de la reunión, ejecutar `npm run seed`, confirmar que
+`APP_URL` apunta al entorno que se va a mostrar y dejar abierto el catálogo de muestra.
+
+### Preparación
+
+- Ingresar con `SEED_COMMERCIAL_EMAIL` y `SEED_COMMERCIAL_PASSWORD` de `.env.local`. No mostrar ni
+  compartir el archivo durante la demo.
+- Usar el catálogo **Catálogo Oficial Todo Carnes · Julio 2026**, que el seed deja armado.
+- Abrir previamente un PDF ya exportado como respaldo.
+- Confirmar el provider de imágenes en `IMAGE_PROVIDER`: `openai` para generación real o `mock` para
+  una demo determinística sin depender de pago, cuota o conectividad externa.
+
+### Recorrido
+
+**0:00–0:40 — El problema.** En el dashboard, explicar que hoy el catálogo mensual se arma página a
+página y que la plataforma convierte ese trabajo repetido en una base comercial reutilizable.
+Señalar brevemente los pendientes reales y, como expansión futura, los módulos CRM claramente
+rotulados.
+
+**0:40–1:40 — Base de productos.** Entrar a **Productos**, filtrar por categoría y abrir “Pollo
+Entero Languiru sin Menudencias”. Mostrar que datos y variantes se editan por filas y que la ficha se
+actualiza en vivo.
+
+**1:40–2:35 — Imágenes.** Mostrar los cuatro slots, sus estados y una imagen aprobada. Si el provider
+es `openai`, generar solo una vista y explicar que la fuente mantiene la identidad del producto. Si
+la generación tarda más de 20 segundos, seguir con una imagen ya aprobada.
+
+**2:35–3:45 — Constructor.** Ir a **Catálogos**, abrir Julio 2026, plegar/desplegar categorías,
+reordenar un producto y abrir la previsualización. Destacar que portada, índice, separadores y
+numeración se construyen automáticamente.
+
+**3:45–4:40 — El momento PDF.** Exportar y abrir el archivo
+`AAMMDD_Catalogo Oficial Todo Carnes - Julio.pdf`. Mostrar que sale listo para enviar, en el orden
+elegido y con el formato físico del catálogo oficial.
+
+**4:40–5:00 — Cierre.** Volver al dashboard: la IA acelera la producción visual, pero el valor
+principal es una base ordenada y un catálogo publicable sin depender cada mes de maquetación manual.
+
+### Plan de contingencia
+
+- **La IA no responde:** usar una imagen previamente aprobada o cambiar a `IMAGE_PROVIDER=mock` y
+  reiniciar el servicio. El resto del flujo no depende de OpenAI.
+- **La exportación tarda:** esperar el estado “Generando PDF…” sin recargar. Si supera dos minutos,
+  abrir el PDF de respaldo y continuar.
+- **El entorno remoto no responde:** ejecutar localmente con `npm run dev`; el seed deja el mismo
+  catálogo preparado.
+- **Una imagen falta:** la ficha usa un placeholder seguro y el export continúa; el dashboard
+  conserva el pendiente para resolverlo después.

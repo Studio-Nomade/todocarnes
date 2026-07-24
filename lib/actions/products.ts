@@ -99,6 +99,7 @@ function parseProductRows(
   rows: unknown,
   categories: CategoryOption[],
   cuts: CutOption[],
+  mainImageByProduct = new Map<string, string>(),
 ): ProductRecord[] {
   const products = z.array(databaseProductSchema).parse(rows);
   const categoryById = new Map(categories.map((category) => [category.id, category]));
@@ -112,7 +113,12 @@ function parseProductRows(
       throw new Error(`El producto ${product.id} tiene una categoría o corte inválido.`);
     }
 
-    return { ...product, category, cut };
+    return {
+      ...product,
+      category,
+      cut,
+      mainImageUrl: mainImageByProduct.get(product.id) ?? null,
+    };
   });
 }
 
@@ -255,7 +261,33 @@ export async function listProducts(filters: unknown = {}): Promise<ProductListRe
 
   const categories = z.array(categorySchema).parse(categoryResult.data);
   const cuts = z.array(cutSchema).parse(cutResult.data);
-  const allProducts = parseProductRows(productResult.data, categories, cuts);
+  const productIds = z.array(databaseProductSchema).parse(productResult.data).map((product) => product.id);
+  const imageResult = productIds.length
+    ? await admin
+        .from("product_images")
+        .select("product_id,storage_path")
+        .in("product_id", productIds)
+        .eq("slot", "main")
+        .eq("status", "approved")
+    : { data: [], error: null };
+  if (imageResult.error) {
+    throw new Error("No se pudieron cargar las miniaturas de los productos.");
+  }
+  const imageRows = z.array(
+    z.object({ product_id: z.string().uuid(), storage_path: z.string().min(1) }),
+  ).parse(imageResult.data);
+  const mainImageByProduct = new Map(
+    imageRows.map((image) => [
+      image.product_id,
+      admin.storage.from("product-images").getPublicUrl(image.storage_path).data.publicUrl,
+    ]),
+  );
+  const allProducts = parseProductRows(
+    productResult.data,
+    categories,
+    cuts,
+    mainImageByProduct,
+  );
   const query = parsedFilters.q.toLocaleLowerCase("es");
   const products = allProducts.filter((product) => {
     const matchesQuery =

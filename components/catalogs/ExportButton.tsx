@@ -1,21 +1,18 @@
 "use client";
 
 import { useState } from "react";
-
-const statusLabels: Record<string, string> = {
-  draft: "Borrador",
-  exported: "Exportado",
-  ready: "Listo",
-};
+import { catalogPdfFilename } from "@/lib/catalogs/format";
 
 export function ExportButton({
   catalogId,
   disabled,
   label = "Exportar PDF",
+  month,
 }: {
   catalogId: string;
   disabled?: boolean;
   label?: string;
+  month: number;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -33,7 +30,7 @@ export function ExportButton({
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `catalogo-${catalogId}.pdf`;
+      anchor.download = catalogPdfFilename(month);
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
@@ -46,9 +43,9 @@ export function ExportButton({
   }
 
   return (
-    <span className="inline-flex flex-col items-end gap-1">
+    <span className="inline-flex w-full flex-col items-stretch gap-1 sm:w-auto sm:items-end">
       <button
-        className="rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-45"
+        className="w-full rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-45"
         disabled={busy || disabled}
         onClick={exportPdf}
         title={disabled ? "Agregá productos antes de exportar" : "Generar y descargar el PDF"}
@@ -60,5 +57,3 @@ export function ExportButton({
     </span>
   );
 }
-
-export { statusLabels };

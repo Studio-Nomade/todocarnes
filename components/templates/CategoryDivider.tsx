@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { catalogPeriod } from "@/lib/catalogs/format";
 import { CatalogPage } from "./CatalogPage";
 import { CategoryIcon } from "./parts/CategoryIcon";
@@ -14,8 +15,14 @@ type CategoryDividerProps = {
 export function CategoryDivider({ category, cuts, month, year, pageNumber, scale }: CategoryDividerProps) {
   return (
     <CatalogPage scale={scale}>
-      <div className="absolute inset-0 bg-navy" />
-      <div className="absolute -left-32 top-1/2 h-[640px] w-[640px] -translate-y-1/2 rounded-full bg-blue/10" />
+      <Image
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+        height={941}
+        priority
+        src="/brand/divider-bg.webp"
+        width={1672}
+      />
 
       <div className="absolute left-[120px] top-1/2 max-w-[560px] -translate-y-1/2">
         <div className="flex h-[180px] w-[180px] items-center justify-center rounded-[40px] bg-white/5 text-blue-mid">

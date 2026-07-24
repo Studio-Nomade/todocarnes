@@ -142,6 +142,21 @@ escondiendo el botón.
 39. Estados vacíos, loading y error en cada pantalla.
 40. Guion de demo de 5 min en `README.md`.
 
+### Agregado fuera del alcance original
+
+- **Envío de catálogo por email:** visor mock que prepara el correo y simula su envío sin contactar
+  al destinatario.
+- **Tendencia de precios:** gráfico mock por producto y campaña, rotulado como dato demostrativo.
+- **Perfil de usuario + firma:** edición de datos comerciales y firma automática persistida en
+  `profiles`; la migración ya está aplicada en el proyecto remoto.
+
+### Límites conocidos
+
+- **La tabla de variantes de la ficha aguanta hasta 8 filas.** La geometría es
+  `364 + 24 + 28·N + 132`, y el footer empieza en 760: con 9 variantes el bloque se desborda. El
+  máximo real del catálogo es Pollo Entero con 5. Si en fase 2 aparece un producto con más, hay que
+  paginar la ficha o comprimir las filas de Marca/Procedencia — no basta con achicar la fuente.
+
 ---
 
 ## Criterios de aceptación del MVP

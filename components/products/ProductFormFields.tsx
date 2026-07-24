@@ -2,6 +2,7 @@
 
 import type { CategoryOption, CutOption } from "@/lib/products/types";
 import type { ProductInput } from "@/lib/validators/product";
+import { ProductVariantEditor } from "./ProductVariantEditor";
 
 type ProductFormFieldsProps = {
   categories: CategoryOption[];
@@ -66,13 +67,11 @@ export function ProductFormFields({
       </label>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Código" name="code" onChange={onChange} product={product} textarea />
         <Field label="Marca" name="brand" onChange={onChange} product={product} />
         <Field label="Procedencia" name="origin" onChange={onChange} product={product} />
-        <Field label="Peso caja" name="box_weight" onChange={onChange} product={product} textarea />
-        <Field label="Formato" name="format" onChange={onChange} product={product} textarea />
-        <Field label="Unidades" name="units" onChange={onChange} product={product} textarea />
       </div>
+
+      <ProductVariantEditor onChange={onChange} product={product} />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="text-sm font-medium text-navy">
@@ -97,25 +96,23 @@ export function ProductFormFields({
   );
 }
 
-type FieldName = "box_weight" | "brand" | "code" | "format" | "origin" | "units";
+type FieldName = "brand" | "origin";
 
 function Field({
   label,
   name,
   onChange,
   product,
-  textarea = false,
 }: {
   label: string;
   name: FieldName;
   onChange: ProductFormFieldsProps["onChange"];
   product: ProductInput;
-  textarea?: boolean;
 }) {
   const props = {
-    className: `${inputClass} ${textarea ? "min-h-[42px] resize-y" : ""}`,
+    className: inputClass,
     maxLength: 240,
-    onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
       onChange(name, event.target.value),
     value: product[name],
   };
@@ -123,7 +120,7 @@ function Field({
   return (
     <label className="text-sm font-medium text-navy">
       {label}
-      {textarea ? <textarea {...props} rows={1} /> : <input {...props} />}
+      <input {...props} />
     </label>
   );
 }

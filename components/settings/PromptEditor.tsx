@@ -47,7 +47,7 @@ export function PromptEditor({ setting }: { setting: PromptSetting }) {
         spellCheck
         value={value}
       />
-      <div className="mt-2 flex items-center justify-between gap-3 text-xs text-ink/45">
+      <div className="mt-2 flex flex-col gap-1 text-xs text-ink/45 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <span>Variables permitidas: producto, corte y categoría.</span>
         <span>{value.length.toLocaleString("es-CL")} caracteres</span>
       </div>

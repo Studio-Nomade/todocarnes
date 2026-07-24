@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import tsx --test lib/pdf/page-order.test.ts lib/images/errors.test.ts",
+    "test": "node --import tsx --test lib/pdf/page-order.test.ts lib/images/errors.test.ts lib/catalogs/format.test.ts lib/validators/product.test.ts lib/products/variants.test.ts",
     "seed": "tsx --env-file=.env.local data/seed/index.ts"
   },
   "dependencies": {

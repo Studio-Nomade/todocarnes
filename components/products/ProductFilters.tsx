@@ -12,7 +12,7 @@ type ProductFiltersProps = ProductOptions & {
 };
 
 const controlClass =
-  "h-10 rounded-lg border border-ink/15 bg-white px-3 text-sm text-ink outline-none focus:border-blue focus:ring-2 focus:ring-blue/20";
+  "h-10 min-w-0 w-full rounded-lg border border-ink/15 bg-white px-3 text-sm text-ink outline-none focus:border-blue focus:ring-2 focus:ring-blue/20";
 
 export function ProductFilters({
   brands,
@@ -49,9 +49,9 @@ export function ProductFilters({
         <option value="active">Activo</option>
         <option value="inactive">Inactivo</option>
       </select>
-      <div className="flex items-center gap-2">
-        <button className="h-10 rounded-lg bg-navy px-4 text-sm font-semibold text-white hover:bg-navy/90" type="submit">Filtrar</button>
-        <Link className="text-xs font-medium text-ink/55 hover:text-navy" href="/products">Limpiar</Link>
+      <div className="flex items-center gap-3">
+        <button className="h-10 flex-1 rounded-lg bg-navy px-4 text-sm font-semibold text-white hover:bg-navy/90 lg:flex-none" type="submit">Filtrar</button>
+        <Link className="px-2 text-xs font-medium text-ink/55 hover:text-navy" href="/products">Limpiar</Link>
       </div>
     </form>
   );

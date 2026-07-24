@@ -72,16 +72,16 @@ const products = [
     units: null,
   },
   {
-    box_weight: "14,4 / 15,2 / 16 / 16,8 / 17,6 KGS",
+    box_weight: "14,4 KGS\n15,2 KGS\n16 KGS\n16,8 KGS\n17,6 KGS",
     brand: "Languiru",
     category_slug: "pollo",
     code: "CF-1600\nCF-1601\nCF-1602\nCF-1603\nCF-1604",
     cut_slug: "pollo-entero",
     eyebrow: "Pollo Entero",
-    format: null,
+    format: "Pollo 1,8 kilos\nPollo 1,9 kilos\nPollo 2,0 kilos\nPollo 2,1 kilos\nPollo 2,2 kilos",
     origin: "Brasil",
     title: "Pollo Entero Languiru sin Menudencias",
-    units: "8 unidades x caja",
+    units: "8 unidades x caja\n8 unidades x caja\n8 unidades x caja\n8 unidades x caja\n8 unidades x caja",
   },
   {
     box_weight: "15 KG",
@@ -345,17 +345,64 @@ async function runSeed() {
   });
   const productResult = await supabase
     .from("products")
-    .upsert(productRows, { onConflict: "code" });
+    .upsert(productRows, { onConflict: "code" })
+    .select("id,code");
   assertNoError(productResult.error, "No se pudieron guardar los productos");
+  if (!productResult.data) {
+    throw new Error("Supabase no devolvió los productos guardados.");
+  }
+
+  const existingCatalog = await supabase
+    .from("catalogs")
+    .select("id")
+    .eq("title", "Catálogo Oficial Todo Carnes")
+    .eq("month", 7)
+    .eq("year", 2026)
+    .maybeSingle();
+  assertNoError(existingCatalog.error, "No se pudo buscar el catálogo de muestra");
+  const catalogResult = existingCatalog.data
+    ? await supabase
+        .from("catalogs")
+        .update({ status: "ready", updated_at: new Date().toISOString() })
+        .eq("id", existingCatalog.data.id)
+        .select("id")
+        .single()
+    : await supabase
+        .from("catalogs")
+        .insert({
+          created_by: adminId,
+          month: 7,
+          status: "ready",
+          title: "Catálogo Oficial Todo Carnes",
+          year: 2026,
+        })
+        .select("id")
+        .single();
+  assertNoError(catalogResult.error, "No se pudo guardar el catálogo de muestra");
+  if (!catalogResult.data) {
+    throw new Error("Supabase no devolvió el catálogo de muestra.");
+  }
+
+  const catalogItems = productResult.data.map((product, sortOrder) => ({
+    catalog_id: catalogResult.data.id,
+    product_id: product.id,
+    sort_order: sortOrder,
+  }));
+  const catalogItemsResult = await supabase
+    .from("catalog_items")
+    .upsert(catalogItems, { onConflict: "catalog_id,product_id" });
+  assertNoError(catalogItemsResult.error, "No se pudo armar el catálogo de muestra");
 
   const categoryCount = await supabase.from("categories").select("*", { count: "exact", head: true });
   const cutCount = await supabase.from("cuts").select("*", { count: "exact", head: true });
   const productCount = await supabase.from("products").select("*", { count: "exact", head: true });
+  const catalogCount = await supabase.from("catalogs").select("*", { count: "exact", head: true });
   assertNoError(categoryCount.error, "No se pudieron contar las categorías");
   assertNoError(cutCount.error, "No se pudieron contar los cortes");
   assertNoError(productCount.error, "No se pudieron contar los productos");
+  assertNoError(catalogCount.error, "No se pudieron contar los catálogos");
   console.log(
-    `Seed completado: ${categoryCount.count} categorías, ${cutCount.count} cortes, ${productCount.count} productos.`,
+    `Seed completado: ${categoryCount.count} categorías, ${cutCount.count} cortes, ${productCount.count} productos y ${catalogCount.count} catálogos.`,
   );
 }
 

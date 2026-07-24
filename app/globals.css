@@ -45,3 +45,15 @@
 body {
   font-family: "Montserrat", sans-serif;
 }
+
+@media screen {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}

@@ -2,6 +2,7 @@ import { ProductPageTemplate } from "@/components/templates/ProductPageTemplate"
 import type { CategoryOption, CutOption } from "@/lib/products/types";
 import type { ProductImageRecord } from "@/lib/images/types";
 import type { ProductInput } from "@/lib/validators/product";
+import { ResponsiveCatalogFrame } from "@/components/templates/ResponsiveCatalogFrame";
 
 type ProductLivePreviewProps = {
   categories: CategoryOption[];
@@ -30,32 +31,30 @@ export function ProductLivePreview({ categories, cuts, images, product }: Produc
         </div>
         <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-navy">En vivo</span>
       </div>
-      <div className="overflow-hidden rounded-xl border border-ink/10 bg-white shadow-sm">
-        <div className="h-[340px] w-[605px] origin-top-left">
-          <ProductPageTemplate
-            product={{
-              boxWeight: product.box_weight,
-              brand: product.brand,
-              category,
-              code: product.code,
-              cut,
-              cuts: categoryCuts,
-              eyebrow: product.eyebrow,
-              format: product.format,
-              mainImage: approvedUrl("main"),
-              origin: product.origin,
-              secondaryImages: [
-                approvedUrl("secondary_1"),
-                approvedUrl("secondary_2"),
-                approvedUrl("secondary_3"),
-              ],
-              title: product.title,
-              units: product.units,
-            }}
-            scale={0.42}
-          />
-        </div>
-      </div>
+      <ResponsiveCatalogFrame maxScale={0.42}>
+        <ProductPageTemplate
+          product={{
+            boxWeight: product.box_weight,
+            brand: product.brand,
+            category,
+            code: product.code,
+            cut,
+            cuts: categoryCuts,
+            eyebrow: product.eyebrow,
+            format: product.format,
+            mainImage: approvedUrl("main"),
+            origin: product.origin,
+            secondaryImages: [
+              approvedUrl("secondary_1"),
+              approvedUrl("secondary_2"),
+              approvedUrl("secondary_3"),
+            ],
+            title: product.title,
+            units: product.units,
+          }}
+          scale={1}
+        />
+      </ResponsiveCatalogFrame>
       <p className="mt-3 text-xs leading-5 text-ink/50">Las vistas aprobadas aparecen automáticamente en esta ficha.</p>
     </aside>
   );

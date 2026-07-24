@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { chromium, type Browser } from "playwright";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { catalogPdfFilename } from "@/lib/catalogs/format";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -45,11 +46,14 @@ export async function POST(_request: Request, { params }: ExportContext) {
   const { id } = await params;
   const admin = createAdminClient();
 
-  const itemsCount = await admin
-    .from("catalog_items")
-    .select("*", { count: "exact", head: true })
-    .eq("catalog_id", id);
-  if (itemsCount.error) {
+  const [catalogResult, itemsCount] = await Promise.all([
+    admin.from("catalogs").select("month").eq("id", id).maybeSingle(),
+    admin
+      .from("catalog_items")
+      .select("*", { count: "exact", head: true })
+      .eq("catalog_id", id),
+  ]);
+  if (catalogResult.error || itemsCount.error || !catalogResult.data) {
     return Response.json({ error: "No se pudo leer el catálogo." }, { status: 500 });
   }
   if ((itemsCount.count ?? 0) === 0) {
@@ -75,6 +79,7 @@ export async function POST(_request: Request, { params }: ExportContext) {
       width: "20in",
     });
     const body = Uint8Array.from(pdf);
+    const filename = catalogPdfFilename(catalogResult.data.month);
 
     // Persistir el PDF y registrar la exportación.
     const storagePath = `${id}/${randomUUID()}.pdf`;
@@ -88,7 +93,7 @@ export async function POST(_request: Request, { params }: ExportContext) {
 
     return new Response(body, {
       headers: {
-        "Content-Disposition": `attachment; filename="catalogo-${id}.pdf"`,
+        "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`,
         "Content-Type": "application/pdf",
       },
     });

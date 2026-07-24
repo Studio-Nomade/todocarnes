@@ -57,6 +57,9 @@ backend) y se implementa en una tarde.
 -- profiles   (NO una tabla "users" paralela: auth.users es la fuente de identidad)
 id uuid PK references auth.users(id) on delete cascade
 name text not null
+contact_email text not null
+job_title text not null default ''
+phone text not null default ''
 role text not null check (role in ('admin','commercial'))
 status text not null default 'active' check (status in ('active','inactive'))
 created_at, updated_at timestamptz default now()

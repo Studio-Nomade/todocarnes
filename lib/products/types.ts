@@ -21,6 +21,7 @@ export type ProductRecord = ProductInput & {
   created_at: string;
   cut: CutOption;
   id: string;
+  mainImageUrl: string | null;
   status: ProductStatus;
   updated_at: string;
 };

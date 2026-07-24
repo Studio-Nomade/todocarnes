@@ -24,13 +24,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   return (
     <section>
-      <div className="mb-7 flex items-end justify-between gap-6">
+      <div className="mb-7 flex flex-col items-start gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue">Base comercial</p>
           <h1 className="mt-2 text-3xl font-semibold text-navy">Productos</h1>
           <p className="mt-2 text-sm text-ink/60">{result.products.length} producto{result.products.length === 1 ? "" : "s"} en esta vista</p>
         </div>
-        <Link className="rounded-lg bg-navy px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-navy/90" href="/products/new">Nuevo producto</Link>
+        <Link className="w-full rounded-lg bg-navy px-5 py-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-navy/90 sm:w-auto" href="/products/new">Nuevo producto</Link>
       </div>
       <ProductFilters brands={result.brands} categories={result.categories} cuts={result.cuts} values={values} />
       <div className="mt-5">

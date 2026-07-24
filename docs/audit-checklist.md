@@ -49,6 +49,9 @@ git log -p | grep -iE "sk-[a-zA-Z0-9]{20}|eyJhbGciOi"
       mirando el navegador — es exactamente donde falla
 - [ ] `pdfinfo salida.pdf` → **`Page size: 1440 x 810 pts`**, la misma línea que el catálogo real.
       Sin páginas en blanco ni cortes
+- [ ] **Ninguna página del PDF sale en blanco.** Verificar con
+      `pdftoppm -png -r 50 salida.pdf /tmp/pg && ls -l /tmp/pg*.png`; ninguna página debe quedar
+      cerca de 2,5 KB
 - [ ] Paleta = tokens de Tailwind. Cero hex sueltos en el JSX
 - [ ] Título largo (60+ caracteres) hace wrap sin desbordar
 - [ ] Campo vacío o null → `N/A` (lo que usa el catálogo real). Nunca `undefined`, nunca caja rota

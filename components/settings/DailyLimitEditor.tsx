@@ -29,7 +29,7 @@ export function DailyLimitEditor({ initialLimit }: { initialLimit: number }) {
       <p className="mt-2 text-sm leading-6 text-ink/60">
         Cuenta cada intento registrado durante el día, sin importar su resultado.
       </p>
-      <div className="mt-4 flex max-w-sm items-end gap-3">
+      <div className="mt-4 flex max-w-sm flex-col items-stretch gap-3 sm:flex-row sm:items-end">
         <label className="flex-1 text-sm font-medium text-ink">
           Generaciones por día
           <input

@@ -14,12 +14,11 @@ export default async function CatalogPreviewPage({ params }: PreviewPageProps) {
   await requireRole(["admin", "commercial"]);
   const { id } = await params;
 
-  const catalog = await getCatalog(id);
+  const [catalog, products] = await Promise.all([getCatalog(id), getCatalogProducts(id)]);
   if (!catalog) {
     notFound();
   }
 
-  const products = await getCatalogProducts(id);
   const pages = buildPages(products);
   const meta = { month: catalog.month, title: catalog.title, year: catalog.year };
 
@@ -28,12 +27,12 @@ export default async function CatalogPreviewPage({ params }: PreviewPageProps) {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <Link className="text-sm font-medium text-blue hover:underline" href={`/catalogs/${id}`}>← Volver al constructor</Link>
-          <h1 className="mt-2 text-3xl font-semibold text-navy">{catalog.title}</h1>
+          <h1 className="mt-2 break-words text-2xl font-semibold text-navy sm:text-3xl">{catalog.title}</h1>
           <p className="mt-1 text-sm text-ink/60">{catalogPeriod(catalog.month, catalog.year)} · {pages.length} páginas</p>
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-6 rounded-xl bg-gray-100 p-8">
+      <div className="flex w-full flex-col items-center gap-4 rounded-xl bg-gray-100 p-2 sm:gap-6 sm:p-8">
         <CatalogPages framed meta={meta} pages={pages} scale={0.6} />
       </div>
     </section>
