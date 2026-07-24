@@ -12,7 +12,7 @@ type ExportContext = {
 };
 
 // Identidad del usuario para created_by + protección del endpoint. A diferencia
-// de /print (que consume Playwright con token), acá sí hay cookie de sesión.
+// de /print (que consume Playwright con token), aquí sí hay cookie de sesión.
 async function authorize(): Promise<string | null> {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
@@ -57,7 +57,7 @@ export async function POST(_request: Request, { params }: ExportContext) {
     return Response.json({ error: "No se pudo leer el catálogo." }, { status: 500 });
   }
   if ((itemsCount.count ?? 0) === 0) {
-    return Response.json({ error: "Agregá productos antes de exportar." }, { status: 400 });
+    return Response.json({ error: "Agrega productos antes de exportar." }, { status: 400 });
   }
 
   const printUrl = new URL(`/print/${id}`, appUrl);

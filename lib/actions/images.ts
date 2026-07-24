@@ -119,7 +119,7 @@ async function generationContext(productId: string) {
     throw new Error("El producto no tiene categoría o corte válido.");
   }
   if (sourceResult.error || !source.success) {
-    throw new Error("Subí una imagen fuente antes de generar.");
+    throw new Error("Sube una imagen fuente antes de generar.");
   }
 
   return {
@@ -135,7 +135,7 @@ export async function uploadSourceImage(
   const profile = await requireRole([...roles]);
   const parsed = uploadSchema.safeParse({ file: imageFile(formData), productId });
   if (!parsed.success) {
-    return { error: "Seleccioná una imagen JPG, PNG o WebP.", success: false };
+    return { error: "Selecciona una imagen JPG, PNG o WebP.", success: false };
   }
 
   try {

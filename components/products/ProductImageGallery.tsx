@@ -24,7 +24,7 @@ export function ProductImageGallery({
       <div className="mb-6">
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue">Imágenes de catálogo</p>
         <h2 className="mt-2 text-2xl font-semibold text-navy">Galería de vistas</h2>
-        <p className="mt-2 text-sm text-ink/60">Generá, reemplazá y aprobá cada vista de forma independiente.</p>
+        <p className="mt-2 text-sm text-ink/60">Genera, reemplaza y aprueba cada vista de forma independiente.</p>
       </div>
       <SourceImagePanel image={source} productId={productId} />
       <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">

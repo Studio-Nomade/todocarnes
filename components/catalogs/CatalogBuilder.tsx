@@ -144,7 +144,7 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
         {items.length === 0 ? (
           <div className="rounded-xl border border-dashed border-ink/20 bg-white px-6 py-16 text-center">
             <p className="font-medium text-navy">Este catálogo está vacío.</p>
-            <p className="mt-2 text-sm text-ink/55">Agregá productos activos desde el panel de la derecha.</p>
+            <p className="mt-2 text-sm text-ink/55">Agrega productos activos desde el panel de la derecha.</p>
           </div>
         ) : (
           grouped.map((group) => (

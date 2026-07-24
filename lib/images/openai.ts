@@ -36,7 +36,7 @@ export class OpenAIImageProvider implements ImageProvider {
   async generate({ prompt, sourceImage }: Parameters<ImageProvider["generate"]>[0]) {
     if (!sourceImage) {
       throw new ImageGenerationError(
-        "Subí una imagen fuente antes de generar.",
+        "Sube una imagen fuente antes de generar.",
         "OpenAIImageProvider recibió sourceImage=null.",
       );
     }

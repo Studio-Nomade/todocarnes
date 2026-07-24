@@ -19,7 +19,7 @@ export default async function DashboardPage() {
           <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue">Panel principal</p>
           <h1 className="mt-2 text-2xl font-semibold text-navy sm:text-3xl">Creador de catálogo</h1>
           <p className="mt-3 max-w-2xl leading-7 text-ink/70">
-            Gestioná la base comercial, completá las imágenes y publicá el próximo catálogo.
+            Gestiona la base comercial, completa las imágenes y publica el próximo catálogo.
           </p>
         </div>
         <div className="grid w-full grid-cols-2 gap-3 sm:w-auto">
@@ -59,7 +59,7 @@ export default async function DashboardPage() {
             </ul>
           ) : (
             <div className="mt-5 rounded-lg border border-dashed border-ink/20 px-5 py-8 text-center text-sm text-ink/60">
-              Todavía no hay generaciones. Abrí un producto para crear la primera.
+              Todavía no hay generaciones. Abre un producto para crear la primera.
             </div>
           )}
         </div>

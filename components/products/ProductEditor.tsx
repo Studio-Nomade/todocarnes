@@ -43,7 +43,7 @@ export function ProductEditor({
     setError("");
     const parsed = productSchema.safeParse(product);
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Revisá los campos obligatorios.");
+      setError(parsed.error.issues[0]?.message ?? "Revisa los campos obligatorios.");
       return;
     }
 

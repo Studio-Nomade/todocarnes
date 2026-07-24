@@ -48,7 +48,7 @@ export function ExportButton({
         className="w-full rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-45"
         disabled={busy || disabled}
         onClick={exportPdf}
-        title={disabled ? "Agregá productos antes de exportar" : "Generar y descargar el PDF"}
+        title={disabled ? "Agrega productos antes de exportar" : "Generar y descargar el PDF"}
         type="button"
       >
         {busy ? "Generando PDF…" : label}

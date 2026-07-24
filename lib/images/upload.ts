@@ -30,7 +30,7 @@ function detectImageMime(buffer: Buffer): string | null {
 
 export async function validateAndConvertImage(file: File): Promise<Buffer> {
   if (!allowedMimeTypes.has(file.type)) {
-    throw new Error("Usá una imagen JPG, PNG o WebP.");
+    throw new Error("Usa una imagen JPG, PNG o WebP.");
   }
   if (file.size === 0) {
     throw new Error("La imagen está vacía.");

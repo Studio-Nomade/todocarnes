@@ -66,7 +66,7 @@ export function ProductVariantEditor({ onChange, product }: ProductVariantEditor
         <div>
           <legend className="text-sm font-semibold text-navy">Variantes comerciales</legend>
           <p className="mt-1 text-xs leading-5 text-ink/55">
-            Usá una fila por combinación de código, formato, peso y unidades.
+            Usa una fila por combinación de código, formato, peso y unidades.
           </p>
         </div>
         <button

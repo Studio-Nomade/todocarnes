@@ -29,7 +29,7 @@ export default async function CatalogsPage() {
       {catalogs.length === 0 ? (
         <div className="rounded-xl border border-dashed border-ink/20 bg-white px-6 py-16 text-center">
           <p className="font-medium text-navy">Todavía no hay catálogos.</p>
-          <p className="mt-2 text-sm text-ink/55">Creá el primero con el formulario de arriba.</p>
+          <p className="mt-2 text-sm text-ink/55">Crea el primero con el formulario de arriba.</p>
         </div>
       ) : (
         <div className="rounded-xl border border-ink/10 bg-white shadow-sm">

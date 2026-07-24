@@ -15,7 +15,7 @@ export async function createCatalog(input: unknown): Promise<CatalogMutationResu
   const profile = await requireRole([...roles]);
   const parsed = catalogSchema.safeParse(input);
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Revisá los datos.", success: false };
+    return { error: parsed.error.issues[0]?.message ?? "Revisa los datos.", success: false };
   }
 
   const admin = createAdminClient();

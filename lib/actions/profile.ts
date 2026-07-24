@@ -6,10 +6,10 @@ import { requireRole } from "@/lib/auth/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const profileInputSchema = z.object({
-  email: z.string().trim().email("Ingresá un correo válido.").max(254),
-  jobTitle: z.string().trim().min(2, "Ingresá el cargo.").max(100),
-  name: z.string().trim().min(2, "Ingresá el nombre.").max(100),
-  phone: z.string().trim().min(8, "Ingresá un teléfono válido.").max(30),
+  email: z.string().trim().email("Ingresa un correo válido.").max(254),
+  jobTitle: z.string().trim().min(2, "Ingresa el cargo.").max(100),
+  name: z.string().trim().min(2, "Ingresa el nombre.").max(100),
+  phone: z.string().trim().min(8, "Ingresa un teléfono válido.").max(30),
 });
 
 export type ProfileInput = z.infer<typeof profileInputSchema>;
@@ -24,7 +24,7 @@ export async function updateProfile(input: unknown): Promise<ProfileMutationResu
 
   if (!parsed.success) {
     return {
-      error: parsed.error.issues[0]?.message ?? "Revisá la información del perfil.",
+      error: parsed.error.issues[0]?.message ?? "Revisa la información del perfil.",
       success: false,
     };
   }
