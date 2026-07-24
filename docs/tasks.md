@@ -13,8 +13,8 @@ El detalle ejecutable de cada uno vive en `prompts/milestones/`.
 | **M1** — Plantilla + PDF | `feature/m1-template-pdf` | ✅ Mergeado | [m1-template-pdf.md](../prompts/milestones/m1-template-pdf.md) |
 | **M2** — DB + Auth | `feature/m2-db-auth` | ✅ Mergeado | [m2-db-auth.md](../prompts/milestones/m2-db-auth.md) |
 | **M3** — Productos | `feature/m3-products` | ✅ Mergeado | [m3-products.md](../prompts/milestones/m3-products.md) |
-| **M4** — Imágenes | `feature/m4-images` | 🟨 En curso | [m4-images.md](../prompts/milestones/m4-images.md) |
-| **M5** — Constructor | `feature/m5-builder` | ⬜ Pendiente | [m5-builder.md](../prompts/milestones/m5-builder.md) |
+| **M4** — Imágenes | `feature/m4-images` | ✅ Mergeado | [m4-images.md](../prompts/milestones/m4-images.md) |
+| **M5** — Constructor | `feature/m5-builder` | 🟨 En curso (Claude dev) | [m5-builder.md](../prompts/milestones/m5-builder.md) |
 | **M6** — IA real | `feature/m6-ai` | ⬜ Pendiente | [m6-ai.md](../prompts/milestones/m6-ai.md) |
 | **M7** — Polish | `feature/m7-polish` | ⬜ Pendiente | [m7-polish.md](../prompts/milestones/m7-polish.md) |
 
