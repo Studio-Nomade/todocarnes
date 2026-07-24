@@ -25,6 +25,7 @@ export type ProductPageData = {
 };
 
 type ProductPageTemplateProps = {
+  eagerImages?: boolean;
   product: ProductPageData;
   scale?: number;
   period?: string;
@@ -40,7 +41,13 @@ const fields = [
   ["units", "Unidades", "units"],
 ] as const;
 
-export function ProductPageTemplate({ product, scale, period, pageNumber }: ProductPageTemplateProps) {
+export function ProductPageTemplate({
+  eagerImages = true,
+  product,
+  scale,
+  period,
+  pageNumber,
+}: ProductPageTemplateProps) {
   const titleLength = product.title.length;
   const titleSize =
     titleLength > 70
@@ -64,14 +71,14 @@ export function ProductPageTemplate({ product, scale, period, pageNumber }: Prod
     <CatalogPage scale={scale}>
       <CatalogHeader activeCategory={product.category} activeCut={product.cut} cuts={product.cuts} />
       <div className="absolute left-0 top-[155px] h-[605px] w-[469px] bg-gray-50" />
-      <Image alt={product.title} className="absolute left-[469px] top-[155px] h-[425px] w-[971px] object-cover" height={700} priority src={product.mainImage} width={1200} />
+      <Image alt={product.title} className="absolute left-[469px] top-[155px] h-[425px] w-[971px] object-cover" height={700} priority={eagerImages} src={product.mainImage} width={1200} />
       {product.secondaryImages.map((src, index) => (
         <Image
           alt={`Vista secundaria ${index + 1} de ${product.title}`}
           className="absolute top-[591px] h-[169px] w-[272px] object-cover"
           height={700}
           key={`${src}-${index}`}
-          priority
+          priority={eagerImages}
           src={src}
           style={{ left: [510, 802, 1094][index] }}
           width={1200}

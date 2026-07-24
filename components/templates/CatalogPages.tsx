@@ -31,6 +31,7 @@ function renderPage(page: CatalogPageSpec, meta: CatalogMeta, period: string, sc
     case "product":
       return (
         <ProductPageTemplate
+          eagerImages={!scale}
           pageNumber={page.pageNumber}
           period={period}
           product={{

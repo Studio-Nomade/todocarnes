@@ -14,12 +14,11 @@ export default async function CatalogPreviewPage({ params }: PreviewPageProps) {
   await requireRole(["admin", "commercial"]);
   const { id } = await params;
 
-  const catalog = await getCatalog(id);
+  const [catalog, products] = await Promise.all([getCatalog(id), getCatalogProducts(id)]);
   if (!catalog) {
     notFound();
   }
 
-  const products = await getCatalogProducts(id);
   const pages = buildPages(products);
   const meta = { month: catalog.month, title: catalog.title, year: catalog.year };
 
