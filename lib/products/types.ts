@@ -1,4 +1,5 @@
 import type { ProductInput, ProductStatus } from "@/lib/validators/product";
+import type { ProductImageRecord } from "@/lib/images/types";
 
 export type CategoryOption = {
   id: string;
@@ -32,6 +33,10 @@ export type ProductOptions = {
 
 export type ProductListResult = ProductOptions & {
   products: ProductRecord[];
+};
+
+export type ProductDetail = ProductRecord & {
+  images: ProductImageRecord[];
 };
 
 export type ProductMutationResult =

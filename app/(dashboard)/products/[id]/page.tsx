@@ -4,6 +4,8 @@ import { ProductEditor } from "@/components/products/ProductEditor";
 import { getProduct, listProducts } from "@/lib/actions/products";
 import type { ProductInput } from "@/lib/validators/product";
 
+export const maxDuration = 120;
+
 type ProductPageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ saved?: string }>;
@@ -50,6 +52,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
         brands={options.brands}
         categories={options.categories}
         cuts={options.cuts}
+        images={product.images}
         initialProduct={initialProduct}
         productId={product.id}
       />

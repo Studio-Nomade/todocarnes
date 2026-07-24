@@ -1,18 +1,22 @@
 import { ProductPageTemplate } from "@/components/templates/ProductPageTemplate";
 import type { CategoryOption, CutOption } from "@/lib/products/types";
+import type { ProductImageRecord } from "@/lib/images/types";
 import type { ProductInput } from "@/lib/validators/product";
 
 type ProductLivePreviewProps = {
   categories: CategoryOption[];
   cuts: CutOption[];
+  images: ProductImageRecord[];
   product: ProductInput;
 };
 
 const placeholder = "/placeholders/product-placeholder.svg";
 
-export function ProductLivePreview({ categories, cuts, product }: ProductLivePreviewProps) {
+export function ProductLivePreview({ categories, cuts, images, product }: ProductLivePreviewProps) {
   const category = categories.find((item) => item.id === product.category_id)?.name ?? "Cerdo";
   const cut = cuts.find((item) => item.id === product.cut_id)?.name ?? "";
+  const approvedUrl = (slot: ProductImageRecord["slot"]) =>
+    images.find((image) => image.slot === slot && image.status === "approved")?.url ?? placeholder;
 
   return (
     <aside className="lg:sticky lg:top-6 lg:self-start">
@@ -34,9 +38,13 @@ export function ProductLivePreview({ categories, cuts, product }: ProductLivePre
               cut,
               eyebrow: product.eyebrow,
               format: product.format,
-              mainImage: placeholder,
+              mainImage: approvedUrl("main"),
               origin: product.origin,
-              secondaryImages: [placeholder, placeholder, placeholder],
+              secondaryImages: [
+                approvedUrl("secondary_1"),
+                approvedUrl("secondary_2"),
+                approvedUrl("secondary_3"),
+              ],
               title: product.title,
               units: product.units,
             }}
@@ -44,9 +52,7 @@ export function ProductLivePreview({ categories, cuts, product }: ProductLivePre
           />
         </div>
       </div>
-      <p className="mt-3 text-xs leading-5 text-ink/50">
-        Las imágenes son temporales. La carga y generación se habilitan en el próximo hito.
-      </p>
+      <p className="mt-3 text-xs leading-5 text-ink/50">Las vistas aprobadas aparecen automáticamente en esta ficha.</p>
     </aside>
   );
 }
