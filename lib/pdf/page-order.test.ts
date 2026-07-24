@@ -74,16 +74,17 @@ test("categorías se ordenan por categorySortOrder", () => {
   );
 });
 
-test("dentro de una categoría, ordena por cutSortOrder y luego itemSortOrder", () => {
+test("dentro de una categoría, ordena por itemSortOrder (el orden del usuario, no el corte)", () => {
   const pages = buildPages([
-    product({ id: "3", cut: "Panceta", cutSortOrder: 5, itemSortOrder: 0, title: "panceta" }),
-    product({ id: "2", cut: "Costillar", cutSortOrder: 0, itemSortOrder: 1, title: "costillar-2" }),
-    product({ id: "1", cut: "Costillar", cutSortOrder: 0, itemSortOrder: 0, title: "costillar-1" }),
+    product({ id: "3", cut: "Panceta", cutSortOrder: 5, itemSortOrder: 2, title: "tercero" }),
+    product({ id: "2", cut: "Costillar", cutSortOrder: 0, itemSortOrder: 1, title: "segundo" }),
+    product({ id: "1", cut: "Panceta", cutSortOrder: 5, itemSortOrder: 0, title: "primero" }),
   ]);
   const titles = pages
     .filter((p) => p.kind === "product")
     .map((p) => (p.kind === "product" ? p.product.title : ""));
-  assert.deepEqual(titles, ["costillar-1", "costillar-2", "panceta"]);
+  // Panceta (item 0) va antes que Costillar (item 1) aunque su corte tenga sort_order mayor.
+  assert.deepEqual(titles, ["primero", "segundo", "tercero"]);
 });
 
 test("reordenar (cambiar itemSortOrder) cambia el orden de las fichas", () => {

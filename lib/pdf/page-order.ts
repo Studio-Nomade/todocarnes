@@ -49,8 +49,12 @@ function distinctCuts(products: CatalogProduct[]): string[] {
  *   2. Índice (derivado de los productos seleccionados)
  *   3. Por cada categoría con ≥1 producto, en categorySortOrder:
  *        a. Separador (lista los cortes presentes de esa categoría)
- *        b. Fichas, ordenadas por cutSortOrder y luego itemSortOrder
+ *        b. Fichas, en el orden elegido por el usuario (itemSortOrder)
  *   4. Cierre
+ *
+ * Dentro de una categoría el orden lo da itemSortOrder, no el corte: así el
+ * reordenar del constructor (subir/bajar) se refleja siempre en el PDF. El
+ * corte agrupa visualmente vía el separador y la sub-nav, no el orden.
  * El número de página se asigna en este recorrido.
  */
 export function buildPages(products: CatalogProduct[]): CatalogPageSpec[] {
@@ -83,9 +87,7 @@ export function buildPages(products: CatalogProduct[]): CatalogPageSpec[] {
     const categoryCuts = distinctCuts(group);
     specs.push({ kind: "divider", category, cuts: categoryCuts });
 
-    const orderedProducts = [...group].sort(
-      (a, b) => a.cutSortOrder - b.cutSortOrder || a.itemSortOrder - b.itemSortOrder,
-    );
+    const orderedProducts = [...group].sort((a, b) => a.itemSortOrder - b.itemSortOrder);
     for (const product of orderedProducts) {
       specs.push({ kind: "product", product, categoryCuts });
     }
