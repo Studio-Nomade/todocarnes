@@ -47,7 +47,7 @@ export function ProductVariantTable(values: ProductVariantTableProps) {
         >
           {columns.map(([key]) => (
             <div
-              className="flex min-w-0 items-center overflow-hidden text-ellipsis whitespace-nowrap border-r border-ink/15 px-1.5 font-medium uppercase leading-none last:border-r-0"
+              className="flex min-w-0 items-center overflow-hidden border-r border-ink/15 px-1.5 font-medium uppercase leading-[1.1] last:border-r-0"
               key={key}
             >
               {split(values[key])[rowIndex]?.trim() || "N/A"}

@@ -150,6 +150,13 @@ escondiendo el botón.
 - **Perfil de usuario + firma:** edición de datos comerciales y firma automática persistida en
   `profiles`; la migración ya está aplicada en el proyecto remoto.
 
+### Límites conocidos
+
+- **La tabla de variantes de la ficha aguanta hasta 8 filas.** La geometría es
+  `364 + 24 + 28·N + 132`, y el footer empieza en 760: con 9 variantes el bloque se desborda. El
+  máximo real del catálogo es Pollo Entero con 5. Si en fase 2 aparece un producto con más, hay que
+  paginar la ficha o comprimir las filas de Marca/Procedencia — no basta con achicar la fuente.
+
 ---
 
 ## Criterios de aceptación del MVP
