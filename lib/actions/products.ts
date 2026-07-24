@@ -6,10 +6,12 @@ import { requireRole } from "@/lib/auth/requireRole";
 import type {
   CategoryOption,
   CutOption,
+  ProductDetail,
   ProductListResult,
   ProductMutationResult,
   ProductRecord,
 } from "@/lib/products/types";
+import { getProductImages } from "@/lib/images/data";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   productFiltersSchema,
@@ -275,7 +277,7 @@ export async function listProducts(filters: unknown = {}): Promise<ProductListRe
   return { brands, categories, cuts, products };
 }
 
-export async function getProduct(id: unknown): Promise<ProductRecord | null> {
+export async function getProduct(id: unknown): Promise<ProductDetail | null> {
   await requireRole([...roles]);
   const parsedId = productIdSchema.parse(id);
   const admin = createAdminClient();
@@ -294,5 +296,10 @@ export async function getProduct(id: unknown): Promise<ProductRecord | null> {
 
   const categories = z.array(categorySchema).parse(categoryResult.data);
   const cuts = z.array(cutSchema).parse(cutResult.data);
-  return parseProductRows([productResult.data], categories, cuts)[0] ?? null;
+  const product = parseProductRows([productResult.data], categories, cuts)[0];
+  if (!product) {
+    return null;
+  }
+
+  return { ...product, images: await getProductImages(product.id) };
 }

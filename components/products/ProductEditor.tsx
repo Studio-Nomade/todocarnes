@@ -5,18 +5,22 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { createProduct, updateProduct } from "@/lib/actions/products";
 import type { ProductOptions } from "@/lib/products/types";
+import type { ProductImageRecord } from "@/lib/images/types";
 import { productSchema, type ProductInput } from "@/lib/validators/product";
 import { ProductFormFields } from "./ProductFormFields";
 import { ProductLivePreview } from "./ProductLivePreview";
+import { ProductImageGallery } from "./ProductImageGallery";
 
 type ProductEditorProps = ProductOptions & {
   initialProduct: ProductInput;
+  images?: ProductImageRecord[];
   productId?: string;
 };
 
 export function ProductEditor({
   categories,
   cuts,
+  images = [],
   initialProduct,
   productId,
 }: ProductEditorProps) {
@@ -57,8 +61,9 @@ export function ProductEditor({
   }
 
   return (
-    <div className="grid items-start gap-8 xl:grid-cols-[minmax(420px,1fr)_605px]">
-      <form className="rounded-xl border border-ink/10 bg-white p-6 shadow-sm" onSubmit={handleSubmit}>
+    <div>
+      <div className="grid items-start gap-8 xl:grid-cols-[minmax(420px,1fr)_605px]">
+        <form className="rounded-xl border border-ink/10 bg-white p-6 shadow-sm" onSubmit={handleSubmit}>
         <ProductFormFields categories={categories} cuts={cuts} onChange={updateField} product={product} />
         {error ? (
           <p className="mt-5 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">{error}</p>
@@ -69,8 +74,10 @@ export function ProductEditor({
             {isPending ? "Guardando…" : productId ? "Guardar cambios" : "Crear producto"}
           </button>
         </div>
-      </form>
-      <ProductLivePreview categories={categories} cuts={cuts} product={product} />
+        </form>
+        <ProductLivePreview categories={categories} cuts={cuts} images={images} product={product} />
+      </div>
+      {productId ? <ProductImageGallery images={images} productId={productId} /> : null}
     </div>
   );
 }

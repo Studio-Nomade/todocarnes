@@ -295,6 +295,8 @@ async function runSeed() {
   ];
   const settingsResult = await supabase.from("settings").upsert(settings, { onConflict: "key" });
   assertNoError(settingsResult.error, "No se pudieron guardar los settings");
+  const oldPromptResult = await supabase.from("settings").delete().eq("key", "image_prompt_base");
+  assertNoError(oldPromptResult.error, "No se pudo eliminar el prompt base anterior");
 
   const adminId = await ensureUser(supabase, auth, {
     email: env.SEED_ADMIN_EMAIL,
