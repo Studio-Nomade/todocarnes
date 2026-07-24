@@ -97,6 +97,17 @@ Las tres usan `CatalogPage` de M1. **No lo reimplementes.**
 
 Referencia visual: el PDF de julio en `-context/`. Fidelidad al nivel de M1.
 
+### Arreglá el `CutsNav` de la ficha — viene roto de M1
+
+`components/templates/parts/CutsNav.tsx` tiene los 6 cortes de Cerdo **hardcodeados**. Hoy, una ficha
+de Vacuno muestra el submenú de cortes de Cerdo (se ve en el preview de M3 y en el PDF). Como M5 arma
+las páginas por categoría y ya tenés los cortes de cada una, es el momento de corregirlo:
+
+- `CutsNav` recibe la **lista de cortes de la categoría del producto** (los presentes en el catálogo,
+  o los de esa categoría) y resalta el activo. No más lista fija.
+- Es un cambio de firma de un componente de plantilla compartido: `ProductPageTemplate` tiene que
+  pasarle esa lista. Verificá que la ficha de M1 (y su preview en M3) sigan andando después.
+
 ### Assets
 
 Faltan (ver `docs/assets.md` §Assets que faltan): íconos de categoría, gráficos de fondo de portada y
