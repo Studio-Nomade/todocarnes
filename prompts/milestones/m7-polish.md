@@ -1,162 +1,276 @@
 # M7 — Polish para la demo
 
+> **El último hito.** No agrega arquitectura nueva: cierra bugs, calibra lo visual, y suma la capa de
+> presentación que convierte el MVP en algo que se muestra sin vergüenza en una reunión. Es grande —
+> ~20 ítems — así que está ordenado por prioridad: **primero los bugs (bloquean la demo), después
+> calibración, después features de presentación.**
+
 ## Rol
 
-Sos el dev implementador del "Creador de Catálogo Digital Todo Carnes", una herramienta interna que
-reemplaza la maquetación manual del catálogo comercial mensual. Claude es el tech lead y audita tu
-trabajo antes de cada PR.
+Sos el dev implementador del "Creador de Catálogo Digital Todo Carnes". Claude es el tech lead y
+audita tu trabajo antes del PR.
 
 ## Antes de empezar
 
 1. Leé `prompts/codex-dev.md` — reglas permanentes.
-2. Leé `docs/tasks.md` §Criterios de aceptación del MVP. **Ese es el objetivo de este hito.**
-3. Conseguí el PDF de julio (`-context/`) para la calibración final.
+2. Leé `docs/tasks.md` §Criterios de aceptación y `docs/assets.md` (geometría, paleta, **los assets
+   nuevos**).
+3. Conseguí el PDF de julio (`-context/`) para calibrar, y mirá `-context/elementos/` (fondos + logos
+   de Studio Nomade).
 4. `git checkout develop && git pull && git checkout -b feature/m7-polish`
 
 ## Objetivo
 
-Que un comercial de Todo Carnes que nunca vio la herramienta complete el flujo entero sin ayuda, en
-el deploy público, y que el PDF que salga se pueda poner al lado del catálogo de julio sin que
-incomode.
-
-Este hito no agrega features. Cierra las grietas.
-
-## Alcance
-
-- Dashboard con sus métricas
-- Calibración visual final contra el catálogo real
-- Estados vacíos, loading y error en **todas** las pantallas
-- Datos reales de muestra
-- Guion de demo en el README
+Que un comercial de Todo Carnes que nunca vio la herramienta complete el flujo entero sin ayuda, que
+el PDF exportado se pueda poner al lado del catálogo de julio sin que incomode, y que la plataforma
+muestre el potencial de Studio Nomade más allá del catálogo.
 
 ## Fuera de alcance
 
-- **Features nuevas.** Ninguna. Si aparece una idea buena, va a `docs/tasks.md` como fase 2
-- Refactors grandes. Si algo está feo pero funciona y no se ve, se queda
-- Optimización de performance sin un problema medido
-- Tests más allá de `page-order`
-- Animaciones y microinteracciones que no arreglen nada
+- Arquitectura nueva o cambios de esquema **salvo lo que este prompt pida explícitamente** (el editor
+  de variantes usa los campos existentes, no una tabla nueva — ver G).
+- Features que no estén acá. Si aparece una idea, va a `docs/tasks.md` como fase 2.
+- Refactors grandes sin bug detrás.
+- La marca de agua de Studio Nomade **no va en el PDF del catálogo** (ver H).
 
-## Especificación
+---
 
-### Dashboard
+## A. Bugs — arreglalos primero, bloquean la demo
 
-De `docs/handoff.md` §13.2:
+Cada uno viene con el diagnóstico. Arreglá la causa, no el síntoma.
 
-- Catálogo activo o último
-- Cantidad de productos activos
-- **Productos sin imágenes aprobadas** — la métrica más útil: es la lista de tareas del comercial
-- Últimas generaciones IA
-- Botón "Crear nuevo catálogo"
-- Botón "Crear producto"
+**A1 — La raíz `/` da 404.** No hay `app/page.tsx` (se borró en M1). *Ya está resuelto por Claude* con
+un redirect `/ → /dashboard` (el middleware manda a `/login` si no hay sesión). Verificá que el
+archivo esté y funcione; si no, recrealo.
 
-Números reales, calculados. Nada hardcodeado — en la demo alguien va a crear un producto y mirar si
-el número sube.
+**A2 — Los filtros de `/products` tiran error.** El form es GET y manda params vacíos
+(`category=&cut=&status=`). `productFiltersSchema` valida `category`/`cut` como `uuid` y `status` como
+enum, pero `""` no es `undefined`, así que `.optional()` no aplica y el `parse` explota. **Fix:**
+preprocesá los strings vacíos a `undefined` antes de validar (en el schema, con `z.preprocess` o un
+`.transform`, o normalizando en la page antes de `listProducts`). Probá: filtrar por categoría, por
+estado, y limpiar — ninguno debe romper.
 
-### Calibración visual
+**A3 — La miniatura del listado siempre muestra el placeholder.** `ProductTable` tiene
+`src="/placeholders/product-placeholder.svg"` hardcodeado (Panceta Campo Frío y CF-1608 tienen
+imágenes cargadas y aun así salen sin imagen). **Fix:** `listProducts` tiene que traer la URL de la
+imagen aprobada del slot `main` de cada producto (mismo patrón que `getCatalogProducts` en
+`lib/catalogs/data.ts`), y `ProductTable` la usa, cayendo al placeholder solo si no hay.
 
-Poné el PDF exportado y el de julio lado a lado, al mismo zoom. Los dos miden 1440×810 pt, así que
-comparan directo:
+**A4 — El cuadro "Agregar productos" del constructor rompe la página** (se desborda / se corta a la
+derecha). Es un problema de layout de `CatalogBuilder` (el grid `lg:grid-cols-[1fr_320px]` + el
+`aside sticky`). Ajustalo para que el panel no se salga ni corte el contenido, en desktop y en
+pantallas angostas.
 
-```bash
-pdftoppm -png -r 72 -f 5 -l 5 "-context/.../Todo Carnes - Catálogo v01-light.pdf" julio_p5
-pdftoppm -png -r 72 export.pdf export
+**A5 — El footer de la ficha superpone la línea sobre el mes.** En `ProductFooter`, la línea
+(`left-[278px]`) se monta sobre el texto "CATÁLOGO JULIO 2026" (`left-[31px]`, tracking ancho). **Fix:**
+que la línea arranque después del texto (medí el ancho real del texto con su tracking, o usá un
+layout flex en vez de posiciones absolutas fijas).
+
+---
+
+## B. Calibración visual de la ficha y el PDF
+
+Referencia: el PDF de julio. Compará rasterizando (`pdftoppm`), no a ojo en pantalla.
+
+**B1 — Logo del header con recuadros.** `CatalogHeader` usa `todo-carnes.png` (el PNG viejo con
+recuadros visibles en el PDF). Reemplazalo por `logo_completo.png` — o, si no calza en el slot
+horizontal del header (321×67), usá solo el isotipo `isologo_completo.png` + el wordmark en texto.
+El objetivo: que el logo del header se vea limpio, sin cajas.
+
+**B2 — Título largo rompe la diapo.** Hoy `ProductPageTemplate` tiene un salto binario (>50 chars →
+24px, si no 40px). "Pechuga con Hueso Individual Languiru" se desborda sobre los campos. **Fix:**
+tamaño de fuente **graduado** según el largo del título (varios cortes, o un auto-fit), de modo que
+cualquier título quede dentro de su caja (`w-[380px]`, alto acotado) sin pisar el eyebrow ni los
+campos. Probá con títulos de 20, 40, 60 y 80 caracteres.
+
+**B3 — Valores en MAYÚSCULAS y vacío = `N/A`.** El catálogo real muestra los valores de campo en
+mayúsculas (`LITERA MEAT`, `ESPAÑA`, `18 KG APROX`) y usa `N/A` para vacío, no `—`. Aplicá
+`text-transform: uppercase` a los valores (el dato se guarda con su case natural) y cambiá el
+placeholder de vacío de `—` a `N/A` en `ProductFieldRow`. Actualizá también el ítem del
+`audit-checklist.md` si hace falta.
+
+**B4 — Posición del divisor.** En el catálogo real el divisor va **entre el título y los campos**;
+hoy está entre el eyebrow y el título. Movelo.
+
+**B5 — Fondos de portada y separador.** En `-context/elementos/` hay `Fondo 01.webp` (swirl a la
+derecha → portada) y `Fondo 02.webp` (swirl a la izquierda → separador de categoría), ambos 16:9
+navy. Copialos a `/public/brand/` con nombres sin espacios (ej. `cover-bg.webp`, `divider-bg.webp`) y
+usalos como fondo en `CatalogCover` y `CategoryDivider`, reemplazando los círculos provisorios.
+**Con `priority` (no lazy)** — regla de M5: ninguna imagen de `/print` es lazy.
+
+---
+
+## C. Constructor — tarjetas de categoría expansibles
+
+En `CatalogBuilder`, cada categoría es una tarjeta que se **expande/colapsa**. Colapsada muestra solo
+la cabecera: nombre de la categoría + cantidad de productos. Expandida muestra la lista con
+subir/bajar/quitar. Así, con muchos productos en una categoría, se puede ver solo el resumen. Estado
+local por tarjeta (no hace falta persistir).
+
+---
+
+## D. Estado de catálogos — etiquetas claras
+
+En `/catalogs`, la columna Estado no se entiende (`draft`/`ready`/`exported` con labels crudos).
+Relabelá a algo legible para el comercial:
+
+| status DB | Etiqueta |
+|---|---|
+| `draft` | Borrador |
+| `ready` | En revisión |
+| `exported` | Publicado |
+
+Aplicá el mismo mapeo en el badge del constructor y donde aparezca el estado. (Los valores de DB no
+cambian, solo las etiquetas visibles.)
+
+---
+
+## E. Nombre del PDF exportado
+
+Hoy el archivo baja como `catalogo-{uuid}.pdf`. Cambialo a:
+
+```
+AAMMDD_Catalogo Oficial Todo Carnes - {Mes}.pdf
 ```
 
-**Cuatro diferencias ya detectadas en M1**, contra la página 5 del catálogo real. Están en
-`docs/assets.md` §Diferencias conocidas. Arreglá las tres primeras:
+Ejemplo: `260724_Catalogo Oficial Todo Carnes - Julio.pdf` (AAMMDD = fecha de exportación; Mes = el
+mes del catálogo, en texto). Cambiá el `Content-Disposition` del route handler **y** el `download`
+del `ExportButton` (los dos deben coincidir). Ojo con los caracteres en el header HTTP: si el nombre
+con espacios da problemas, usá `filename*=UTF-8''...` correctamente.
 
-1. **Valores de campo en MAYÚSCULAS.** El real muestra `LITERA MEAT`, `ESPAÑA`, `18 KG APROX`.
-   Es estilo de plantilla, no del dato: el dato sigue guardándose `Brasil`, `Vacío`, y la ficha lo
-   transforma. No toques los datos ni el formulario.
-2. **Campo vacío = `N/A`**, no `—`. El real usa `N/A` en Unidades.
-3. **El divisor va entre el título y los campos.** Hoy está entre el eyebrow y el título.
-4. **El logo tiene recuadros.** Bloqueado hasta que llegue el vectorial — si no llega, reportálo,
-   no lo maquilles.
+---
 
-Después de esas, seguí buscando: tamaños de fuente, pesos, tracking, espaciados, colores.
+## F. Editor de variantes — el ítem más grande
 
-La pregunta de la auditoría no es "¿tiene los mismos elementos?" sino: **¿un diseñador de Studio
-Nomade firmaría esto?**
+Productos como "Pollo Entero" tienen **varios códigos, formatos, pesos y unidades** en una ficha (el
+catálogo real los muestra como una tabla: unidades | código | peso, una fila por variante). Hoy son 4
+textareas multilínea sueltas y desalineadas.
 
-Documentá lo que quedó distinto y por qué. Un desvío conocido y explicado es aceptable; uno que
-descubre el cliente en la reunión, no.
+**Sin cambiar el esquema.** Los campos `code`, `format`, `box_weight`, `units` siguen siendo texto
+multilínea; cada **línea N** de cada campo es la **variante N**. El trabajo es de UX + render:
 
-### Estados
+1. **Editor (`ProductFormFields`):** en vez de 4 textareas, un editor de **filas de variante**
+   repetibles. Cada fila tiene código / formato / peso caja / unidades. Un botón "Agregar variante"
+   suma una fila (y por lo tanto una línea a cada uno de los 4 campos); "Quitar" la elimina. Al
+   guardar, cada columna se serializa a su campo `\n`-joineado (fila 1 → línea 1 de cada campo).
+   Al cargar un producto existente, se hace el split inverso (líneas → filas). Un producto simple es
+   una sola fila.
+2. **Ficha (`ProductPageTemplate`):** cuando un producto tiene **más de una variante** (los campos
+   tienen `\n`), renderizá esos 4 campos como una **tabla alineada** (columnas unidades/código/peso),
+   como la página de Pollo Entero del catálogo real, no como 4 listas verticales separadas. Con una
+   sola variante, se mantiene el layout actual de filas.
 
-En cada pantalla, los tres:
+Es el ítem de mayor esfuerzo; si tenés que secuenciar, hacelo después de los bugs y la calibración.
+Si te traba, reportalo — no lo dejes a medias en silencio.
 
-- **Vacío** — sin productos, sin catálogos, sin imágenes. Con la acción que corresponde, no un
-  cartel triste. "Todavía no hay productos. Creá el primero." + botón
-- **Loading** — durante export (que tarda), generación IA (30-90s), y las listas
-- **Error** — mensaje humano y una salida. Nunca un stack trace, nunca una pantalla en blanco
+> Nota de arquitectura (Claude): esto es el caso "Pollo Entero" que en su momento diferimos a
+> `product_variants`. La solución de arriba (filas ↔ líneas, sin tabla nueva) es la de MVP y alcanza.
+> La tabla relacional queda como fase 2 si el cliente la pide en serio.
 
-Los estados vacíos son lo que más se nota en una demo y lo que menos se hace. Una app con pantallas
-en blanco parece rota aunque funcione.
+---
 
-### Datos de muestra
+## G. Login — logo centrado
 
-El seed tiene que dejar **un catálogo "Julio 2026" armado y exportable**. La demo no puede empezar
-con una pantalla vacía.
+En `/login`, el logo está alineado a la izquierda del card. Centralo respecto del cuadro de inicio.
 
-- Productos reales de las 4 categorías, con imágenes
-- El catálogo ya creado, con productos seleccionados y ordenados
-- Al menos un producto sin imágenes aprobadas, para que el dashboard muestre algo en esa métrica
+---
 
-Idempotente, como siempre.
+## H. Marca de agua de Studio Nomade
 
-### Guion de demo
+Footer **persistente en toda la plataforma** (todas las pantallas del dashboard), con algo como
+"Prototipo desarrollado por Studio Nomade · Todos los derechos reservados · Prohibida su reproducción"
++ el logo de Nomade. Ponelo en el layout del dashboard (`app/(dashboard)/layout.tsx`) para que
+aparezca en todas.
 
-En el `README.md`. 5 minutos, paso a paso, con lo que hay que decir en cada uno.
+Assets en `-context/elementos/`: `web@full.png` (logo área Web) y `Logotipo Nomade.png` (logotipo
+Nomade), 4500×4500. Copialos a `/public/brand/` con nombres sin espacios (ej. `nomade-web.png`,
+`nomade-logo.png`) y usá el que quede mejor en el footer (probablemente el logotipo Nomade en chico,
+en gris tenue).
 
-El arco: el problema (48 páginas a mano, cada mes, dependiendo del diseñador) → la base de productos
-→ el catálogo → el preview → **el PDF** → y la IA como cierre.
+**No pongas la marca de agua en el PDF del catálogo.** El PDF es el producto que se le vende a Todo
+Carnes (su catálogo); tiene que verse como pieza de ellos, limpia. La marca de Studio Nomade va en la
+plataforma (la herramienta), no en el entregable. *(Si el cliente después la quiere también en el
+PDF, se agrega como opción — pero no por default.)*
 
-**El PDF es el momento.** Todo lo anterior construye hacia ese click. La IA va al final: es el
-diferenciador, no el argumento.
+---
 
-Incluí: credenciales de demo, en qué orden abrir las pantallas, y qué hacer si algo falla en vivo.
+## I. Dashboard — mostrar el potencial (mock tipo CRM)
 
-### Barrido final
+Hoy el dashboard es un placeholder. Convertilo en una vitrina de lo que la plataforma puede ser,
+mezclando **métricas reales** y **tarjetas mock** claramente etiquetadas como potencial futuro:
 
-Recorré `docs/audit-checklist.md` entero. Es el momento de encontrar lo que se acumuló, no cuando
-Claude lo audite.
+**Reales (calculadas de la DB):**
+- Cantidad de productos activos.
+- Productos sin las 4 imágenes aprobadas (la lista de pendientes del comercial).
+- Cantidad de catálogos y cuántos exportados.
+- Últimas generaciones de imágenes.
+
+**Mock (números inventados, verosímiles):**
+- Tarjetas de "Productos por categoría" (Cerdo/Pollo/Vacuno/Trimming con números inventados).
+- "Catálogos generados" (histórico inventado).
+- Cuadros de mediciones tipo CRM (ventas por categoría, rotación, productos más pedidos, etc.),
+  **rotulados explícitamente** como "Funcionalidad adicional — se puede integrar a la intranet". La
+  idea es mostrarle a Todo Carnes que esto escala más allá del catálogo.
+
+Que se lea claro qué es dato real y qué es demostración de potencial (un rótulo, un estilo distinto,
+lo que sea honesto). CTAs "Crear producto" y "Crear catálogo".
+
+---
+
+## J. Lo que ya estaba en M7
+
+- **Estados vacíos, loading y error** en cada pantalla. Vacío = invitación a actuar, no un cartel
+  triste. Loading honesto en export (tarda) y generación. Error con salida, nunca un stack trace.
+- **Datos de muestra:** el seed deja un catálogo "Julio 2026" armado y exportable. La demo no empieza
+  en blanco.
+- **Guion de demo** de 5 min en el `README.md`: el problema → base de productos → catálogo → preview
+  → **el PDF** (el momento) → la IA como cierre. Con credenciales, orden de pantallas, y qué hacer si
+  algo falla en vivo.
+- **Barrido final:** recorré `docs/audit-checklist.md` entero.
+
+---
 
 ## Definición de terminado
 
-- [ ] `npm run build` y `tsc --noEmit` limpios. Cero `any`
-- [ ] **Alguien que no trabajó en esto completa el flujo entero sin ayuda, en el deploy público.**
-      Probalo con una persona real
-- [ ] El seed deja Julio 2026 armado y exportable
-- [ ] Ninguna pantalla queda en blanco: todas tienen vacío, loading y error
-- [ ] El dashboard muestra números reales
-- [ ] PDF exportado vs. PDF de julio, lado a lado — desvíos documentados
-- [ ] Guion de demo de 5 min en el README
-- [ ] `docs/audit-checklist.md` pasa entero
-- [ ] Flujo completo en Railway con una cuenta limpia, **sin tocar la consola**
+- [ ] `npm run build`, `tsc --noEmit`, `lint`, y `npm test` limpios. Cero `any`
+- [ ] **Bugs (A):** raíz no da 404; filtros de productos funcionan y limpian sin error; miniaturas
+      muestran la imagen real; "Agregar productos" no rompe el layout; la línea del footer no pisa el mes
+- [ ] **Ficha (B):** logo del header sin recuadros; título de 80 chars entra sin desbordar; valores
+      en mayúscula; vacío = N/A; divisor entre título y campos; portada y separador con los fondos nuevos
+- [ ] `pdfinfo` sigue dando `1440 x 810 pts` y `pdffonts` solo Montserrat, tras los cambios
+- [ ] **Constructor (C):** tarjetas de categoría expandibles/colapsables
+- [ ] **Estado (D):** etiquetas Borrador / En revisión / Publicado
+- [ ] **Export (E):** el archivo baja como `AAMMDD_Catalogo Oficial Todo Carnes - {Mes}.pdf`
+- [ ] **Variantes (F):** editor de filas repetibles; Pollo Entero se edita y se ve como tabla alineada
+- [ ] **Login (G):** logo centrado
+- [ ] **Watermark (H):** footer de Studio Nomade en toda la plataforma; **no** en el PDF
+- [ ] **Dashboard (I):** métricas reales + tarjetas mock rotuladas como potencial
+- [ ] Estados vacíos/loading/error en todas las pantallas
+- [ ] **Alguien que no trabajó en esto completa el flujo entero sin ayuda**, con cuenta limpia
+- [ ] Guion de demo en el README
 
 ## Trampas conocidas
 
-1. **Agregar features "chicas" que faltan.** Este hito cierra grietas. Toda idea nueva va a
-   `docs/tasks.md` como fase 2 — y eso es bueno: es la próxima venta.
-2. **Refactorizar porque "ahora hay tiempo".** No hay. Y un refactor tardío es cómo se rompe una demo
-   que ya funcionaba.
-3. **Calibrar contra el SVG en vez del PDF de julio.** El SVG es una hoja tipo; el PDF es lo que el
-   cliente ve todos los meses.
-4. **Estados vacíos con un cartel y nada más.** Un estado vacío es una invitación a actuar, no una
-   disculpa.
-5. **Guion de demo escrito como un manual.** Es un guion: qué se hace y qué se dice. Corto.
-6. **Probar el flujo con tu propia cuenta**, que ya tiene datos y sesión. Cuenta limpia, ventana de
-   incógnito.
-7. **Dejar el mock activo sin decirlo.** Si M6 no llegó, la demo corre con mock — perfecto, está
-   diseñado así. Pero que Sebastián lo sepa antes de la reunión, no durante.
+1. **Fondos del PDF en lazy** → export colgado (regla de M5). `priority` en todas las imágenes de
+   `/print`.
+2. **Uppercasing el dato en la DB** en vez de en el render. El dato se guarda natural; la mayúscula es
+   CSS. Si no, el formulario se lee horrible y M3 rompe.
+3. **Cambiar el esquema para las variantes.** No. Filas ↔ líneas de los campos existentes.
+4. **Romper la ficha de un producto simple** al agregar el modo tabla de variantes. Una sola variante
+   = layout actual.
+5. **Marca de agua en el PDF.** No va. El PDF es de Todo Carnes.
+6. **Tocar los valores de `status` en la DB** al relabelar. Solo cambian las etiquetas visibles.
+7. **El nombre de archivo con espacios/acentos** en el header HTTP sin encodear → nombre roto. Usá
+   `filename*=UTF-8''`.
+8. **Inventar métricas reales.** Las 4 "reales" del dashboard se calculan de la DB; solo las tarjetas
+   CRM son inventadas, y van rotuladas.
 
 ## Entrega
 
 Commiteá en `feature/m7-polish` con prefijo `m7:`. **No abras el PR.**
 
-Reportá: qué hiciste, comparación lado a lado PDF exportado vs. julio, la lista de desvíos visuales
-documentados, quién probó el flujo en frío y cómo le fue, qué provider queda activo, y qué te
-preocupa de cara a la reunión.
+Reportá: qué hiciste, comparación lado a lado PDF exportado vs. julio, captura del dashboard, quién
+probó el flujo en frío y cómo le fue, qué provider quedó activo, desviaciones, y qué te preocupa de
+cara a la reunión.
 
 Claude audita el diff local y autoriza el PR.

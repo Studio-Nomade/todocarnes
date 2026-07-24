@@ -168,8 +168,36 @@ Regla: **logo completo** (con texto) para el login; **isotipo** (sin texto) para
 
 **Pendiente — el header del catálogo todavía usa el logo viejo.** `CatalogHeader.tsx` (M1) referencia
 `todo-carnes.png`, el PNG de 321×67 **con recuadros** que se ve en el PDF exportado. Reemplazarlo por
-`logo_completo.png` (o una versión horizontal, si el cliente la entrega) es tarea de M7 — es merged M1
-y no se toca a mitad de otro hito. Es lo único que hoy delata que la ficha no es la original.
+`logo_completo.png` (o solo el isotipo + wordmark en texto) es tarea de M7.
+
+---
+
+## Fondos de portada y separador (M7)
+
+El cliente entregó el arte de fondo (ya no falta). En `-context/elementos/`, ambos 16:9 navy con el
+swirl de la marca:
+
+| Archivo origen | Va a | Uso |
+|---|---|---|
+| `Fondo 01.webp` | `/public/brand/cover-bg.webp` | Fondo de `CatalogCover` (swirl a la derecha, texto a la izquierda) |
+| `Fondo 02.webp` | `/public/brand/divider-bg.webp` | Fondo de `CategoryDivider` (swirl a la izquierda) |
+
+Reemplazan los círculos provisorios de M5. **Con `priority`, nunca lazy** (regla de M5 para `/print`).
+
+## Marca de agua Studio Nomade (M7)
+
+Logos de Studio Nomade en `-context/elementos/`, 4500×4500 PNG:
+
+| Archivo origen | Va a | Uso |
+|---|---|---|
+| `Logotipo Nomade.png` | `/public/brand/nomade-logo.png` | Logotipo Nomade — footer de marca de agua de la plataforma |
+| `web@full.png` | `/public/brand/nomade-web.png` | Logo del área Web — alternativa |
+
+Van en el **footer persistente de la plataforma** (layout del dashboard), no en el PDF del catálogo
+(el PDF es el producto de Todo Carnes, se mantiene limpio). Ver `m7-polish.md` §H.
+
+> `-context/` no se versiona: hay que **copiar** estos archivos a `/public/brand/` (que sí se
+> versiona) y commitearlos, con nombres sin espacios.
 
 ---
 
