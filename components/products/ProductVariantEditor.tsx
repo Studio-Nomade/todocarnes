@@ -1,8 +1,15 @@
 "use client";
 
+import { useState } from "react";
+import {
+  buildVariantRows,
+  emptyVariantRow,
+  serializeVariantRows,
+  variantInputBudget,
+  type VariantField,
+  type VariantRow,
+} from "@/lib/products/variants";
 import type { ProductInput } from "@/lib/validators/product";
-
-type VariantField = "box_weight" | "code" | "format" | "units";
 type ProductVariantEditorProps = {
   onChange: <Key extends keyof ProductInput>(key: Key, value: ProductInput[Key]) => void;
   product: ProductInput;
@@ -22,21 +29,19 @@ const columns = [
 const inputClass =
   "mt-1.5 w-full rounded-lg border border-ink/15 bg-white px-3 py-2.5 text-sm text-ink outline-none transition focus:border-blue focus:ring-2 focus:ring-blue/20";
 
-function lines(value: string): string[] {
-  return value.split("\n");
-}
-
 export function ProductVariantEditor({ onChange, product }: ProductVariantEditorProps) {
-  const rowCount = Math.max(1, ...columns.map(({ field }) => lines(product[field]).length));
-  const rows = Array.from({ length: rowCount }, (_, rowIndex) =>
-    Object.fromEntries(
-      columns.map(({ field }) => [field, lines(product[field])[rowIndex] ?? ""]),
-    ) as Record<VariantField, string>,
+  const [rows, setRows] = useState<VariantRow[]>(() => buildVariantRows(product));
+  const newRowIndex = rows.length;
+  const rowsWithEmpty = [...rows, emptyVariantRow()];
+  const canAdd = columns.some(
+    ({ field }) => variantInputBudget(rowsWithEmpty, newRowIndex, field) > 0,
   );
 
-  function save(nextRows: Array<Record<VariantField, string>>) {
+  function save(nextRows: VariantRow[]) {
+    setRows(nextRows);
+    const serialized = serializeVariantRows(nextRows);
     for (const { field } of columns) {
-      onChange(field, nextRows.map((row) => row[field]).join("\n"));
+      onChange(field, serialized[field]);
     }
   }
 
@@ -45,15 +50,14 @@ export function ProductVariantEditor({ onChange, product }: ProductVariantEditor
   }
 
   function add() {
-    save([
-      ...rows,
-      { box_weight: "", code: "", format: "", units: "" },
-    ]);
+    if (canAdd) {
+      save([...rows, emptyVariantRow()]);
+    }
   }
 
   function remove(rowIndex: number) {
     const nextRows = rows.filter((_, index) => index !== rowIndex);
-    save(nextRows.length ? nextRows : [{ box_weight: "", code: "", format: "", units: "" }]);
+    save(nextRows.length ? nextRows : [emptyVariantRow()]);
   }
 
   return (
@@ -66,8 +70,10 @@ export function ProductVariantEditor({ onChange, product }: ProductVariantEditor
           </p>
         </div>
         <button
-          className="rounded-lg border border-navy/20 bg-white px-3 py-2 text-xs font-semibold text-navy hover:bg-blue-50"
+          className="rounded-lg border border-navy/20 bg-white px-3 py-2 text-xs font-semibold text-navy hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={!canAdd}
           onClick={add}
+          title={canAdd ? "Agregar otra variante" : "Los campos alcanzaron su máximo de caracteres"}
           type="button"
         >
           + Agregar variante
@@ -97,7 +103,7 @@ export function ProductVariantEditor({ onChange, product }: ProductVariantEditor
                   {label}
                   <input
                     className={inputClass}
-                    maxLength={240}
+                    maxLength={variantInputBudget(rows, rowIndex, field)}
                     onChange={(event) => update(rowIndex, field, event.target.value)}
                     placeholder={placeholder}
                     value={row[field]}

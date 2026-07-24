@@ -142,6 +142,14 @@ escondiendo el botón.
 39. Estados vacíos, loading y error en cada pantalla.
 40. Guion de demo de 5 min en `README.md`.
 
+### Agregado fuera del alcance original
+
+- **Envío de catálogo por email:** visor mock que prepara el correo y simula su envío sin contactar
+  al destinatario.
+- **Tendencia de precios:** gráfico mock por producto y campaña, rotulado como dato demostrativo.
+- **Perfil de usuario + firma:** edición de datos comerciales y firma automática persistida en
+  `profiles`; la migración ya está aplicada en el proyecto remoto.
+
 ---
 
 ## Criterios de aceptación del MVP

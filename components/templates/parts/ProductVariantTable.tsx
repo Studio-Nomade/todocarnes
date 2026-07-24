@@ -24,13 +24,16 @@ export function hasMultipleVariants(values: ProductVariantTableProps): boolean {
 
 export function ProductVariantTable(values: ProductVariantTableProps) {
   const rowCount = Math.max(...columns.map(([key]) => split(values[key]).length));
+  const rowClass = rowCount > 5
+    ? "h-[28px] text-[8px]"
+    : "h-[32px] text-[9px]";
 
   return (
     <div className="mt-1 overflow-hidden border-y border-ink/20">
-      <div className="grid grid-cols-[1.2fr_1fr_0.9fr_1fr] bg-navy text-white">
+      <div className="grid h-[24px] grid-cols-[1.35fr_1.15fr_0.75fr_1.1fr] bg-navy text-white">
         {columns.map(([, label]) => (
           <div
-            className="border-r border-white/20 px-2 py-2 text-[10px] font-semibold uppercase leading-none last:border-r-0"
+            className="flex items-center border-r border-white/20 px-1.5 text-[9px] font-semibold uppercase leading-none last:border-r-0"
             key={label}
           >
             {label}
@@ -39,12 +42,12 @@ export function ProductVariantTable(values: ProductVariantTableProps) {
       </div>
       {Array.from({ length: rowCount }, (_, rowIndex) => (
         <div
-          className="grid min-h-[46px] grid-cols-[1.2fr_1fr_0.9fr_1fr] border-b border-ink/15 text-ink last:border-b-0"
+          className={`grid grid-cols-[1.35fr_1.15fr_0.75fr_1.1fr] border-b border-ink/15 text-ink last:border-b-0 ${rowClass}`}
           key={rowIndex}
         >
           {columns.map(([key]) => (
             <div
-              className="flex items-center border-r border-ink/15 px-2 py-1 text-[11px] font-medium uppercase leading-[1.15] last:border-r-0"
+              className="flex min-w-0 items-center overflow-hidden text-ellipsis whitespace-nowrap border-r border-ink/15 px-1.5 font-medium uppercase leading-none last:border-r-0"
               key={key}
             >
               {split(values[key])[rowIndex]?.trim() || "N/A"}

@@ -34,7 +34,7 @@ export default async function DashboardPage() {
           <Metric label="Productos activos" value={data.activeProducts} />
           <Metric label="Pendientes de 4 imágenes" value={data.missingImages} warning />
           <Metric label="Catálogos creados" value={data.catalogCount} />
-          <Metric detail={`${data.exportedCatalogs} publicados`} label="Catálogos publicados" value={data.exportedCatalogs} />
+          <Metric label="Catálogos publicados" value={data.exportedCatalogs} />
         </div>
       </div>
 
