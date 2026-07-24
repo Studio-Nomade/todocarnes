@@ -4,6 +4,8 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/requireRole";
+import { assertWithinDailyLimit } from "@/lib/images/daily-limit";
+import { ImageGenerationError } from "@/lib/images/errors";
 import { buildPrompt } from "@/lib/images/prompt-builder";
 import { getImageProvider } from "@/lib/images/provider";
 import { imageSlotSchema, type ProductImageSlot } from "@/lib/images/slots";
@@ -31,7 +33,6 @@ const generationProductSchema = z.object({
 const namedEntitySchema = z.object({ name: z.string().min(1) });
 const sourceImageSchema = z.object({ storage_path: z.string().min(1) });
 const idResultSchema = z.object({ id: z.string().uuid() });
-const limitSettingSchema = z.object({ value: z.number().int().positive() });
 
 function imageFile(formData: FormData): unknown {
   return formData.get("file");
@@ -127,24 +128,6 @@ async function generationContext(productId: string) {
   };
 }
 
-async function assertWithinDailyLimit(): Promise<void> {
-  const admin = createAdminClient();
-  const [settingResult, countResult] = await Promise.all([
-    admin.from("settings").select("value").eq("key", "generation_daily_limit").single(),
-    admin
-      .from("image_generation_jobs")
-      .select("*", { count: "exact", head: true })
-      .gte("created_at", new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString()),
-  ]);
-  const setting = limitSettingSchema.safeParse(settingResult.data);
-  if (settingResult.error || !setting.success || countResult.error) {
-    throw new Error("No se pudo validar el límite diario de generación.");
-  }
-  if ((countResult.count ?? 0) >= setting.data.value) {
-    throw new Error("Se alcanzó el límite diario de generación.");
-  }
-}
-
 export async function uploadSourceImage(
   productId: unknown,
   formData: FormData,
@@ -213,6 +196,7 @@ export async function generateProductImage(
 
   const admin = createAdminClient();
   let jobId: string | null = null;
+  let jobModel = "pending";
   try {
     await assertWithinDailyLimit();
     const context = await generationContext(parsed.data.productId);
@@ -245,6 +229,7 @@ export async function generateProductImage(
       slot: parsed.data.slot,
       sourceImage: Buffer.from(await source.data.arrayBuffer()),
     });
+    jobModel = generated.model;
     const imageId = await storeImage({
       buffer: generated.buffer,
       createdBy: profile.id,
@@ -264,11 +249,13 @@ export async function generateProductImage(
     revalidatePath(`/products/${parsed.data.productId}`);
     return { id: imageId, success: true };
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Error desconocido";
+    const message = error instanceof Error ? error.message : "No se pudo generar la imagen.";
     if (jobId) {
+      const logMessage = error instanceof ImageGenerationError ? error.logMessage : message;
+      const model = error instanceof ImageGenerationError ? error.model : jobModel;
       await admin
         .from("image_generation_jobs")
-        .update({ error_message: message, status: "failed" })
+        .update({ error_message: logMessage, model, status: "failed" })
         .eq("id", jobId);
     }
     return { error: message, success: false };

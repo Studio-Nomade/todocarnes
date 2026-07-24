@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 import { MockImageProvider } from "./mock";
+import { OpenAIImageProvider } from "./openai";
 import type { ImageSlot } from "./slots";
 
 export interface ImageProvider {
@@ -18,7 +19,7 @@ export function getImageProvider(): ImageProvider {
   const provider = providerSchema.parse(process.env.IMAGE_PROVIDER);
 
   if (provider === "openai") {
-    throw new Error("El provider de OpenAI se habilita en M6.");
+    return new OpenAIImageProvider();
   }
 
   return new MockImageProvider();
