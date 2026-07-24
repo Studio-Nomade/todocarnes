@@ -1,0 +1,41 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { CatalogPages } from "@/components/templates/CatalogPages";
+import { requireRole } from "@/lib/auth/requireRole";
+import { getCatalog, getCatalogProducts } from "@/lib/catalogs/data";
+import { catalogPeriod } from "@/lib/catalogs/format";
+import { buildPages } from "@/lib/pdf/page-order";
+
+export const dynamic = "force-dynamic";
+
+type PreviewPageProps = { params: Promise<{ id: string }> };
+
+export default async function CatalogPreviewPage({ params }: PreviewPageProps) {
+  await requireRole(["admin", "commercial"]);
+  const { id } = await params;
+
+  const catalog = await getCatalog(id);
+  if (!catalog) {
+    notFound();
+  }
+
+  const products = await getCatalogProducts(id);
+  const pages = buildPages(products);
+  const meta = { month: catalog.month, title: catalog.title, year: catalog.year };
+
+  return (
+    <section className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <Link className="text-sm font-medium text-blue hover:underline" href={`/catalogs/${id}`}>← Volver al constructor</Link>
+          <h1 className="mt-2 text-3xl font-semibold text-navy">{catalog.title}</h1>
+          <p className="mt-1 text-sm text-ink/60">{catalogPeriod(catalog.month, catalog.year)} · {pages.length} páginas</p>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center gap-6 rounded-xl bg-gray-100 p-8">
+        <CatalogPages framed meta={meta} pages={pages} scale={0.6} />
+      </div>
+    </section>
+  );
+}

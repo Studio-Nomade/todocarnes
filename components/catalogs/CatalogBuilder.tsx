@@ -1,0 +1,230 @@
+"use client";
+
+import { useMemo, useState, useTransition } from "react";
+import {
+  addProductToCatalog,
+  removeProductFromCatalog,
+  reorderCatalogItems,
+} from "@/lib/actions/catalogs";
+import type { CatalogItemProduct } from "@/lib/catalogs/types";
+
+const CATEGORY_ORDER = ["Cerdo", "Pollo", "Vacuno", "Trimming"] as const;
+
+type AvailableProduct = { id: string; title: string; category: string; cut: string };
+
+type CatalogBuilderProps = {
+  catalogId: string;
+  initialItems: CatalogItemProduct[];
+  available: AvailableProduct[];
+};
+
+// Ordena los ítems por categoría (orden fijo) y, dentro de cada una, por itemSortOrder.
+function sortItems(items: CatalogItemProduct[]): CatalogItemProduct[] {
+  return [...items].sort((a, b) => {
+    const categoryDelta = CATEGORY_ORDER.indexOf(a.category as (typeof CATEGORY_ORDER)[number]) -
+      CATEGORY_ORDER.indexOf(b.category as (typeof CATEGORY_ORDER)[number]);
+    return categoryDelta || a.itemSortOrder - b.itemSortOrder;
+  });
+}
+
+export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBuilderProps) {
+  const [items, setItems] = useState(() => sortItems(initialItems));
+  const [pool, setPool] = useState(available);
+  const [toAdd, setToAdd] = useState("");
+  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  const grouped = useMemo(() => {
+    return CATEGORY_ORDER.map((category) => ({
+      category,
+      products: items.filter((item) => item.category === category),
+    })).filter((group) => group.products.length > 0);
+  }, [items]);
+
+  const categoriesPresent = grouped.length;
+  const pageCount = items.length === 0 ? 0 : 3 + categoriesPresent + items.length;
+
+  // Persiste el orden global (categorías en orden fijo, ítems en el orden visible).
+  function persistOrder(next: CatalogItemProduct[]) {
+    const ordered = sortItems(next).map((item) => item.productId);
+    startTransition(async () => {
+      const result = await reorderCatalogItems({ catalogId, orderedProductIds: ordered });
+      if (!result.success) {
+        setError(result.error);
+      }
+    });
+  }
+
+  function move(productId: string, direction: -1 | 1) {
+    setError("");
+    setItems((current) => {
+      const sorted = sortItems(current);
+      const category = sorted.find((item) => item.productId === productId)?.category;
+      const inCategory = sorted.filter((item) => item.category === category);
+      const index = inCategory.findIndex((item) => item.productId === productId);
+      const target = index + direction;
+      if (target < 0 || target >= inCategory.length) {
+        return current;
+      }
+      [inCategory[index], inCategory[target]] = [inCategory[target], inCategory[index]];
+      // reasignar itemSortOrder dentro de la categoría según el nuevo orden visible
+      const reindexed = inCategory.map((item, position) => ({ ...item, itemSortOrder: position }));
+      const next = sorted.map((item) => reindexed.find((r) => r.productId === item.productId) ?? item);
+      persistOrder(next);
+      return next;
+    });
+  }
+
+  function addProduct() {
+    if (!toAdd) {
+      return;
+    }
+    const product = pool.find((item) => item.id === toAdd);
+    if (!product) {
+      return;
+    }
+    setError("");
+    startTransition(async () => {
+      const result = await addProductToCatalog(catalogId, product.id);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      const maxOrder = items
+        .filter((item) => item.category === product.category)
+        .reduce((max, item) => Math.max(max, item.itemSortOrder), -1);
+      setItems((current) => [
+        ...current,
+        {
+          category: product.category as CatalogItemProduct["category"],
+          cut: product.cut,
+          hasApprovedImages: false,
+          itemSortOrder: maxOrder + 1,
+          productId: product.id,
+          status: "active",
+          title: product.title,
+        },
+      ]);
+      setPool((current) => current.filter((item) => item.id !== product.id));
+      setToAdd("");
+    });
+  }
+
+  function removeProduct(productId: string) {
+    setError("");
+    const removed = items.find((item) => item.productId === productId);
+    startTransition(async () => {
+      const result = await removeProductFromCatalog(catalogId, productId);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      setItems((current) => current.filter((item) => item.productId !== productId));
+      if (removed) {
+        setPool((current) => [
+          ...current,
+          { category: removed.category, cut: removed.cut, id: removed.productId, title: removed.title },
+        ]);
+      }
+    });
+  }
+
+  const poolByCategory = CATEGORY_ORDER.map((category) => ({
+    category,
+    products: pool.filter((item) => item.category === category),
+  })).filter((group) => group.products.length > 0);
+
+  return (
+    <div className="grid items-start gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-ink/10 bg-white px-5 py-4 text-sm shadow-sm">
+          <span className="font-semibold text-navy">{items.length} productos</span>
+          <span className="text-ink/40">·</span>
+          <span className="text-ink/65">{categoriesPresent} categorías</span>
+          <span className="text-ink/40">·</span>
+          <span className="text-ink/65">~{pageCount} páginas</span>
+          {isPending ? <span className="ml-auto text-xs text-blue">Guardando…</span> : null}
+        </div>
+
+        {error ? <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">{error}</p> : null}
+
+        {items.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-ink/20 bg-white px-6 py-16 text-center">
+            <p className="font-medium text-navy">Este catálogo está vacío.</p>
+            <p className="mt-2 text-sm text-ink/55">Agregá productos activos desde el panel de la derecha.</p>
+          </div>
+        ) : (
+          grouped.map((group) => (
+            <div className="rounded-xl border border-ink/10 bg-white shadow-sm" key={group.category}>
+              <div className="border-b border-ink/10 px-5 py-3">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-navy">{group.category}</h2>
+              </div>
+              <ul className="divide-y divide-ink/10">
+                {group.products.map((item, index) => (
+                  <li className="flex items-center gap-4 px-5 py-3" key={item.productId}>
+                    <div className="flex flex-col">
+                      <button
+                        aria-label="Subir"
+                        className="text-ink/40 hover:text-navy disabled:opacity-25"
+                        disabled={index === 0 || isPending}
+                        onClick={() => move(item.productId, -1)}
+                        type="button"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        aria-label="Bajar"
+                        className="text-ink/40 hover:text-navy disabled:opacity-25"
+                        disabled={index === group.products.length - 1 || isPending}
+                        onClick={() => move(item.productId, 1)}
+                        type="button"
+                      >
+                        ▼
+                      </button>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-navy">{item.title}</p>
+                      <p className="text-xs text-ink/55">{item.cut}</p>
+                    </div>
+                    {item.hasApprovedImages ? (
+                      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">4 imágenes</span>
+                    ) : (
+                      <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">sin imágenes</span>
+                    )}
+                    <button className="text-xs font-semibold text-red-700 hover:underline disabled:opacity-50" disabled={isPending} onClick={() => removeProduct(item.productId)} type="button">
+                      Quitar
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        )}
+      </div>
+
+      <aside className="rounded-xl border border-ink/10 bg-white p-5 shadow-sm lg:sticky lg:top-6">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-navy">Agregar productos</h2>
+        <p className="mt-1 text-xs text-ink/55">Solo productos activos.</p>
+        {pool.length === 0 ? (
+          <p className="mt-4 text-sm text-ink/50">No quedan productos activos por agregar.</p>
+        ) : (
+          <div className="mt-4 flex gap-2">
+            <select className="h-10 flex-1 rounded-lg border border-ink/15 bg-white px-2 text-sm outline-none focus:border-blue" onChange={(event) => setToAdd(event.target.value)} value={toAdd}>
+              <option value="">Elegir producto…</option>
+              {poolByCategory.map((group) => (
+                <optgroup key={group.category} label={group.category}>
+                  {group.products.map((product) => (
+                    <option key={product.id} value={product.id}>{product.title}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+            <button className="h-10 rounded-lg bg-navy px-4 text-sm font-semibold text-white hover:bg-navy/90 disabled:opacity-50" disabled={!toAdd || isPending} onClick={addProduct} type="button">
+              Agregar
+            </button>
+          </div>
+        )}
+      </aside>
+    </div>
+  );
+}

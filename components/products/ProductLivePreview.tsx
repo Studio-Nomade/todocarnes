@@ -15,6 +15,9 @@ const placeholder = "/placeholders/product-placeholder.svg";
 export function ProductLivePreview({ categories, cuts, images, product }: ProductLivePreviewProps) {
   const category = categories.find((item) => item.id === product.category_id)?.name ?? "Cerdo";
   const cut = cuts.find((item) => item.id === product.cut_id)?.name ?? "";
+  const categoryCuts = cuts
+    .filter((item) => item.category_id === product.category_id)
+    .map((item) => item.name);
   const approvedUrl = (slot: ProductImageRecord["slot"]) =>
     images.find((image) => image.slot === slot && image.status === "approved")?.url ?? placeholder;
 
@@ -36,6 +39,7 @@ export function ProductLivePreview({ categories, cuts, images, product }: Produc
               category,
               code: product.code,
               cut,
+              cuts: categoryCuts,
               eyebrow: product.eyebrow,
               format: product.format,
               mainImage: approvedUrl("main"),
