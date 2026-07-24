@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CatalogBuilder } from "@/components/catalogs/CatalogBuilder";
 import { ExportButton } from "@/components/catalogs/ExportButton";
+import { SendCatalogEmail } from "@/components/catalogs/SendCatalogEmail";
 import { requireRole } from "@/lib/auth/requireRole";
 import { getCatalog, getCatalogItems } from "@/lib/catalogs/data";
 import { catalogPeriod, catalogStatusLabels } from "@/lib/catalogs/format";
@@ -12,7 +13,7 @@ export const dynamic = "force-dynamic";
 type BuilderPageProps = { params: Promise<{ id: string }> };
 
 export default async function CatalogBuilderPage({ params }: BuilderPageProps) {
-  await requireRole(["admin", "commercial"]);
+  const profile = await requireRole(["admin", "commercial"]);
   const { id } = await params;
 
   const catalog = await getCatalog(id);
@@ -36,13 +37,19 @@ export default async function CatalogBuilderPage({ params }: BuilderPageProps) {
             {catalogPeriod(catalog.month, catalog.year)} · <span className="font-medium">{catalogStatusLabels[catalog.status]}</span>
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-3">
           <form action={`/catalogs/${catalog.id}/preview`} method="get">
             <button className="rounded-lg border border-ink/15 px-4 py-2 text-sm font-semibold text-navy hover:bg-gray-50" type="submit">
               Previsualizar
             </button>
           </form>
           <ExportButton catalogId={catalog.id} disabled={items.length === 0} month={catalog.month} />
+          <SendCatalogEmail
+            catalogTitle={catalog.title}
+            month={catalog.month}
+            senderEmail={profile.email}
+            year={catalog.year}
+          />
         </div>
       </div>
 

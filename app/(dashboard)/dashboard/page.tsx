@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ProductPriceTrend } from "@/components/dashboard/ProductPriceTrend";
 import { getDashboardData } from "@/lib/dashboard/data";
 
 const mockCategories = [
@@ -36,6 +37,8 @@ export default async function DashboardPage() {
           <Metric detail={`${data.exportedCatalogs} publicados`} label="Catálogos publicados" value={data.exportedCatalogs} />
         </div>
       </div>
+
+      <ProductPriceTrend />
 
       <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-xl border border-ink/10 bg-white p-6 shadow-sm">

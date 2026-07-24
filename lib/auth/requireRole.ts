@@ -17,8 +17,9 @@ export async function requireRole(allowedRoles: Role[]): Promise<Profile> {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
   const userId = data?.claims.sub;
+  const email = z.string().email().safeParse(data?.claims.email);
 
-  if (error || !userId) {
+  if (error || !userId || !email.success) {
     redirect("/login");
   }
 
@@ -34,5 +35,5 @@ export async function requireRole(allowedRoles: Role[]): Promise<Profile> {
     forbidden();
   }
 
-  return profile.data;
+  return { ...profile.data, email: email.data };
 }
