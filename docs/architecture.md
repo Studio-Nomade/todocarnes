@@ -169,13 +169,17 @@ confidencial antes de publicarlo — barata ahora, cara después.*
 
 ## Generación de imágenes
 
+> Los prompts reales, validados por el equipo de diseño, y el mapeo detallado a este esquema viven en
+> **`image-playbook.md`**. Esta sección da el marco; el playbook manda para el contenido de los
+> prompts.
+
 ```
 Producto + imagen fuente
         ▼
 Usuario elige slot (main | secondary_1 | secondary_2 | secondary_3)
         ▼
-buildPrompt(product, slot)   ← base de settings + variante por slot,
-        ▼                       interpolando title/category/cut/brand/origin
+buildPrompt(product, slot)   ← prompt autocontenido del slot (settings),
+        ▼                       interpolando {{producto}}/{{corte}}/{{categoria}}
 lib/images/provider.generate({ prompt, sourceImage, slot })
         ├── MockProvider   (default)  → placeholder con overlay del slot, ~1s
         └── OpenAIProvider (flag)     → gpt-image-1 vía images.edit con la fuente
@@ -211,12 +215,16 @@ Mock y OpenAI implementan la misma interfaz. Se selecciona con `IMAGE_PROVIDER=m
   fuente, el botón de generar queda deshabilitado con tooltip explicativo.
 - **Latencia 30-90s.** Server action con `maxDuration` alto y loading state honesto
   ("Generando, ~1 min"). No hay cola: `image_generation_jobs` es historial.
-- **Prompts en inglés** (`handoff.md` §10.4), editables por Admin, seedeados con los 4 textos del
-  handoff.
+- **Prompts en español** — los validados por el equipo, en `image-playbook.md`, seedeados en
+  `settings` y editables por Admin. Autocontenidos: no hay "prompt base" que se prepende; cada slot
+  es completo. Corrige la nota vieja que decía "en inglés": gana la evidencia de lo que ya funciona.
+- **`buildPrompt` interpola solo `{{producto}}`/`{{corte}}`/`{{categoria}}`**, no `brand`/`origin`:
+  meter marca en el texto empuja al modelo a inventar etiquetas. La fidelidad de marca viene de la
+  imagen fuente, no del prompt.
 - **Tope diario.** `settings.generation_daily_limit` chequeado contra `count(image_generation_jobs)`
   del día, **server-side**, antes de llamar a OpenAI. Protege la tarjeta de Studio Nomade.
-- **Salida 1024×1024**, guardada como webp. La plantilla recorta con `object-fit: cover` — no se
-  pelea con el aspect ratio.
+- **Salida landscape 1536×1024**, guardada como webp. Marco main (~2.28:1) y secundarios (~1.6:1)
+  recortan con `object-fit: cover`. El mock devuelve la misma orientación para no mentir en el preview.
 
 ### Sobre la cuenta de OpenAI
 

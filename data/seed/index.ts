@@ -46,6 +46,105 @@ const slugByName: Record<string, string> = {
   Trutros: "trutros",
 };
 
+const products = [
+  {
+    box_weight: "8 KG (Peso Variable)",
+    brand: "Notable",
+    category_slug: "cerdo",
+    code: "CF-1608",
+    cut_slug: "costillar",
+    eyebrow: "Costillar Brasil",
+    format: "Vacío",
+    origin: "Brasil",
+    title: "Costillar de Cerdo Notable",
+    units: "7-8 x caja",
+  },
+  {
+    box_weight: null,
+    brand: null,
+    category_slug: "cerdo",
+    code: "CF-1586",
+    cut_slug: "chuletas",
+    eyebrow: "Chuletas de Cerdo",
+    format: null,
+    origin: null,
+    title: "Punta Chuleta Vetada",
+    units: null,
+  },
+  {
+    box_weight: "14,4 / 15,2 / 16 / 16,8 / 17,6 KGS",
+    brand: "Languiru",
+    category_slug: "pollo",
+    code: "CF-1600\nCF-1601\nCF-1602\nCF-1603\nCF-1604",
+    cut_slug: "pollo-entero",
+    eyebrow: "Pollo Entero",
+    format: null,
+    origin: "Brasil",
+    title: "Pollo Entero Languiru sin Menudencias",
+    units: "8 unidades x caja",
+  },
+  {
+    box_weight: "15 KG",
+    brand: "Languiru",
+    category_slug: "pollo",
+    code: "CF-1580",
+    cut_slug: "pechuga",
+    eyebrow: "Pechuga de Pollo",
+    format: "Embolsada",
+    origin: "Brasil",
+    title: "Pechuga con Hueso Individual Languiru",
+    units: "Individual",
+  },
+  {
+    box_weight: "20 KG (Peso Variable)",
+    brand: "Minerva",
+    category_slug: "vacuno",
+    code: "CF-1588",
+    cut_slug: "posta",
+    eyebrow: "Posta de Vacuno",
+    format: "Envasado / caja",
+    origin: "Brasil",
+    title: "Posta Rosada Congelada Pul",
+    units: "3-4 unidades x caja",
+  },
+  {
+    box_weight: "13,61 KGS Fijo",
+    brand: "FLP Foods",
+    category_slug: "vacuno",
+    code: "CF-1577",
+    cut_slug: "higado",
+    eyebrow: "Vacuno",
+    format: "Bloque, bolsa colectiva",
+    origin: "USA",
+    title: "Hígado de Vacuno FLP Foods",
+    units: "-",
+  },
+  {
+    box_weight: "20 KG",
+    brand: "Todo Carnes",
+    category_slug: "trimming",
+    code: "CF-1004",
+    cut_slug: "50-50",
+    eyebrow: "Trimming",
+    format: "Granel",
+    origin: "Nacional",
+    title: "Trimming 50/50",
+    units: "N/A",
+  },
+  {
+    box_weight: "20 KG",
+    brand: "Todo Carnes",
+    category_slug: "trimming",
+    code: "CF-1046",
+    cut_slug: "90-10",
+    eyebrow: "Trimming",
+    format: "Granel",
+    origin: "Nacional",
+    title: "Trimming 90/10",
+    units: "N/A",
+  },
+] as const;
+
 const authUsersSchema = z.object({
   users: z.array(z.object({ email: z.string().email().nullable(), id: z.string().uuid() })),
 });
@@ -149,6 +248,7 @@ async function ensureUser(
     status: "active",
   });
   assertNoError(profile.error, `No se pudo guardar el perfil ${input.email}`);
+  return user.id;
 }
 
 async function runSeed() {
@@ -180,8 +280,14 @@ async function runSeed() {
       sort_order: sortOrder,
     }));
   });
-  const cutResult = await supabase.from("cuts").upsert(cuts, { onConflict: "category_id,slug" });
+  const cutResult = await supabase
+    .from("cuts")
+    .upsert(cuts, { onConflict: "category_id,slug" })
+    .select("id,category_id,slug");
   assertNoError(cutResult.error, "No se pudieron guardar los cortes");
+  if (!cutResult.data) {
+    throw new Error("Supabase no devolvió los cortes guardados.");
+  }
 
   const settings = [
     ...Object.entries(imagePrompts).map(([key, value]) => ({ key, value })),
@@ -190,7 +296,7 @@ async function runSeed() {
   const settingsResult = await supabase.from("settings").upsert(settings, { onConflict: "key" });
   assertNoError(settingsResult.error, "No se pudieron guardar los settings");
 
-  await ensureUser(supabase, auth, {
+  const adminId = await ensureUser(supabase, auth, {
     email: env.SEED_ADMIN_EMAIL,
     name: env.SEED_ADMIN_NAME,
     password: env.SEED_ADMIN_PASSWORD,
@@ -203,11 +309,52 @@ async function runSeed() {
     role: "commercial",
   });
 
+  const categorySlugById = new Map(categoryResult.data.map((category) => [category.id, category.slug]));
+  const cutIds = new Map(
+    cutResult.data.map((cut) => {
+      const categorySlug = categorySlugById.get(cut.category_id);
+      if (!categorySlug) {
+        throw new Error(`No existe la categoría del corte ${cut.slug}.`);
+      }
+      return [`${categorySlug}/${cut.slug}`, cut.id];
+    }),
+  );
+  const productRows = products.map((product) => {
+    const categoryId = categoryIds.get(product.category_slug);
+    const cutId = cutIds.get(`${product.category_slug}/${product.cut_slug}`);
+    if (!categoryId || !cutId) {
+      throw new Error(`No existe el corte ${product.category_slug}/${product.cut_slug}.`);
+    }
+    return {
+      box_weight: product.box_weight,
+      brand: product.brand,
+      category_id: categoryId,
+      code: product.code,
+      created_by: adminId,
+      cut_id: cutId,
+      eyebrow: product.eyebrow,
+      format: product.format,
+      origin: product.origin,
+      status: "active",
+      title: product.title,
+      units: product.units,
+      updated_by: adminId,
+    };
+  });
+  const productResult = await supabase
+    .from("products")
+    .upsert(productRows, { onConflict: "code" });
+  assertNoError(productResult.error, "No se pudieron guardar los productos");
+
   const categoryCount = await supabase.from("categories").select("*", { count: "exact", head: true });
   const cutCount = await supabase.from("cuts").select("*", { count: "exact", head: true });
+  const productCount = await supabase.from("products").select("*", { count: "exact", head: true });
   assertNoError(categoryCount.error, "No se pudieron contar las categorías");
   assertNoError(cutCount.error, "No se pudieron contar los cortes");
-  console.log(`Seed completado: ${categoryCount.count} categorías, ${cutCount.count} cortes.`);
+  assertNoError(productCount.error, "No se pudieron contar los productos");
+  console.log(
+    `Seed completado: ${categoryCount.count} categorías, ${cutCount.count} cortes, ${productCount.count} productos.`,
+  );
 }
 
 runSeed().catch((error: unknown) => {

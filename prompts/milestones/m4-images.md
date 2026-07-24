@@ -11,7 +11,10 @@ trabajo antes de cada PR.
 1. Leé `prompts/codex-dev.md` — reglas permanentes.
 2. Leé `docs/architecture.md` §Generación de imágenes **completo**, §Modelo de datos
    (`product_images`), §Storage.
-3. `git checkout develop && git pull && git checkout -b feature/m4-images`
+3. Leé **`docs/image-playbook.md` completo**, sobre todo la sección "Cómo se integra al sistema".
+   Son los prompts reales validados por el equipo de diseño y el mapeo a nuestro esquema. Reemplazan
+   a los prompts genéricos que M2 dejó en `data/seed/prompts.ts`.
+4. `git checkout develop && git pull && git checkout -b feature/m4-images`
 
 ## Objetivo
 
@@ -33,6 +36,11 @@ Al terminar M4, cambiar a IA real debe ser cambiar una variable de entorno. Nada
 
 - **`lib/images/openai.ts`** — es M6. Acá construís la interfaz que M6 va a implementar. No la
   implementes vos
+- **El paso de normalización obligatorio.** El playbook §2 lo propone como pre-limpieza, pero para el
+  MVP los 4 prompts de vista ya limpian por su cuenta. Seedeá `image_prompt_normalize` en `settings`,
+  pero **no** construyas un pipeline de 2 rondas. La normalización, si se hace, es un botón opcional
+  "limpiar imagen base" que reemplaza el slot `source` — no un paso previo forzado a las 4 vistas.
+  Ver playbook §"El paso de normalización es opcional"
 - Recorte, rotación, filtros o edición de imagen en la app. `object-fit: cover` y listo
 - Cola de jobs. `image_generation_jobs` es **historial**, no cola
 - Historial de generaciones en la UI (es M6)
@@ -61,10 +69,34 @@ razón es directa: en la demo el mock tiene que ser invisible.
 
 ### `mock.ts`
 
-Devuelve un placeholder de 1024×1024 con el nombre del slot superpuesto, tras ~1s de delay simulado.
+Devuelve un placeholder **landscape 1536×1024** con el nombre del slot superpuesto, tras ~1s de delay
+simulado. Landscape porque es lo que M6 le va a pedir a `gpt-image-1` (ver §Proporciones del
+playbook): los marcos main y secundarios recortan con `object-fit: cover`, así que el mock tiene que
+tener la misma orientación para que el preview no mienta.
 
 El delay importa: es lo que hace que la UI de loading se pruebe de verdad. Sin él, M6 va a descubrir
 que el loading state nunca se vio.
+
+### Reseed de prompts — reemplazá los de M2
+
+M2 seedeó prompts genéricos en inglés (`data/seed/prompts.ts`) con las claves `image_prompt_base` +
+`image_prompt_main` + `image_prompt_secondary_1..3`. **Reemplazalos por los de
+`docs/image-playbook.md`**, que son los validados por el equipo. Concretamente, las claves de
+`settings` pasan a ser:
+
+```
+image_prompt_normalize      ← playbook §2 (nuevo)
+image_prompt_main           ← playbook §3.1
+image_prompt_secondary_1    ← playbook §3.2
+image_prompt_secondary_2    ← playbook §3.3
+image_prompt_secondary_3    ← playbook §3.4
+generation_daily_limit      ← sin cambios (40)
+```
+
+Desaparece `image_prompt_base`. El seed es idempotente (upsert por `key`); las claves viejas que ya
+no uses, borralas explícitamente o dejá el set completo documentado — no dejes huérfanas silenciosas.
+
+Los prompts van **en español** (están probados; ver el playbook §"Idioma").
 
 ### `prompt-builder.ts`
 
@@ -72,14 +104,21 @@ que el loading state nunca se vio.
 buildPrompt(product, slot): string
 ```
 
-Toma el prompt base de `settings` (seedeado en M2 desde `docs/handoff.md` §10.4) e interpola
-`title`, `category`, `cut`, `brand`, `origin`. Los prompts van **en inglés**.
+Toma el prompt del slot desde `settings` e interpola **solo 3 variables**:
 
-Cada slot tiene su variante — son las 4 del handoff §10.4:
-- `main` → variante 01, hero
-- `secondary_1` → variante 02, empaque frontal
-- `secondary_2` → variante 03, ángulo lateral
-- `secondary_3` → variante 04, caja / presentación comercial
+| Placeholder | Campo |
+|---|---|
+| `{{producto}}` | `product.title` |
+| `{{corte}}` | nombre del `cut` |
+| `{{categoria}}` | nombre de la `category` |
+
+**No interpoles `brand` ni `origin`** — es deliberado, empujan al modelo a inventar texto de marca.
+Los prompts del playbook son autocontenidos: **no hay base que prepender**, cada slot es completo.
+
+Slots ↔ prompts: `main` → §3.1 hero · `secondary_1` → §3.2 empaque · `secondary_2` → §3.3 lateral ·
+`secondary_3` → §3.4 caja.
+
+`image_prompt_normalize` (§2) es para el paso opcional de limpieza — ver Fuera de alcance.
 
 ### Storage
 
