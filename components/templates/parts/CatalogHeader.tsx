@@ -5,12 +5,13 @@ import { CutsNav } from "./CutsNav";
 type CatalogHeaderProps = {
   activeCategory: "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
   activeCut: string;
+  cuts: string[];
 };
 
 const categories = ["Cerdo", "Pollo", "Vacuno", "Trimming"] as const;
 const widths = [136, 151, 152, 186];
 
-export function CatalogHeader({ activeCategory, activeCut }: CatalogHeaderProps) {
+export function CatalogHeader({ activeCategory, activeCut, cuts }: CatalogHeaderProps) {
   return (
     <header className="absolute inset-x-0 top-0 h-[122px] border-b-2 border-ink/35 bg-gray-50">
       <Image
@@ -39,7 +40,7 @@ export function CatalogHeader({ activeCategory, activeCut }: CatalogHeaderProps)
           );
         })}
       </nav>
-      <CutsNav activeCut={activeCut} />
+      <CutsNav activeCut={activeCut} cuts={cuts} />
     </header>
   );
 }

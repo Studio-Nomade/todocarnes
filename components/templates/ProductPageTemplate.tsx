@@ -7,6 +7,7 @@ import { ProductFooter } from "./parts/ProductFooter";
 export type ProductPageData = {
   category: "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
   cut: string;
+  cuts: string[];
   eyebrow: string;
   title: string;
   code?: string | null;
@@ -22,6 +23,8 @@ export type ProductPageData = {
 type ProductPageTemplateProps = {
   product: ProductPageData;
   scale?: number;
+  period?: string;
+  pageNumber?: number;
 };
 
 const fields = [
@@ -33,12 +36,12 @@ const fields = [
   ["units", "Unidades", "units"],
 ] as const;
 
-export function ProductPageTemplate({ product, scale }: ProductPageTemplateProps) {
+export function ProductPageTemplate({ product, scale, period, pageNumber }: ProductPageTemplateProps) {
   const longTitle = product.title.length > 50;
 
   return (
     <CatalogPage scale={scale}>
-      <CatalogHeader activeCategory={product.category} activeCut={product.cut} />
+      <CatalogHeader activeCategory={product.category} activeCut={product.cut} cuts={product.cuts} />
       <div className="absolute left-0 top-[155px] h-[605px] w-[469px] bg-gray-50" />
       <Image alt={product.title} className="absolute left-[469px] top-[155px] h-[425px] w-[971px] object-cover" height={700} priority src={product.mainImage} width={1200} />
       {product.secondaryImages.map((src, index) => (
@@ -65,7 +68,7 @@ export function ProductPageTemplate({ product, scale }: ProductPageTemplateProps
           <ProductFieldRow icon={icon} key={key} label={label} value={product[key]} />
         ))}
       </div>
-      <ProductFooter />
+      <ProductFooter pageNumber={pageNumber} period={period} />
     </CatalogPage>
   );
 }

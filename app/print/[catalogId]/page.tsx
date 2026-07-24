@@ -1,38 +1,20 @@
-import { unauthorized } from "next/navigation";
+import { notFound, unauthorized } from "next/navigation";
+import { CatalogPages } from "@/components/templates/CatalogPages";
 import { PrintReadySignal } from "@/components/templates/PrintReadySignal";
-import { ProductPageTemplate, type ProductPageData } from "@/components/templates/ProductPageTemplate";
+import { getCatalog, getCatalogProducts } from "@/lib/catalogs/data";
+import { buildPages } from "@/lib/pdf/page-order";
 import { isValidPrintToken } from "@/lib/pdf/print-token";
 import "@/styles/print.css";
+
+export const dynamic = "force-dynamic";
 
 type PrintPageProps = {
   params: Promise<{ catalogId: string }>;
   searchParams: Promise<{ token?: string | string[] }>;
 };
 
-const placeholder = "/placeholders/product-placeholder.svg";
-
-const demoProduct: ProductPageData = {
-  category: "Cerdo",
-  cut: "Costillar",
-  eyebrow: "Costillar Brasil",
-  title: "Costillar de Cerdo Notable",
-  code: "CF-1608",
-  brand: "Notable",
-  origin: "Brasil",
-  boxWeight: "8 KG (Peso Variable)",
-  format: "Vacío",
-  units: "7-8 x caja",
-  mainImage: placeholder,
-  secondaryImages: [placeholder, placeholder, placeholder],
-};
-
-const stressProduct: ProductPageData = {
-  ...demoProduct,
-  title: "Costillar de cerdo notable premium de origen brasileño para food service",
-  code: "CF-1608\nCF-1610",
-  brand: null,
-};
-
+// Ruta sin chrome de UI, protegida por PRINT_TOKEN (no por sesión: Playwright
+// corre en el server y no tiene la cookie del usuario). La consume el export.
 export default async function PrintPage({ params, searchParams }: PrintPageProps) {
   const [{ catalogId }, { token }] = await Promise.all([params, searchParams]);
 
@@ -40,11 +22,17 @@ export default async function PrintPage({ params, searchParams }: PrintPageProps
     unauthorized();
   }
 
-  const product = catalogId === "stress" ? stressProduct : demoProduct;
+  const catalog = await getCatalog(catalogId);
+  if (!catalog) {
+    notFound();
+  }
+
+  const products = await getCatalogProducts(catalogId);
+  const pages = buildPages(products);
 
   return (
     <>
-      <ProductPageTemplate product={product} />
+      <CatalogPages meta={{ month: catalog.month, title: catalog.title, year: catalog.year }} pages={pages} />
       <PrintReadySignal />
     </>
   );
