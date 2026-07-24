@@ -112,6 +112,26 @@ npm run dev
 Los assets originales (PDF de julio, SVG de la hoja tipo) viven en `-context/`, que **no se
 versiona** — pedilos si tu hito los necesita.
 
+### Supabase y seed
+
+El schema vive en `supabase/migrations/`. Para una instancia local:
+
+```bash
+npx supabase start
+npx supabase db reset
+# copiar URL, anon key y service role key a .env.local
+npm run seed
+```
+
+Para un proyecto remoto de desarrollo, primero vinculalo con `npx supabase link`, aplicá la migración
+con `npx supabase db push` y luego ejecutá `npm run seed`. El seed usa las credenciales `SEED_*`, es
+idempotente y crea los usuarios mediante Supabase Auth Admin.
+
+Los perfiles se crean automáticamente con el trigger `on_auth_user_created` sobre `auth.users`; el
+seed actualiza después nombre, rol y estado. Todas las tablas públicas tienen RLS activo sin
+políticas para `anon` o `authenticated`; las operaciones de datos pasan por el cliente service role
+después de validar la sesión y el rol en el servidor.
+
 ---
 
 ## Documentación

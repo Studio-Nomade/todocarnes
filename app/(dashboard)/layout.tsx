@@ -1,0 +1,35 @@
+import Image from "next/image";
+import Link from "next/link";
+import { requireRole } from "@/lib/auth/requireRole";
+import { logout } from "./actions";
+
+export const dynamic = "force-dynamic";
+
+export default async function DashboardLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const profile = await requireRole(["admin", "commercial"]);
+
+  return (
+    <div className="min-h-screen bg-gray-50 text-ink">
+      <header className="border-b border-ink/10 bg-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-5">
+          <Link className="flex items-center gap-3" href="/dashboard">
+            <Image alt="Todo Carnes" className="h-9 w-9" height={4500} priority src="/brand/isologo_completo.png" width={4501} />
+            <span className="text-lg font-semibold text-navy">Todo Carnes</span>
+            <span className="text-xs uppercase tracking-widest text-blue">Catálogos</span>
+          </Link>
+          <div className="flex items-center gap-6 text-sm">
+            <nav className="flex gap-5" aria-label="Principal">
+              <Link href="/dashboard">Inicio</Link>
+              {profile.role === "admin" ? <Link href="/settings">Configuración</Link> : null}
+            </nav>
+            <span className="text-ink/60">{profile.name}</span>
+            <form action={logout}>
+              <button className="font-medium text-navy" type="submit">Salir</button>
+            </form>
+          </div>
+        </div>
+      </header>
+      <main className="mx-auto max-w-7xl px-8 py-12">{children}</main>
+    </div>
+  );
+}
