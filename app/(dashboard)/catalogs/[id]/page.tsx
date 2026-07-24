@@ -37,9 +37,11 @@ export default async function CatalogBuilderPage({ params }: BuilderPageProps) {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link className="rounded-lg border border-ink/15 px-4 py-2 text-sm font-semibold text-navy hover:bg-gray-50" href={`/catalogs/${catalog.id}/preview`}>
-            Previsualizar
-          </Link>
+          <form action={`/catalogs/${catalog.id}/preview`} method="get">
+            <button className="rounded-lg border border-ink/15 px-4 py-2 text-sm font-semibold text-navy hover:bg-gray-50" type="submit">
+              Previsualizar
+            </button>
+          </form>
           <ExportButton catalogId={catalog.id} disabled={items.length === 0} month={catalog.month} />
         </div>
       </div>
