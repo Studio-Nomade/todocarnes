@@ -149,14 +149,33 @@ Ninguna es estructural. **Se cierran en M7.**
 
 ---
 
+## Logos
+
+Entregados por el cliente, en `/public/brand/`. Todos 4500×4500 px, PNG RGBA (fondo transparente).
+
+| Archivo | Qué es | Dónde va |
+|---|---|---|
+| `logo_completo.png` | Isotipo + wordmark "TodoCarnes" | **Login** y cualquier superficie donde la marca deba leerse completa |
+| `isologo_completo.png` | Isotipo color (degradado azul), sin texto | **Header del dashboard** y chrome de la plataforma sobre fondo claro |
+| `isologo_negro.png` | Isotipo mono negro | Alternativa sobre fondo claro cuando el color no corresponde |
+| `isologo_blanco.png` | Isotipo mono blanco | Superficies **oscuras**: header navy del catálogo, futuras superficies dark. Invisible sobre blanco |
+
+Regla: **logo completo** (con texto) para el login; **isotipo** (sin texto) para el chrome interno.
+
+> Los nombres los puso el cliente y no son del todo consistentes ("completo" en un isologo significa
+> "a todo color", no "con wordmark"). No los renombramos para no romper referencias; esta tabla es la
+> fuente de verdad.
+
+**Pendiente — el header del catálogo todavía usa el logo viejo.** `CatalogHeader.tsx` (M1) referencia
+`todo-carnes.png`, el PNG de 321×67 **con recuadros** que se ve en el PDF exportado. Reemplazarlo por
+`logo_completo.png` (o una versión horizontal, si el cliente la entrega) es tarea de M7 — es merged M1
+y no se toca a mitad de otro hito. Es lo único que hoy delata que la ficha no es la original.
+
+---
+
 ## Assets que faltan
 
 Nadie los entregó todavía. `-context/` solo trae los 2 PDFs y el SVG.
-
-- **Logo vectorial.** El del SVG está embebido como PNG de 1800px escalado a 0.069. El PNG que se
-  extrajo para M1 **trae recuadros visibles** alrededor del isotipo y del wordmark que el catálogo
-  real no tiene — se ven en el PDF exportado. Es el asset faltante más urgente: es lo único que hoy
-  delata que la ficha no es la original.
 - **Íconos de categoría** (Cerdo, Pollo, Vacuno, Trimming). Usados en índice, separadores y header.
 - **Íconos de los 6 campos técnicos.**
 - **Elementos gráficos de fondo** de portada y separador de categoría.
