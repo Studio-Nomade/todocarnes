@@ -42,6 +42,7 @@ const approvedImageSchema = z.object({
   product_id: z.string().uuid(),
   slot: imageSlot,
   storage_path: z.string().min(1),
+  updated_at: z.string(),
 });
 
 function toStatus(value: string): CatalogStatus {
@@ -157,7 +158,7 @@ export async function getCatalogProducts(catalogId: string): Promise<CatalogProd
 
   const imagesResult = await admin
     .from("product_images")
-    .select("product_id,slot,storage_path")
+    .select("product_id,slot,storage_path,updated_at")
     .in("product_id", items.map((item) => item.product_id))
     .eq("status", "approved")
     .in("slot", ["main", "secondary_1", "secondary_2", "secondary_3"]);
@@ -166,8 +167,10 @@ export async function getCatalogProducts(catalogId: string): Promise<CatalogProd
   }
   const urlBySlot = new Map<string, string>();
   for (const image of z.array(approvedImageSchema).parse(imagesResult.data)) {
-    const url = admin.storage.from("product-images").getPublicUrl(image.storage_path).data.publicUrl;
-    urlBySlot.set(`${image.product_id}:${image.slot}`, url);
+    const publicUrl = admin.storage.from("product-images").getPublicUrl(image.storage_path).data.publicUrl;
+    const url = new URL(publicUrl);
+    url.searchParams.set("v", image.updated_at);
+    urlBySlot.set(`${image.product_id}:${image.slot}`, url.toString());
   }
   const imageFor = (productId: string, slot: string) => urlBySlot.get(`${productId}:${slot}`) ?? placeholder;
 

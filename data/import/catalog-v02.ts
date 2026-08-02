@@ -89,8 +89,8 @@ async function imageBuffers(compositePath: string): Promise<Record<(typeof image
   const secondaryStarts = [0.017, 0.34, 0.662].map((ratio) => Math.round(width * ratio));
   const secondaries = await Promise.all(secondaryStarts.map((left) => sharp(compositePath)
     .extract({ height: secondaryHeight, left, top: secondaryTop, width: Math.min(secondaryWidth, width - left) })
-    .resize(1200, 746, { fit: "cover" })
-    .webp({ quality: 88 })
+    .resize(544, 338, { fit: "cover" })
+    .webp({ quality: 82 })
     .toBuffer()));
 
   return { source, main, secondary_1: secondaries[0], secondary_2: secondaries[1], secondary_3: secondaries[2] };
