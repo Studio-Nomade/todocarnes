@@ -30,7 +30,7 @@ type CatalogPagesProps = {
 function renderPage(page: CatalogPageSpec, meta: CatalogMeta, period: string, scale?: number): ReactNode {
   switch (page.kind) {
     case "cover":
-      return <CatalogCover clientLogoUrl={meta.clientLogoUrl} clientName={meta.clientName} month={meta.month} scale={scale} title={meta.title} year={meta.year} />;
+      return <CatalogCover month={meta.month} scale={scale} title={meta.title} year={meta.year} />;
     case "index":
       return <CatalogIndex entries={page.entries} month={meta.month} pageNumber={page.pageNumber} scale={scale} year={meta.year} />;
     case "services":

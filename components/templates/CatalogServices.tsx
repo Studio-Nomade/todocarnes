@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { catalogPeriod } from "@/lib/catalogs/format";
 import type { CatalogService } from "@/lib/pdf/page-order";
 import { CatalogPage } from "./CatalogPage";
@@ -13,38 +14,32 @@ type CatalogServicesProps = {
 export function CatalogServices({ month, pageNumber, scale, services, year }: CatalogServicesProps) {
   return (
     <CatalogPage id="servicios" scale={scale}>
-      <div className="absolute inset-0 bg-white" />
-      <div className="absolute left-0 top-0 h-full w-[10px] bg-blue" />
-      <header className="absolute left-[110px] right-[110px] top-[80px]">
-        <p className="text-[18px] font-medium uppercase tracking-[0.4em] text-blue">Soluciones Todo Carnes</p>
-        <h1 className="mt-3 text-[68px] font-bold leading-none text-navy">Servicios</h1>
-        <p className="mt-4 max-w-[880px] text-[20px] font-light leading-8 text-ink/60">
-          Capacidades pensadas para acompañar las necesidades comerciales y operativas de cada cliente.
-        </p>
-      </header>
+      <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy to-blue" />
 
-      <div className="absolute left-[110px] right-[110px] top-[270px] grid grid-cols-2 gap-5">
-        {services.length > 0 ? services.map((service, index) => (
-          <article className="min-h-[125px] rounded-[22px] border border-ink/10 bg-gray-50 p-6" key={service.id}>
-            <div className="flex items-start gap-5">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-navy text-[15px] font-semibold text-white">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <div>
-                <h2 className="text-[23px] font-semibold text-navy">{service.title}</h2>
-                <p className="mt-2 text-[15px] font-light leading-6 text-ink/65">{service.description}</p>
-              </div>
-            </div>
+      <div className="absolute left-[44px] top-[32px] flex items-center gap-5">
+        <Image alt="" className="h-[62px] w-[92px] object-contain" height={4500} priority src="/brand/isologo_completo.png" width={4501} />
+        <span className="text-[28px] font-bold italic tracking-tight text-white">TodoCarnes</span>
+      </div>
+
+      <div className="absolute left-[114px] top-[181px] w-[760px] space-y-[38px]">
+        {services.length > 0 ? services.slice(0, 5).map((service) => (
+          <article className="grid min-h-[74px] grid-cols-[276px_1px_1fr] items-start" key={service.id}>
+            <h2 className="pr-8 text-[21px] font-semibold leading-[1.25] text-blue-mid">{service.title}</h2>
+            <span className="h-[64px] bg-white/75" />
+            <p className="pl-11 text-[18px] font-light leading-[1.35] text-white/90">{service.description}</p>
           </article>
         )) : (
-          <p className="col-span-2 rounded-[22px] border border-dashed border-ink/20 p-10 text-[20px] font-light text-ink/50">
-            Los servicios comerciales se incorporarán en esta sección.
-          </p>
+          <p className="text-[22px] font-light text-white/70">Los servicios comerciales se incorporarán en esta sección.</p>
         )}
       </div>
 
-      <footer className="absolute bottom-[38px] left-[110px] right-[110px] flex items-center justify-between border-t border-ink/15 pt-5 text-[14px] font-light tracking-[0.18em] text-ink/50">
+      <h1 className="absolute bottom-[112px] right-[78px] w-[340px] text-[55px] font-bold uppercase leading-[1.25] text-white">
+        Nuestros<br />servicios
+      </h1>
+
+      <footer className="absolute bottom-[15px] left-[30px] right-[80px] flex items-center gap-4 text-[13px] font-light tracking-[0.28em] text-white">
         <span>CATÁLOGO {catalogPeriod(month, year).toUpperCase()}</span>
+        <span className="h-px flex-1 bg-white/80" />
         <span>{String(pageNumber).padStart(2, "0")}</span>
       </footer>
     </CatalogPage>

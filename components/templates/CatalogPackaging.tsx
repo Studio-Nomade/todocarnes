@@ -4,9 +4,9 @@ import { CatalogPage } from "./CatalogPage";
 import { ClientLogo } from "./parts/ClientLogo";
 
 const packages = [
-  { image: "/services/maquila-vacio.webp", label: "Bolsa al vacío", logoWidth: "w-[48%]" },
-  { image: "/services/maquila-bandeja.webp", label: "Bandeja sellada", logoWidth: "w-[34%]" },
-  { image: "/services/maquila-caja.webp", label: "Caja personalizada", logoWidth: "w-[58%]" },
+  { image: "/services/mockups/bolsa-vacio.webp", label: "Bolsa al vacío", logoWidth: "w-[48%]" },
+  { image: "/services/mockups/bandeja-sellada.webp", label: "Bandeja sellada", logoWidth: "w-[34%]" },
+  { image: "/services/mockups/caja-personalizada.webp", label: "Caja personalizada", logoWidth: "w-[58%]" },
 ] as const;
 
 type CatalogPackagingProps = {

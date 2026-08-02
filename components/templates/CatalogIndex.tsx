@@ -27,7 +27,7 @@ export function CatalogIndex({ entries, month, year, pageNumber, scale }: Catalo
         <IndexLink description="Envases personalizados para tu marca" href="#maquila-envasados" title="Maquila de envasados" />
         {entries.map((entry) => (
           <a className="flex gap-5 rounded-2xl p-3 transition hover:bg-blue-50" href={`#${categoryAnchor(entry.category)}`} key={entry.category}>
-            <div className="flex h-[64px] w-[72px] shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-navy">
+            <div className="flex h-[64px] w-[72px] shrink-0 items-center justify-center rounded-2xl bg-navy">
               <CategoryIcon category={entry.category} />
             </div>
             <div>
