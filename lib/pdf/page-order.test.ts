@@ -23,15 +23,15 @@ function product(overrides: Partial<CatalogProduct>): CatalogProduct {
   };
 }
 
-test("catálogo vacío: solo portada, índice y cierre", () => {
+test("catálogo vacío: incluye portada, índice, servicios, maquila y cierre", () => {
   const pages = buildPages([]);
   assert.deepEqual(
     pages.map((p) => p.kind),
-    ["cover", "index", "closing"],
+    ["cover", "index", "services", "packaging", "closing"],
   );
   assert.deepEqual(
     pages.map((p) => p.pageNumber),
-    [1, 2, 3],
+    [1, 2, 3, 4, 5],
   );
   const index = pages[1];
   assert.equal(index.kind === "index" && index.entries.length, 0);
@@ -44,15 +44,15 @@ test("una categoría: portada, índice, separador, fichas, cierre en orden", () 
   ]);
   assert.deepEqual(
     pages.map((p) => p.kind),
-    ["cover", "index", "divider", "product", "product", "closing"],
+    ["cover", "index", "services", "packaging", "divider", "product", "product", "closing"],
   );
   assert.deepEqual(
     pages.map((p) => p.pageNumber),
-    [1, 2, 3, 4, 5, 6],
+    [1, 2, 3, 4, 5, 6, 7, 8],
   );
-  const divider = pages[2];
+  const divider = pages[4];
   assert.ok(divider.kind === "divider");
-  assert.deepEqual(divider.cuts, ["Costillar", "Panceta"]);
+  assert.deepEqual(divider.products.map((item) => item.title), ["A", "B"]);
 });
 
 test("una categoría sin productos nunca genera separador (no hay categoría vacía posible)", () => {
@@ -113,4 +113,12 @@ test("cada ficha lleva los cortes de su categoría para el CutsNav", () => {
   const productPage = pages.find((p) => p.kind === "product");
   assert.ok(productPage?.kind === "product");
   assert.deepEqual(productPage.categoryCuts, ["Costillar", "Panceta"]);
+});
+
+test("la página de servicios recibe los servicios activos entregados", () => {
+  const services = [{ description: "Servicio personalizado", id: "s1", title: "Maquila" }];
+  const pages = buildPages([], services);
+  const servicePage = pages.find((page) => page.kind === "services");
+  assert.ok(servicePage?.kind === "services");
+  assert.deepEqual(servicePage.services, services);
 });

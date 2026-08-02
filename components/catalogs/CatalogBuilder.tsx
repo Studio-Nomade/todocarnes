@@ -37,7 +37,7 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
   }, [items]);
 
   const categoriesPresent = grouped.length;
-  const pageCount = items.length === 0 ? 0 : 3 + categoriesPresent + items.length;
+  const pageCount = items.length === 0 ? 0 : 5 + categoriesPresent + items.length;
   function persistOrder(next: CatalogItemProduct[], previous: CatalogItemProduct[]) {
     const ordered = sortCatalogItems(next).map((item) => item.productId);
     startTransition(async () => {

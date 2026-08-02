@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { productAnchor } from "@/lib/pdf/page-order";
 import { CatalogPage } from "./CatalogPage";
 import { CatalogHeader } from "./parts/CatalogHeader";
 import { ProductFieldRow } from "./parts/ProductFieldRow";
@@ -30,6 +31,7 @@ type ProductPageTemplateProps = {
   scale?: number;
   period?: string;
   pageNumber?: number;
+  productId?: string;
 };
 
 const fields = [
@@ -47,6 +49,7 @@ export function ProductPageTemplate({
   scale,
   period,
   pageNumber,
+  productId,
 }: ProductPageTemplateProps) {
   const titleLength = product.title.length;
   const titleSize =
@@ -68,7 +71,7 @@ export function ProductPageTemplate({
   const multipleVariants = hasMultipleVariants(variantValues);
 
   return (
-    <CatalogPage scale={scale}>
+    <CatalogPage id={productId ? productAnchor(productId) : undefined} scale={scale}>
       <CatalogHeader activeCategory={product.category} activeCut={product.cut} cuts={product.cuts} />
       <div className="absolute left-0 top-[155px] h-[605px] w-[469px] bg-gray-50" />
       <Image alt={product.title} className="absolute left-[469px] top-[155px] h-[425px] w-[971px] object-cover" height={700} priority={eagerImages} src={product.mainImage} width={1200} />

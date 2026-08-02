@@ -1,17 +1,20 @@
 import Image from "next/image";
 import { catalogPeriod } from "@/lib/catalogs/format";
 import { CatalogPage } from "./CatalogPage";
+import { ClientLogo } from "./parts/ClientLogo";
 
 type CatalogCoverProps = {
   title: string;
+  clientLogoUrl?: string | null;
+  clientName?: string | null;
   month: number;
   year: number;
   scale?: number;
 };
 
-export function CatalogCover({ title, month, year, scale }: CatalogCoverProps) {
+export function CatalogCover({ clientLogoUrl, clientName, title, month, year, scale }: CatalogCoverProps) {
   return (
-    <CatalogPage scale={scale}>
+    <CatalogPage id="portada" scale={scale}>
       <Image
         alt=""
         className="absolute inset-0 h-full w-full object-cover"
@@ -25,6 +28,14 @@ export function CatalogCover({ title, month, year, scale }: CatalogCoverProps) {
         <Image alt="Todo Carnes" height={4500} priority src="/brand/isologo_blanco.png" width={4501} className="h-24 w-24 object-contain" />
         <span className="text-4xl font-bold italic tracking-tight text-white">TodoCarnes</span>
       </div>
+
+      {clientName || clientLogoUrl ? (
+        <div className="absolute right-[120px] top-[125px] w-[300px] rounded-[24px] bg-white/95 p-5 shadow-xl">
+          <p className="text-[12px] font-medium uppercase tracking-[0.2em] text-ink/45">Preparado especialmente para</p>
+          <ClientLogo className="mt-3 h-[82px] w-full" clientName={clientName} logoUrl={clientLogoUrl} />
+          {clientName ? <p className="mt-2 text-center text-[15px] font-semibold text-navy">{clientName}</p> : null}
+        </div>
+      ) : null}
 
       <div className="absolute bottom-[190px] left-[120px] right-[120px]">
         <p className="text-[22px] font-medium uppercase tracking-[0.4em] text-blue">Catálogo comercial</p>

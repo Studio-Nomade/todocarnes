@@ -10,7 +10,7 @@ type CatalogClosingProps = {
 
 export function CatalogClosing({ month, year, scale }: CatalogClosingProps) {
   return (
-    <CatalogPage scale={scale}>
+    <CatalogPage id="cierre" scale={scale}>
       <div className="absolute inset-0 bg-navy" />
       <div className="absolute -right-40 -bottom-40 h-[720px] w-[720px] rounded-full bg-blue/10" />
 

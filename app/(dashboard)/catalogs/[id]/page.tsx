@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CatalogBuilder } from "@/components/catalogs/CatalogBuilder";
+import { CatalogBrandingForm } from "@/components/catalogs/CatalogBrandingForm";
 import { ExportButton } from "@/components/catalogs/ExportButton";
 import { SendCatalogEmail } from "@/components/catalogs/SendCatalogEmail";
 import { requireRole } from "@/lib/auth/requireRole";
@@ -55,6 +56,12 @@ export default async function CatalogBuilderPage({ params }: BuilderPageProps) {
           />
         </div>
       </div>
+
+      <CatalogBrandingForm
+        catalogId={catalog.id}
+        initialClientName={catalog.clientName ?? ""}
+        logoUrl={catalog.clientLogoUrl}
+      />
 
       <CatalogBuilder available={available} catalogId={catalog.id} initialItems={items} />
     </section>

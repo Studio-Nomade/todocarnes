@@ -1,15 +1,18 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { catalogIdSchema, catalogSchema, reorderSchema } from "@/lib/validators/catalog";
 import { productIdSchema } from "@/lib/validators/product";
+import { validateAndConvertClientLogo } from "@/lib/catalogs/logo";
 import type { CatalogMutationResult } from "@/lib/catalogs/types";
 
 const roles = ["admin", "commercial"] as const;
 const idResultSchema = z.object({ id: z.string().uuid() });
+const clientNameSchema = z.string().trim().max(120);
 
 export async function createCatalog(input: unknown): Promise<CatalogMutationResult> {
   const profile = await requireRole([...roles]);
@@ -156,4 +159,74 @@ export async function reorderCatalogItems(input: unknown): Promise<CatalogMutati
 
   revalidatePath(`/catalogs/${parsed.data.catalogId}`);
   return { id: parsed.data.catalogId, success: true };
+}
+
+export async function updateCatalogBranding(
+  catalogId: unknown,
+  formData: FormData,
+): Promise<CatalogMutationResult> {
+  await requireRole([...roles]);
+  const parsedCatalogId = catalogIdSchema.safeParse(catalogId);
+  const parsedClientName = clientNameSchema.safeParse(formData.get("clientName"));
+  if (!parsedCatalogId.success || !parsedClientName.success) {
+    return { error: "Los datos de personalización no son válidos.", success: false };
+  }
+
+  const admin = createAdminClient();
+  const currentResult = await admin
+    .from("catalogs")
+    .select("client_logo_path")
+    .eq("id", parsedCatalogId.data)
+    .maybeSingle();
+  if (currentResult.error || !currentResult.data) {
+    return { error: "No se pudo cargar la personalización del catálogo.", success: false };
+  }
+
+  const file = formData.get("clientLogo");
+  let nextLogoPath = currentResult.data.client_logo_path as string | null;
+  let uploadedPath: string | null = null;
+  try {
+    if (file instanceof File && file.size > 0) {
+      const body = await validateAndConvertClientLogo(file);
+      uploadedPath = `${parsedCatalogId.data}/client-logo/${randomUUID()}.webp`;
+      const upload = await admin.storage
+        .from("catalog-assets")
+        .upload(uploadedPath, body, { contentType: "image/webp", upsert: false });
+      if (upload.error) {
+        return { error: "No se pudo subir el logo del cliente.", success: false };
+      }
+      nextLogoPath = uploadedPath;
+    }
+
+    const result = await admin
+      .from("catalogs")
+      .update({
+        client_logo_path: nextLogoPath,
+        client_name: parsedClientName.data || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", parsedCatalogId.data)
+      .select("id")
+      .single();
+    if (result.error || !result.data) {
+      if (uploadedPath) {
+        await admin.storage.from("catalog-assets").remove([uploadedPath]);
+      }
+      return { error: "No se pudo guardar la personalización.", success: false };
+    }
+
+    const previousPath = currentResult.data.client_logo_path as string | null;
+    if (uploadedPath && previousPath && previousPath !== uploadedPath) {
+      await admin.storage.from("catalog-assets").remove([previousPath]);
+    }
+  } catch (error: unknown) {
+    if (uploadedPath) {
+      await admin.storage.from("catalog-assets").remove([uploadedPath]);
+    }
+    return { error: error instanceof Error ? error.message : "No se pudo procesar el logo.", success: false };
+  }
+
+  revalidatePath(`/catalogs/${parsedCatalogId.data}`);
+  revalidatePath(`/catalogs/${parsedCatalogId.data}/preview`);
+  return { id: parsedCatalogId.data, success: true };
 }
