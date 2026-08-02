@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { catalogIdSchema, catalogSchema, reorderSchema } from "@/lib/validators/catalog";
+import { catalogIdSchema, catalogSchema, catalogTitleSchema, reorderSchema } from "@/lib/validators/catalog";
 import { productIdSchema } from "@/lib/validators/product";
 import { validateAndConvertClientLogo } from "@/lib/catalogs/logo";
 import type { CatalogMutationResult } from "@/lib/catalogs/types";
@@ -57,6 +57,31 @@ export async function updateCatalog(id: unknown, input: unknown): Promise<Catalo
 
   revalidatePath("/catalogs");
   revalidatePath(`/catalogs/${parsedId.data}`);
+  return { id: parsedId.data, success: true };
+}
+
+export async function updateCatalogTitle(id: unknown, title: unknown): Promise<CatalogMutationResult> {
+  await requireRole([...roles]);
+  const parsedId = catalogIdSchema.safeParse(id);
+  const parsedTitle = catalogTitleSchema.safeParse(title);
+  if (!parsedId.success || !parsedTitle.success) {
+    return { error: parsedTitle.error?.issues[0]?.message ?? "El catálogo no es válido.", success: false };
+  }
+
+  const admin = createAdminClient();
+  const result = await admin
+    .from("catalogs")
+    .update({ title: parsedTitle.data, updated_at: new Date().toISOString() })
+    .eq("id", parsedId.data)
+    .select("id")
+    .single();
+  if (result.error || !result.data) {
+    return { error: "No se pudo actualizar el nombre del catálogo.", success: false };
+  }
+
+  revalidatePath("/catalogs");
+  revalidatePath(`/catalogs/${parsedId.data}`);
+  revalidatePath(`/catalogs/${parsedId.data}/preview`);
   return { id: parsedId.data, success: true };
 }
 

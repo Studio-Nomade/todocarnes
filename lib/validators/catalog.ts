@@ -8,6 +8,8 @@ export const catalogSchema = z.object({
   year: z.coerce.number().int().min(2024).max(currentYear + 2),
 });
 
+export const catalogTitleSchema = catalogSchema.shape.title;
+
 export const catalogIdSchema = z.string().uuid("El catálogo no es válido.");
 
 export const reorderSchema = z.object({
