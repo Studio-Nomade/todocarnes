@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "import:catalog-v02": "tsx --env-file=.env.local data/import/catalog-v02.ts",
+    "import:optimized-images": "tsx --env-file=.env.local data/import/optimized-product-images.ts",
     "start": "next start",
     "lint": "eslint",
     "test": "node --import tsx --test data/import/catalog-v02-products.test.ts lib/pdf/page-order.test.ts lib/images/errors.test.ts lib/catalogs/format.test.ts lib/catalogs/order.test.ts lib/validators/product.test.ts lib/products/variants.test.ts",
