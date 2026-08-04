@@ -23,6 +23,7 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
               <Link href="/services">Servicios</Link>
               <Link href="/products">Productos</Link>
               <Link href="/catalogs">Catálogos</Link>
+              {profile.role === "admin" ? <Link href="/users">Usuarios</Link> : null}
               {profile.role === "admin" ? <Link href="/settings">Configuración</Link> : null}
             </nav>
             <Link
@@ -46,6 +47,7 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
                 <Link className="rounded-lg px-3 py-3 hover:bg-gray-50" href="/services">Servicios</Link>
                 <Link className="rounded-lg px-3 py-3 hover:bg-gray-50" href="/products">Productos</Link>
                 <Link className="rounded-lg px-3 py-3 hover:bg-gray-50" href="/catalogs">Catálogos</Link>
+                {profile.role === "admin" ? <Link className="rounded-lg px-3 py-3 hover:bg-gray-50" href="/users">Usuarios</Link> : null}
                 {profile.role === "admin" ? <Link className="rounded-lg px-3 py-3 hover:bg-gray-50" href="/settings">Configuración</Link> : null}
                 <Link className="rounded-lg px-3 py-3 font-semibold text-navy hover:bg-gray-50" href="/profile">Mi perfil · {profile.name}</Link>
               </nav>
