@@ -4,6 +4,7 @@ import { PrintReadySignal } from "@/components/templates/PrintReadySignal";
 import { getCatalog, getCatalogProducts } from "@/lib/catalogs/data";
 import { buildPages } from "@/lib/pdf/page-order";
 import { isValidPrintToken } from "@/lib/pdf/print-token";
+import { getServices } from "@/lib/services/data";
 import "@/styles/print.css";
 
 export const dynamic = "force-dynamic";
@@ -27,12 +28,24 @@ export default async function PrintPage({ params, searchParams }: PrintPageProps
     notFound();
   }
 
-  const products = await getCatalogProducts(catalogId);
-  const pages = buildPages(products);
+  const [products, services] = await Promise.all([
+    getCatalogProducts(catalogId),
+    getServices(true),
+  ]);
+  const pages = buildPages(products, services);
 
   return (
     <>
-      <CatalogPages meta={{ month: catalog.month, title: catalog.title, year: catalog.year }} pages={pages} />
+      <CatalogPages
+        meta={{
+          clientLogoUrl: catalog.clientLogoUrl,
+          clientName: catalog.clientName,
+          month: catalog.month,
+          title: catalog.title,
+          year: catalog.year,
+        }}
+        pages={pages}
+      />
       <PrintReadySignal />
     </>
   );

@@ -7,10 +7,10 @@ const optionalFilter = <Schema extends z.ZodType>(schema: Schema) =>
 export const productStatusSchema = z.enum(["draft", "active", "inactive"]);
 
 export const productSchema = z.object({
-  category_id: z.string().uuid("Seleccioná una categoría."),
-  cut_id: z.string().uuid("Seleccioná un corte."),
+  category_id: z.string().uuid("Selecciona una categoría."),
+  cut_id: z.string().uuid("Selecciona un corte."),
   eyebrow: optionalText(120),
-  title: z.string().trim().min(1, "Ingresá el nombre del producto.").max(160),
+  title: z.string().trim().min(1, "Ingresa el nombre del producto.").max(160),
   code: optionalText(160),
   brand: optionalText(120),
   origin: optionalText(120),

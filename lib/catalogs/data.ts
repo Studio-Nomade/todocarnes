@@ -10,6 +10,8 @@ const categoryName = z.enum(["Cerdo", "Pollo", "Vacuno", "Trimming"]);
 const imageSlot = z.enum(["main", "secondary_1", "secondary_2", "secondary_3"]);
 
 const catalogRowSchema = z.object({
+  client_logo_path: z.string().nullable(),
+  client_name: z.string().nullable(),
   id: z.string().uuid(),
   title: z.string(),
   month: z.number().int(),
@@ -40,6 +42,7 @@ const approvedImageSchema = z.object({
   product_id: z.string().uuid(),
   slot: imageSlot,
   storage_path: z.string().min(1),
+  updated_at: z.string(),
 });
 
 function toStatus(value: string): CatalogStatus {
@@ -50,7 +53,7 @@ export async function listCatalogs(): Promise<CatalogRecord[]> {
   const admin = createAdminClient();
   const result = await admin
     .from("catalogs")
-    .select("id,title,month,year,status,updated_at,catalog_items(count)")
+    .select("id,title,month,year,status,client_name,client_logo_path,updated_at,catalog_items(count)")
     .order("year", { ascending: false })
     .order("month", { ascending: false });
   if (result.error) {
@@ -61,6 +64,9 @@ export async function listCatalogs(): Promise<CatalogRecord[]> {
     catalog_items: z.array(z.object({ count: z.number().int() })).default([]),
   });
   return z.array(rowSchema).parse(result.data).map((row) => ({
+    clientLogoPath: row.client_logo_path,
+    clientLogoUrl: null,
+    clientName: row.client_name,
     id: row.id,
     itemCount: row.catalog_items[0]?.count ?? 0,
     month: row.month,
@@ -75,7 +81,7 @@ export async function getCatalog(id: string): Promise<CatalogRecord | null> {
   const admin = createAdminClient();
   const result = await admin
     .from("catalogs")
-    .select("id,title,month,year,status,updated_at,catalog_items(count)")
+    .select("id,title,month,year,status,client_name,client_logo_path,updated_at,catalog_items(count)")
     .eq("id", id)
     .maybeSingle();
   if (result.error) {
@@ -87,7 +93,13 @@ export async function getCatalog(id: string): Promise<CatalogRecord | null> {
   const row = catalogRowSchema
     .extend({ catalog_items: z.array(z.object({ count: z.number().int() })).default([]) })
     .parse(result.data);
+  const signedLogo = row.client_logo_path
+    ? await admin.storage.from("catalog-assets").createSignedUrl(row.client_logo_path, 3600)
+    : null;
   return {
+    clientLogoPath: row.client_logo_path,
+    clientLogoUrl: signedLogo?.data?.signedUrl ?? null,
+    clientName: row.client_name,
     id: row.id,
     itemCount: row.catalog_items[0]?.count ?? 0,
     month: row.month,
@@ -146,7 +158,7 @@ export async function getCatalogProducts(catalogId: string): Promise<CatalogProd
 
   const imagesResult = await admin
     .from("product_images")
-    .select("product_id,slot,storage_path")
+    .select("product_id,slot,storage_path,updated_at")
     .in("product_id", items.map((item) => item.product_id))
     .eq("status", "approved")
     .in("slot", ["main", "secondary_1", "secondary_2", "secondary_3"]);
@@ -155,8 +167,10 @@ export async function getCatalogProducts(catalogId: string): Promise<CatalogProd
   }
   const urlBySlot = new Map<string, string>();
   for (const image of z.array(approvedImageSchema).parse(imagesResult.data)) {
-    const url = admin.storage.from("product-images").getPublicUrl(image.storage_path).data.publicUrl;
-    urlBySlot.set(`${image.product_id}:${image.slot}`, url);
+    const publicUrl = admin.storage.from("product-images").getPublicUrl(image.storage_path).data.publicUrl;
+    const url = new URL(publicUrl);
+    url.searchParams.set("v", image.updated_at);
+    urlBySlot.set(`${image.product_id}:${image.slot}`, url.toString());
   }
   const imageFor = (productId: string, slot: string) => urlBySlot.get(`${productId}:${slot}`) ?? placeholder;
 

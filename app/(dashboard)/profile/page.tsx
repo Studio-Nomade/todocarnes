@@ -11,7 +11,7 @@ export default async function ProfilePage() {
       <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue">Cuenta personal</p>
       <h1 className="mt-2 text-3xl font-semibold text-navy">Mi perfil</h1>
       <p className="mt-2 text-sm leading-6 text-ink/60">
-        Configurá tus datos comerciales y revisá cómo aparecerá tu firma en los correos.
+        Configura tus datos comerciales y revisa cómo aparecerá tu firma en los correos.
       </p>
       <div className="mt-8">
         <ProfileEditor

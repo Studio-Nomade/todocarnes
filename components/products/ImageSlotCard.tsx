@@ -96,7 +96,7 @@ export function ImageSlotCard({
             className="rounded-lg bg-navy px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
             disabled={!sourceAvailable || isPending}
             onClick={() => run(() => generateProductImage(productId, slot), "Generando, ~1 min…")}
-            title={sourceAvailable ? "Generar una nueva vista" : "Subí una imagen fuente antes de generar"}
+            title={sourceAvailable ? "Generar una nueva vista" : "Sube una imagen fuente antes de generar"}
             type="button"
           >
             {displayed ? "Regenerar" : "Generar"}

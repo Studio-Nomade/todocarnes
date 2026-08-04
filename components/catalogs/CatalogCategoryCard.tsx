@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { CatalogItemProduct } from "@/lib/catalogs/types";
 
 type CatalogCategoryCardProps = {
@@ -8,6 +9,7 @@ type CatalogCategoryCardProps = {
   move: (productId: string, direction: -1 | 1) => void;
   onToggle: () => void;
   products: CatalogItemProduct[];
+  reorderByDrop: (draggedId: string, targetId: string) => void;
   removeProduct: (productId: string) => void;
   title: string;
 };
@@ -18,9 +20,18 @@ export function CatalogCategoryCard({
   move,
   onToggle,
   products,
+  reorderByDrop,
   removeProduct,
   title,
 }: CatalogCategoryCardProps) {
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+
+  function finishDrag() {
+    setDraggedId(null);
+    setDragOverId(null);
+  }
+
   return (
     <div className="min-w-0 overflow-hidden rounded-xl border border-ink/10 bg-white shadow-sm">
       <button
@@ -38,7 +49,41 @@ export function CatalogCategoryCard({
       {!collapsed ? (
         <ul className="divide-y divide-ink/10 border-t border-ink/10">
           {products.map((item, index) => (
-            <li className="grid min-w-0 grid-cols-[auto_1fr] gap-3 px-4 py-4 sm:flex sm:flex-nowrap sm:items-center sm:px-5 sm:py-3" key={item.productId}>
+            <li
+              className={`grid min-w-0 grid-cols-[auto_1fr] gap-3 px-4 py-4 transition sm:flex sm:flex-nowrap sm:items-center sm:px-5 sm:py-3 ${
+                draggedId === item.productId ? "opacity-50" : ""
+              } ${dragOverId === item.productId ? "bg-blue-50 ring-2 ring-inset ring-blue/30" : ""}`}
+              key={item.productId}
+              onDragOver={(event) => {
+                if (!draggedId || draggedId === item.productId || isPending) {
+                  return;
+                }
+                event.preventDefault();
+                event.dataTransfer.dropEffect = "move";
+                setDragOverId(item.productId);
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+                if (draggedId && !isPending) {
+                  reorderByDrop(draggedId, item.productId);
+                }
+                finishDrag();
+              }}
+            >
+              <span
+                aria-hidden="true"
+                className="hidden h-8 w-6 shrink-0 cursor-grab items-center justify-center rounded text-ink/35 hover:bg-gray-100 hover:text-navy active:cursor-grabbing xl:flex"
+                draggable={!isPending}
+                onDragEnd={finishDrag}
+                onDragStart={(event) => {
+                  event.dataTransfer.effectAllowed = "move";
+                  event.dataTransfer.setData("text/plain", item.productId);
+                  setDraggedId(item.productId);
+                }}
+                title="Arrastrar para ordenar"
+              >
+                <DragHandleIcon />
+              </span>
               <div className="row-span-2 flex shrink-0 flex-col">
                 <button
                   aria-label={`Subir ${item.title}`}
@@ -83,5 +128,18 @@ export function CatalogCategoryCard({
         </ul>
       ) : null}
     </div>
+  );
+}
+
+function DragHandleIcon() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+      <circle cx="7" cy="5" r="1.2" />
+      <circle cx="13" cy="5" r="1.2" />
+      <circle cx="7" cy="10" r="1.2" />
+      <circle cx="13" cy="10" r="1.2" />
+      <circle cx="7" cy="15" r="1.2" />
+      <circle cx="13" cy="15" r="1.2" />
+    </svg>
   );
 }

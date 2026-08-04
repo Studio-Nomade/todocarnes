@@ -44,7 +44,7 @@ export function SourceImagePanel({
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue">Imagen fuente</p>
         <h3 className="mt-1 text-lg font-semibold text-navy">Referencia del producto</h3>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/60">
-          Subí una foto clara del producto. Es la referencia obligatoria para generar las cuatro vistas sin inventar el corte ni el empaque.
+          Sube una foto clara del producto. Es la referencia obligatoria para generar las cuatro vistas sin inventar el corte ni el empaque.
         </p>
         <div className="mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
           <label className="w-full cursor-pointer rounded-lg bg-navy px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-navy/90 sm:w-auto">

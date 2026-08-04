@@ -34,7 +34,7 @@ export function CatalogHeader({ activeCategory, activeCut, cuts }: CatalogHeader
               key={category}
               style={{ width: widths[index] }}
             >
-              <CategoryIcon category={category} />
+              <CategoryIcon category={category} tone={active ? "light" : "dark"} />
               <span className={`mt-1 text-[13px] uppercase ${active ? "font-semibold" : "font-medium text-ink"}`}>
                 {category}
               </span>

@@ -121,7 +121,16 @@ created_at, updated_at
 id uuid PK
 title text not null, month int not null, year int not null
 status text not null default 'draft' check (status in ('draft','ready','exported'))
+client_name text, client_logo_path text
 created_by uuid references profiles(id)
+created_at, updated_at
+
+-- services
+id uuid PK
+title text not null, description text not null
+status text not null default 'active' check (status in ('active','inactive'))
+sort_order int not null default 0
+created_by, updated_by uuid references profiles(id)
 created_at, updated_at
 
 -- catalog_items
@@ -167,6 +176,10 @@ Un bucket `product-images`, **público en lectura**, con paths no adivinables:
 Es un catálogo comercial, no información sensible; los signed URLs agregan fricción a Playwright sin
 comprar seguridad real. *Decisión revisable antes de M4 si Todo Carnes considera el catálogo
 confidencial antes de publicarlo — barata ahora, cara después.*
+
+Los logos de clientes usan un bucket separado `catalog-assets`, **privado**, con paths
+`{catalog_id}/client-logo/{uuid}.webp`. La lectura se realiza con URLs firmadas de una hora para que
+preview y Playwright puedan renderizarlos sin hacer públicos los activos de cada cliente.
 
 ---
 
@@ -294,15 +307,18 @@ Determinístico y derivado. Implementado en `lib/pdf/page-order.ts` como funció
 
 ```
 1. Portada
-2. Índice  (construido desde los productos seleccionados)
-3. Por cada categoría con ≥1 producto, en categories.sort_order:
-     3a. Separador de categoría (lista los cortes presentes en ESE catálogo)
-     3b. Fichas, ordenadas por cuts.sort_order, luego catalog_items.sort_order
-4. Cierre
+2. Índice navegable (construido desde los productos seleccionados)
+3. Servicios
+4. Maquila de envasados personalizada con el logo del cliente
+5. Por cada categoría con ≥1 producto, en categories.sort_order:
+     5a. Separador de categoría (lista y enlaza los productos presentes)
+     5b. Fichas, ordenadas por catalog_items.sort_order
+6. Cierre
 ```
 
 El número de página se asigna en este recorrido. El menú superior de cada ficha resalta la categoría
-y el corte de ese producto.
+y el corte de ese producto. Los anchors HTML se conservan como destinos internos al exportar con
+Chromium: índice → categoría y categoría → producto.
 
 ---
 
@@ -351,6 +367,7 @@ Cada action arranca con `requireRole([...])` y valida su entrada con zod antes d
 | products | `createProduct`, `updateProduct`, `deactivateProduct`, `duplicateProduct`, `listProducts`, `getProduct` |
 | images | `uploadSourceImage`, `uploadManualImage`, `generateProductImage`, `approveImage`, `rejectImage` |
 | catalogs | `createCatalog`, `updateCatalog`, `deleteCatalog`, `listCatalogs`, `addProductToCatalog`, `removeProductFromCatalog`, `reorderCatalogItems` |
+| services | `createService`, `updateService`, `setServiceStatus` |
 | settings | `updatePromptTemplate`, `upsertCategory`, `upsertCut`, `inviteUser`, `updateUserRole` — todas `requireRole(['admin'])` |
 
 | Route Handler | Método | Nota |
@@ -395,6 +412,8 @@ app móvil, editor drag-and-drop tipo Canva.
 - Tabla `product_variants`.
 - `catalog_items.page_number` persistido.
 - Recorte o edición de imagen en la app. `object-fit: cover` y listo.
+- Excepción aprobada para personalización: el logo del cliente se superpone de forma determinística
+  sobre zonas reservadas de los mockups; no se edita ni regenera la imagen base.
 - i18n. Todo en español; solo los prompts de IA en inglés.
 - Tests unitarios exhaustivos. El mínimo exigido está en `audit-checklist.md`.
 

@@ -23,7 +23,7 @@ export default async function SettingsPage() {
       <div>
         <h1 className="text-3xl font-semibold text-navy">Configuración de imágenes</h1>
         <p className="mt-3 max-w-3xl text-ink/70">
-          Controlá la conexión, el gasto diario y los prompts que usa cada vista del catálogo.
+          Controla la conexión, el gasto diario y los prompts que usa cada vista del catálogo.
         </p>
       </div>
 

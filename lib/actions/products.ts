@@ -126,7 +126,7 @@ export async function createProduct(input: unknown): Promise<ProductMutationResu
   const profile = await requireRole([...roles]);
   const parsed = productSchema.safeParse(input);
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Revisá los campos.", success: false };
+    return { error: parsed.error.issues[0]?.message ?? "Revisa los campos.", success: false };
   }
   if (!(await cutBelongsToCategory(parsed.data.category_id, parsed.data.cut_id))) {
     return { error: "El corte no pertenece a la categoría seleccionada.", success: false };

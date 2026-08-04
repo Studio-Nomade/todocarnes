@@ -1,4 +1,4 @@
-const DEFAULT_MESSAGE = "No se pudo generar la imagen. Probá de nuevo o avisá al administrador.";
+const DEFAULT_MESSAGE = "No se pudo generar la imagen. Intenta nuevamente o avisa al administrador.";
 
 type ErrorDetails = {
   code: string;
@@ -63,7 +63,7 @@ export function humanizeOpenAIError(error: unknown): string {
     searchable.includes("credit balance") ||
     searchable.includes("billing quota")
   ) {
-    return "No hay crédito disponible para generar imágenes. Avisá al administrador.";
+    return "No hay crédito disponible para generar imágenes. Avisa al administrador.";
   }
 
   if (
@@ -78,7 +78,7 @@ export function humanizeOpenAIError(error: unknown): string {
     searchable.includes("timed out") ||
     searchable.includes("connection timeout")
   ) {
-    return "La generación tardó demasiado. Probá de nuevo.";
+    return "La generación tardó demasiado. Intenta nuevamente.";
   }
 
   if (
@@ -87,7 +87,7 @@ export function humanizeOpenAIError(error: unknown): string {
     searchable.includes("content_policy") ||
     searchable.includes("content policy")
   ) {
-    return "OpenAI rechazó esta generación. Probá con otra imagen fuente.";
+    return "OpenAI rechazó esta generación. Prueba con otra imagen fuente.";
   }
 
   return DEFAULT_MESSAGE;

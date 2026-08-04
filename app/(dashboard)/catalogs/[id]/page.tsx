@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CatalogBuilder } from "@/components/catalogs/CatalogBuilder";
+import { CatalogBrandingForm } from "@/components/catalogs/CatalogBrandingForm";
+import { CatalogTitleEditor } from "@/components/catalogs/CatalogTitleEditor";
 import { ExportButton } from "@/components/catalogs/ExportButton";
 import { SendCatalogEmail } from "@/components/catalogs/SendCatalogEmail";
 import { requireRole } from "@/lib/auth/requireRole";
@@ -32,7 +34,7 @@ export default async function CatalogBuilderPage({ params }: BuilderPageProps) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Link className="text-sm font-medium text-blue hover:underline" href="/catalogs">← Volver a catálogos</Link>
-          <h1 className="mt-2 break-words text-2xl font-semibold text-navy sm:text-3xl">{catalog.title}</h1>
+          <CatalogTitleEditor catalogId={catalog.id} initialTitle={catalog.title} />
           <p className="mt-1 text-sm text-ink/60">
             {catalogPeriod(catalog.month, catalog.year)} · <span className="font-medium">{catalogStatusLabels[catalog.status]}</span>
           </p>
@@ -55,6 +57,12 @@ export default async function CatalogBuilderPage({ params }: BuilderPageProps) {
           />
         </div>
       </div>
+
+      <CatalogBrandingForm
+        catalogId={catalog.id}
+        initialClientName={catalog.clientName ?? ""}
+        logoUrl={catalog.clientLogoUrl}
+      />
 
       <CatalogBuilder available={available} catalogId={catalog.id} initialItems={items} />
     </section>

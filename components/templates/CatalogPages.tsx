@@ -4,11 +4,19 @@ import type { CatalogPageSpec } from "@/lib/pdf/page-order";
 import { CatalogClosing } from "./CatalogClosing";
 import { CatalogCover } from "./CatalogCover";
 import { CatalogIndex } from "./CatalogIndex";
+import { CatalogPackaging } from "./CatalogPackaging";
+import { CatalogServices } from "./CatalogServices";
 import { CategoryDivider } from "./CategoryDivider";
 import { ProductPageTemplate } from "./ProductPageTemplate";
 import { ResponsiveCatalogFrame } from "./ResponsiveCatalogFrame";
 
-type CatalogMeta = { title: string; month: number; year: number };
+type CatalogMeta = {
+  clientLogoUrl?: string | null;
+  clientName?: string | null;
+  month: number;
+  title: string;
+  year: number;
+};
 
 type CatalogPagesProps = {
   meta: CatalogMeta;
@@ -25,9 +33,13 @@ function renderPage(page: CatalogPageSpec, meta: CatalogMeta, period: string, sc
       return <CatalogCover month={meta.month} scale={scale} title={meta.title} year={meta.year} />;
     case "index":
       return <CatalogIndex entries={page.entries} month={meta.month} pageNumber={page.pageNumber} scale={scale} year={meta.year} />;
+    case "services":
+      return <CatalogServices month={meta.month} pageNumber={page.pageNumber} scale={scale} services={page.services} year={meta.year} />;
+    case "packaging":
+      return <CatalogPackaging clientLogoUrl={meta.clientLogoUrl} clientName={meta.clientName} month={meta.month} pageNumber={page.pageNumber} scale={scale} year={meta.year} />;
     case "divider":
       return (
-        <CategoryDivider category={page.category} cuts={page.cuts} month={meta.month} pageNumber={page.pageNumber} scale={scale} year={meta.year} />
+        <CategoryDivider category={page.category} month={meta.month} pageNumber={page.pageNumber} products={page.products} scale={scale} year={meta.year} />
       );
     case "product":
       return (
@@ -35,6 +47,7 @@ function renderPage(page: CatalogPageSpec, meta: CatalogMeta, period: string, sc
           eagerImages={!scale}
           pageNumber={page.pageNumber}
           period={period}
+          productId={page.product.id}
           product={{
             boxWeight: page.product.boxWeight,
             brand: page.product.brand,

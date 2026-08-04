@@ -1,6 +1,9 @@
 export type CatalogStatus = "draft" | "ready" | "exported";
 
 export type CatalogRecord = {
+  clientLogoPath: string | null;
+  clientLogoUrl: string | null;
+  clientName: string | null;
   id: string;
   title: string;
   month: number;

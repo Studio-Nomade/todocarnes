@@ -149,6 +149,9 @@ escondiendo el botón.
 - **Tendencia de precios:** gráfico mock por producto y campaña, rotulado como dato demostrativo.
 - **Perfil de usuario + firma:** edición de datos comerciales y firma automática persistida en
   `profiles`; la migración ya está aplicada en el proyecto remoto.
+- **Servicios y catálogo navegable:** base administrable de servicios, página de maquila con
+  mockups reutilizables, personalización por cliente y navegación índice → categoría → producto.
+  Los logos se almacenan en un bucket privado y se leen mediante URLs firmadas.
 
 ### Límites conocidos
 

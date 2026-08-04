@@ -11,7 +11,7 @@ type CatalogCoverProps = {
 
 export function CatalogCover({ title, month, year, scale }: CatalogCoverProps) {
   return (
-    <CatalogPage scale={scale}>
+    <CatalogPage id="portada" scale={scale}>
       <Image
         alt=""
         className="absolute inset-0 h-full w-full object-cover"

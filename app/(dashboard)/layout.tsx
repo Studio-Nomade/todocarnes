@@ -20,8 +20,10 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
           <div className="hidden items-center gap-6 text-sm lg:flex">
             <nav className="flex gap-5" aria-label="Principal">
               <Link href="/dashboard">Inicio</Link>
+              <Link href="/services">Servicios</Link>
               <Link href="/products">Productos</Link>
               <Link href="/catalogs">Catálogos</Link>
+              {profile.role === "admin" ? <Link href="/users">Usuarios</Link> : null}
               {profile.role === "admin" ? <Link href="/settings">Configuración</Link> : null}
             </nav>
             <Link
@@ -42,8 +44,10 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
             <div className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-ink/10 bg-white p-3 shadow-xl">
               <nav aria-label="Principal móvil" className="flex flex-col text-sm">
                 <Link className="rounded-lg px-3 py-3 hover:bg-gray-50" href="/dashboard">Inicio</Link>
+                <Link className="rounded-lg px-3 py-3 hover:bg-gray-50" href="/services">Servicios</Link>
                 <Link className="rounded-lg px-3 py-3 hover:bg-gray-50" href="/products">Productos</Link>
                 <Link className="rounded-lg px-3 py-3 hover:bg-gray-50" href="/catalogs">Catálogos</Link>
+                {profile.role === "admin" ? <Link className="rounded-lg px-3 py-3 hover:bg-gray-50" href="/users">Usuarios</Link> : null}
                 {profile.role === "admin" ? <Link className="rounded-lg px-3 py-3 hover:bg-gray-50" href="/settings">Configuración</Link> : null}
                 <Link className="rounded-lg px-3 py-3 font-semibold text-navy hover:bg-gray-50" href="/profile">Mi perfil · {profile.name}</Link>
               </nav>

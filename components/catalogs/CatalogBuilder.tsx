@@ -6,6 +6,11 @@ import {
   removeProductFromCatalog,
   reorderCatalogItems,
 } from "@/lib/actions/catalogs";
+import {
+  dropCatalogProduct,
+  moveCatalogProduct,
+  sortCatalogItems,
+} from "@/lib/catalogs/order";
 import type { CatalogItemProduct } from "@/lib/catalogs/types";
 import { CatalogCategoryCard } from "./CatalogCategoryCard";
 
@@ -16,16 +21,8 @@ type CatalogBuilderProps = {
   initialItems: CatalogItemProduct[];
   available: AvailableProduct[];
 };
-function sortItems(items: CatalogItemProduct[]): CatalogItemProduct[] {
-  return [...items].sort((a, b) => {
-    const categoryDelta = CATEGORY_ORDER.indexOf(a.category as (typeof CATEGORY_ORDER)[number]) -
-      CATEGORY_ORDER.indexOf(b.category as (typeof CATEGORY_ORDER)[number]);
-    return categoryDelta || a.itemSortOrder - b.itemSortOrder;
-  });
-}
-
 export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBuilderProps) {
-  const [items, setItems] = useState(() => sortItems(initialItems));
+  const [items, setItems] = useState(() => sortCatalogItems(initialItems));
   const [pool, setPool] = useState(available);
   const [toAdd, setToAdd] = useState("");
   const [error, setError] = useState("");
@@ -40,12 +37,13 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
   }, [items]);
 
   const categoriesPresent = grouped.length;
-  const pageCount = items.length === 0 ? 0 : 3 + categoriesPresent + items.length;
-  function persistOrder(next: CatalogItemProduct[]) {
-    const ordered = sortItems(next).map((item) => item.productId);
+  const pageCount = items.length === 0 ? 0 : 5 + categoriesPresent + items.length;
+  function persistOrder(next: CatalogItemProduct[], previous: CatalogItemProduct[]) {
+    const ordered = sortCatalogItems(next).map((item) => item.productId);
     startTransition(async () => {
       const result = await reorderCatalogItems({ catalogId, orderedProductIds: ordered });
       if (!result.success) {
+        setItems(previous);
         setError(result.error);
       }
     });
@@ -53,21 +51,24 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
 
   function move(productId: string, direction: -1 | 1) {
     setError("");
-    setItems((current) => {
-      const sorted = sortItems(current);
-      const category = sorted.find((item) => item.productId === productId)?.category;
-      const inCategory = sorted.filter((item) => item.category === category);
-      const index = inCategory.findIndex((item) => item.productId === productId);
-      const target = index + direction;
-      if (target < 0 || target >= inCategory.length) {
-        return current;
-      }
-      [inCategory[index], inCategory[target]] = [inCategory[target], inCategory[index]];
-      const reindexed = inCategory.map((item, position) => ({ ...item, itemSortOrder: position }));
-      const next = sorted.map((item) => reindexed.find((r) => r.productId === item.productId) ?? item);
-      persistOrder(next);
-      return next;
-    });
+    const previous = items;
+    const next = moveCatalogProduct(previous, productId, direction);
+    if (!next) {
+      return;
+    }
+    setItems(next);
+    persistOrder(next, previous);
+  }
+
+  function reorderByDrop(draggedId: string, targetId: string) {
+    setError("");
+    const previous = items;
+    const next = dropCatalogProduct(previous, draggedId, targetId);
+    if (!next) {
+      return;
+    }
+    setItems(next);
+    persistOrder(next, previous);
   }
 
   function addProduct() {
@@ -144,7 +145,7 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
         {items.length === 0 ? (
           <div className="rounded-xl border border-dashed border-ink/20 bg-white px-6 py-16 text-center">
             <p className="font-medium text-navy">Este catálogo está vacío.</p>
-            <p className="mt-2 text-sm text-ink/55">Agregá productos activos desde el panel de la derecha.</p>
+            <p className="mt-2 text-sm text-ink/55">Agrega productos activos desde el panel de la derecha.</p>
           </div>
         ) : (
           grouped.map((group) => (
@@ -163,6 +164,7 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
                 return next;
               })}
               products={group.products}
+              reorderByDrop={reorderByDrop}
               removeProduct={removeProduct}
               title={group.category}
             />

@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth/requireRole";
 import { getCatalog, getCatalogProducts } from "@/lib/catalogs/data";
 import { catalogPeriod } from "@/lib/catalogs/format";
 import { buildPages } from "@/lib/pdf/page-order";
+import { getServices } from "@/lib/services/data";
 
 export const dynamic = "force-dynamic";
 
@@ -14,13 +15,23 @@ export default async function CatalogPreviewPage({ params }: PreviewPageProps) {
   await requireRole(["admin", "commercial"]);
   const { id } = await params;
 
-  const [catalog, products] = await Promise.all([getCatalog(id), getCatalogProducts(id)]);
+  const [catalog, products, services] = await Promise.all([
+    getCatalog(id),
+    getCatalogProducts(id),
+    getServices(true),
+  ]);
   if (!catalog) {
     notFound();
   }
 
-  const pages = buildPages(products);
-  const meta = { month: catalog.month, title: catalog.title, year: catalog.year };
+  const pages = buildPages(products, services);
+  const meta = {
+    clientLogoUrl: catalog.clientLogoUrl,
+    clientName: catalog.clientName,
+    month: catalog.month,
+    title: catalog.title,
+    year: catalog.year,
+  };
 
   return (
     <section className="space-y-6">
