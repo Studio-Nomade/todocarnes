@@ -34,6 +34,7 @@ export function AgendaClient({ data }: { data: AgendaPageData }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [completed, setCompleted] = useState(false);
+  const [emailWarning, setEmailWarning] = useState(false);
 
   async function refreshAvailability(rep: PublicRepresentative) {
     if (!data.configured || rep.isPlaceholder) return;
@@ -69,12 +70,12 @@ export function AgendaClient({ data }: { data: AgendaPageData }) {
     setPending(true); setError(null);
     const result = await createBooking({ ...form, eventId: data.event.id, repId: representative.id, day, slotTime });
     setPending(false);
-    if (result.ok) { setCompleted(true); return; }
+    if (result.ok) { setEmailWarning(!result.emailSent); setCompleted(true); return; }
     setError(errorMessage(result.error));
     if (result.error === "slot_taken") { setSlotTime(null); await refreshAvailability(representative); }
   }
 
-  if (completed && slotTime) return <><AgendaStepper current={4}/><SuccessState event={data.event} representative={representative} day={day} slotTime={slotTime}/></>;
+  if (completed && slotTime) return <><AgendaStepper current={4}/><SuccessState event={data.event} representative={representative} day={day} slotTime={slotTime} emailWarning={emailWarning}/></>;
 
   return (
     <>

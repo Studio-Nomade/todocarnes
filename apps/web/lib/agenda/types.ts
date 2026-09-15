@@ -54,5 +54,5 @@ export type CreateBookingInput = BookingFormState & {
 };
 
 export type CreateBookingResult =
-  | { ok: true; bookingId: string }
+  | { ok: true; bookingId: string; emailSent: boolean }
   | { ok: false; error: "invalid_data" | "invalid_selection" | "slot_taken" | "server_error" };

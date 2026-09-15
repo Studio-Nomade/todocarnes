@@ -93,6 +93,9 @@ importers:
       '@todocarnes/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@todocarnes/emails':
+        specifier: workspace:*
+        version: link:../../packages/emails
       next:
         specifier: 15.5.20
         version: 15.5.20(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

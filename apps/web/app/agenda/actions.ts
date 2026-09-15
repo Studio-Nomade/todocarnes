@@ -1,8 +1,11 @@
 "use server";
 
 import { createAgendaAdminClient } from "@/lib/agenda/server";
+import { areaLabel } from "@/lib/agenda/constants";
+import { zonedDateTimeToUtc } from "@/lib/agenda/timezone";
 import type { AgendaSlot, CreateBookingInput, CreateBookingResult } from "@/lib/agenda/types";
 import { availabilityInputSchema, bookingInputSchema, isSlotConflict } from "@/lib/agenda/validation";
+import { sendBookingConfirmation } from "@todocarnes/emails/senders";
 
 export async function getAvailability(input: {
   repId: string;
@@ -44,14 +47,14 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
     const [{ data: rep }, { data: event }] = await Promise.all([
       client
         .from("profiles")
-        .select("id")
+        .select("id,name,area,contact_email")
         .eq("id", parsed.data.repId)
         .eq("role", "commercial")
         .eq("is_public", true)
         .maybeSingle(),
       client
         .from("booking_events")
-        .select("id,days,slot_times")
+        .select("id,name,location,days,slot_times,slot_minutes")
         .eq("id", parsed.data.eventId)
         .eq("is_active", true)
         .maybeSingle(),
@@ -93,7 +96,7 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
         came_from: parsed.data.cameFrom || null,
         status: "confirmed",
       })
-      .select("id")
+      .select("id,ics_uid")
       .single();
 
     if (isSlotConflict(error)) return { ok: false, error: "slot_taken" };
@@ -102,7 +105,32 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
       return { ok: false, error: "server_error" };
     }
 
-    return { ok: true, bookingId: booking.id };
+    const emailResult = await sendBookingConfirmation({
+      booking: {
+        name: parsed.data.name,
+        company: parsed.data.company,
+        email: parsed.data.email,
+        area: areaLabel(rep.area),
+        topics: parsed.data.topics || null,
+        icsUid: booking.ics_uid,
+        start: zonedDateTimeToUtc(parsed.data.day, normalizedTime, "America/Santiago"),
+      },
+      rep: { name: rep.name, email: rep.contact_email },
+      event: {
+        name: event.name,
+        location: event.location ?? "Stand Todo Carnes — Feria Food & Service 2026",
+        slotMinutes: event.slot_minutes,
+        timezone: "America/Santiago",
+      },
+    });
+
+    if (!emailResult.ok) {
+      console.error("[agenda] La reserva se creó, pero falló el correo de confirmación.", {
+        bookingId: booking.id,
+      });
+    }
+
+    return { ok: true, bookingId: booking.id, emailSent: emailResult.ok };
   } catch {
     console.error("[agenda] Error inesperado al crear la reserva.");
     return { ok: false, error: "server_error" };

@@ -12,6 +12,7 @@
   "dependencies": {
     "@todocarnes/brand": "workspace:*",
     "@todocarnes/db": "workspace:*",
+    "@todocarnes/emails": "workspace:*",
     "@supabase/supabase-js": "2.100.1",
     "next": "15.5.20",
     "react": "19.1.0",
