@@ -1,0 +1,13 @@
+{
+  "name": "@todocarnes/db",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "db:push": "supabase db push --linked",
+    "db:migration:list": "supabase migration list --linked",
+    "db:types": "supabase gen types typescript --linked > src/types.ts"
+  },
+  "devDependencies": {
+    "supabase": "^2.109.1"
+  }
+}

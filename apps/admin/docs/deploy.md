@@ -4,34 +4,44 @@ Guía para sacar el prototipo a producción con una URL pública que se le compa
 Stack: Next.js en **Railway con Docker** (no Vercel — Playwright no corre en serverless), datos en
 **Supabase** remoto.
 
-> El `Dockerfile` y el `.dockerignore` ya están en el repo. La imagen base
-> `mcr.microsoft.com/playwright:v1.61.1-noble/-jammy` trae Chromium y sus dependencias, así que el
+> El `Dockerfile` vive en `apps/admin/Dockerfile` y el contexto de build es la raíz del monorepo. La
+> imagen base `mcr.microsoft.com/playwright:v1.61.1-jammy` trae Chromium y sus dependencias, así que el
 > export del PDF funciona sin configurar nada más. Si algún día subís la versión de `playwright` en
-> `package.json`, actualizá el tag del `Dockerfile` para que coincida.
+> `apps/admin/package.json`, actualizá el tag del `Dockerfile` para que coincida.
 
 ---
 
 ## 1. Supabase (el proyecto ya existe)
 
-El proyecto remoto ya está creado y linkeado (`npx supabase link` hecho). Para un entorno nuevo,
-crealo en supabase.com y linkealo con `npx supabase link --project-ref <ref>`.
+El proyecto remoto ya está creado y linkeado. La configuración y las migraciones viven en
+`packages/db/supabase`. Para un entorno nuevo, crealo en supabase.com y linkealo desde
+`packages/db` con `pnpm exec supabase link --project-ref <ref>`.
 
 1. **Aplicar las migraciones** (crea tablas, RLS, triggers y los buckets de storage):
 
    ```bash
-   npx supabase db push --linked
+   pnpm --filter @todocarnes/db db:push
    ```
 
    Verificá que quede en cero pendientes:
 
    ```bash
-   npx supabase migration list --linked
+   pnpm --filter @todocarnes/db db:migration:list
    ```
+
+   Para regenerar los tipos cuando el proyecto esté autenticado y linkeado:
+
+   ```bash
+   pnpm --filter @todocarnes/db db:types
+   ```
+
+   El comando escribe `packages/db/src/types.ts`. H0.1 deja el script preparado; no requiere
+   generar ni versionar tipos nuevos para completar la migración estructural.
 
 2. **Sembrar los datos de demo** (categorías, cortes, productos, catálogo armado y **los usuarios**):
 
    ```bash
-   npm run seed
+   pnpm --filter catalog-builder seed
    ```
 
    > ⚠️ **Rotá las credenciales del seed antes de un deploy real.** Las de `.env.local`
@@ -47,9 +57,9 @@ crealo en supabase.com y linkealo con `npx supabase link --project-ref <ref>`.
 
 ## 2. Railway
 
-1. **Nuevo proyecto** → *Deploy from GitHub repo* → elegí `Studio-Nomade/catalog-builder`, rama
-   `main` (o `develop` si querés mostrar lo último). Railway detecta el `Dockerfile` y usa el builder
-   Docker automáticamente.
+1. **Nuevo proyecto** → *Deploy from GitHub repo* → elegí `Studio-Nomade/todocarnes`, rama `main`
+   (o `develop` si querés mostrar lo último). En Railway dejá **Root Directory** en la raíz del repo
+   y configurá el Dockerfile path como `apps/admin/Dockerfile`.
 2. **Variables de entorno** (Settings → Variables) — ver la tabla de abajo.
 3. **Deploy.** El primer build tarda (baja la imagen de Playwright, ~1–2 GB).
 4. **Generar el dominio**: Settings → Networking → *Generate Domain*. Copiá la URL pública
