@@ -3,7 +3,21 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "env": [
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "NEXT_PUBLIC_SITE_URL"
+      ],
       "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "@todocarnes/brand#build": {
+      "outputs": []
+    },
+    "@todocarnes/db#build": {
+      "outputs": []
+    },
+    "@todocarnes/emails#build": {
+      "outputs": []
     },
     "lint": {
       "dependsOn": ["^lint"]

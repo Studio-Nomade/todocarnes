@@ -1,0 +1,14 @@
+@import "@todocarnes/brand/oliviar.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Oliviar Sans";
+  --font-sans: ui-sans-serif;
+}
+
+body {
+  margin: 0;
+}
