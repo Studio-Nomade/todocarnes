@@ -4,15 +4,17 @@ import { Capacity } from "@/components/landing/Capacity";
 import { CommercialAreas } from "@/components/landing/CommercialAreas";
 import { CommercialTeam } from "@/components/landing/CommercialTeam";
 import { LandingContactForm } from "@/components/landing/LandingContactForm";
-import { CustomSolutions } from "@/components/landing/CustomSolutions";
 import { DonPancho } from "@/components/landing/DonPancho";
+import { FoodServiceBanner } from "@/components/landing/FoodServiceBanner";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingHero } from "@/components/landing/LandingHero";
 import { OperationsTabs } from "@/components/landing/OperationsTabs";
 import { ProcessSteps } from "@/components/landing/ProcessSteps";
+import { ProcessMedia } from "@/components/landing/ProcessMedia";
 import { Solutions } from "@/components/landing/Solutions";
 import { OrganizationJsonLd } from "@/components/seo/OrganizationJsonLd";
+import { getAgendaPageData } from "@/lib/agenda/data";
 import { getPublicRepresentatives } from "@/lib/public-representatives";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +35,11 @@ async function PublicContactForm() {
   return <LandingContactForm configured={team.configured} />;
 }
 
+async function PublicFoodServiceBanner() {
+  const data = await getAgendaPageData();
+  return <FoodServiceBanner eventName={data.event.name} />;
+}
+
 export default function HomePage() {
   return (
     <>
@@ -41,13 +48,14 @@ export default function HomePage() {
       <main id="contenido">
         <LandingHero />
         <CommercialAreas />
-        <Suspense fallback={<div className="min-h-96 bg-gray-50" aria-label="Cargando equipo comercial" />}><PublicCommercialTeam /></Suspense>
-        <OperationsTabs />
-        <Solutions />
-        <Capacity />
-        <CustomSolutions />
         <DonPancho />
+        <Solutions />
+        <ProcessMedia />
+        <OperationsTabs />
+        <Capacity />
+        <Suspense fallback={<div className="min-h-96 bg-gray-50" aria-label="Cargando equipo comercial" />}><PublicCommercialTeam /></Suspense>
         <ProcessSteps />
+        <Suspense fallback={<div className="min-h-64" aria-label="Cargando evento Food Service" />}><PublicFoodServiceBanner /></Suspense>
         <Suspense fallback={<div className="min-h-96 bg-blue-50" aria-label="Cargando formulario de contacto" />}><PublicContactForm /></Suspense>
       </main>
       <LandingFooter />

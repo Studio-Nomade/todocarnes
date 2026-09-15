@@ -1,15 +1,17 @@
 import "server-only";
 
 import { FALLBACK_EVENT } from "./constants";
+import { DEMO_REPRESENTATIVES } from "./demo";
 import { createAgendaAdminClient, hasAgendaDatabaseConfig } from "./server";
 import type { AgendaPageData } from "./types";
 import { getPublicRepresentatives } from "@/lib/public-representatives";
 
 const unconfigured: AgendaPageData = {
   event: FALLBACK_EVENT,
-  representatives: [],
+  representatives: DEMO_REPRESENTATIVES,
   configured: false,
-  notice: "La agenda se habilitará cuando existan perfiles comerciales públicos configurados.",
+  courtesyConfigured: false,
+  notice: "Vista de simulación: la confirmación se habilitará cuando existan perfiles comerciales públicos configurados.",
 };
 
 export async function getAgendaPageData(): Promise<AgendaPageData> {
@@ -26,13 +28,14 @@ export async function getAgendaPageData(): Promise<AgendaPageData> {
     getPublicRepresentatives(),
   ]);
 
-  if (eventResult.error || !eventResult.data || !repsResult.configured) {
+  if (eventResult.error || !eventResult.data) {
     console.error("[agenda] No fue posible cargar la configuración pública.");
     return unconfigured;
   }
 
   return {
-    configured: true,
+    configured: repsResult.configured && repsResult.representatives.length > 0,
+    courtesyConfigured: true,
     event: {
       id: eventResult.data.id,
       name: eventResult.data.name,
@@ -41,6 +44,11 @@ export async function getAgendaPageData(): Promise<AgendaPageData> {
       slotTimes: eventResult.data.slot_times,
       slotMinutes: eventResult.data.slot_minutes,
     },
-    representatives: repsResult.representatives,
+    representatives: repsResult.configured && repsResult.representatives.length > 0
+      ? repsResult.representatives
+      : DEMO_REPRESENTATIVES,
+    notice: repsResult.configured && repsResult.representatives.length > 0
+      ? undefined
+      : "Vista de simulación: los horarios se habilitarán cuando existan perfiles comerciales públicos configurados.",
   };
 }

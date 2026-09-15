@@ -309,6 +309,53 @@ export type Database = {
         }
         Relationships: []
       }
+      courtesy_requests: {
+        Row: {
+          area: Database["public"]["Enums"]["area_comercial"]
+          cargo: string
+          company: string
+          created_at: string
+          email: string
+          event_id: string
+          id: string
+          name: string
+          phone: string
+          status: string
+        }
+        Insert: {
+          area: Database["public"]["Enums"]["area_comercial"]
+          cargo: string
+          company: string
+          created_at?: string
+          email: string
+          event_id: string
+          id?: string
+          name: string
+          phone: string
+          status?: string
+        }
+        Update: {
+          area?: Database["public"]["Enums"]["area_comercial"]
+          cargo?: string
+          company?: string
+          created_at?: string
+          email?: string
+          event_id?: string
+          id?: string
+          name?: string
+          phone?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courtesy_requests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "booking_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cuts: {
         Row: {
           category_id: string
@@ -939,4 +986,3 @@ export const Constants = {
     },
   },
 } as const
-
