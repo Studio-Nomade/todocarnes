@@ -1,0 +1,33 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+
+# Builds
+.next/
+.turbo/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# Entorno — nunca versionar secretos
+.env*
+!.env.example
+!**/.env.example
+
+# Salidas locales
+output/
+exports/
+*.pdf
+
+# Herramientas y sistema
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.log
+
+# Servicios locales
+.supabase/
+.vercel/
