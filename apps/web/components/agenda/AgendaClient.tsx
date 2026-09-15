@@ -29,6 +29,21 @@ function errorMessage(error: "invalid_data" | "invalid_selection" | "slot_taken"
 }
 
 export function AgendaClient({ data }: { data: AgendaPageData }) {
+  if (!data.representatives.length) {
+    return (
+      <section className="mx-auto max-w-3xl px-5 py-20 text-center sm:px-8">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">Agenda comercial</p>
+        <h2 className="mt-3 font-display text-4xl text-navy">Próximamente podrás reservar tu reunión.</h2>
+        <p className="mx-auto mt-5 max-w-xl text-ink/65">Aún no hay vendedores públicos disponibles para este evento. Puedes volver más tarde o escribirnos desde el formulario general de contacto.</p>
+        {data.notice ? <p className="mt-6 rounded-xl border border-blue-mid bg-blue-50 px-5 py-4 text-sm text-navy">{data.notice}</p> : null}
+      </section>
+    );
+  }
+
+  return <ConfiguredAgendaClient data={data} />;
+}
+
+function ConfiguredAgendaClient({ data }: { data: AgendaPageData }) {
   const [representative, setRepresentative] = useState(data.representatives[0]);
   const [day, setDay] = useState(data.event.days[0]);
   const [slotTime, setSlotTime] = useState<string | null>(null);
@@ -41,7 +56,7 @@ export function AgendaClient({ data }: { data: AgendaPageData }) {
   const [emailWarning, setEmailWarning] = useState(false);
 
   async function refreshAvailability(rep: PublicRepresentative) {
-    if (!data.configured || rep.isPlaceholder) return;
+    if (!data.configured) return;
     setLoadingSlots(true);
     const result = await getAvailability({ repId: rep.id, eventId: data.event.id });
     if (result.ok) setSlots(result.slots);
@@ -51,7 +66,7 @@ export function AgendaClient({ data }: { data: AgendaPageData }) {
 
   useEffect(() => {
     let active = true;
-    if (!data.configured || representative.isPlaceholder) return;
+    if (!data.configured) return;
     setLoadingSlots(true);
     getAvailability({ repId: representative.id, eventId: data.event.id }).then((result) => {
       if (!active) return;
@@ -60,7 +75,7 @@ export function AgendaClient({ data }: { data: AgendaPageData }) {
       setLoadingSlots(false);
     });
     return () => { active = false; };
-  }, [data.configured, data.event.id, representative.id, representative.isPlaceholder]);
+  }, [data.configured, data.event.id, representative.id]);
 
   const formReady = useMemo(() => Boolean(form.name.trim() && form.company.trim() && form.cargo.trim() && form.email.includes("@") && form.phone.replace(/\D/g, "").length === 9), [form]);
   const currentStep = completed ? 4 : formReady && slotTime ? 3 : slotTime ? 2 : 1;
@@ -71,7 +86,7 @@ export function AgendaClient({ data }: { data: AgendaPageData }) {
   }
 
   async function confirm() {
-    if (!slotTime || !data.configured || representative.isPlaceholder) return;
+    if (!slotTime || !data.configured) return;
     setPending(true); setError(null);
     const result = await createBooking({ ...form, eventId: data.event.id, repId: representative.id, day, slotTime });
     setPending(false);
@@ -89,7 +104,7 @@ export function AgendaClient({ data }: { data: AgendaPageData }) {
         <div id="equipo"><SectionHeading eyebrow="Nuestro equipo" title="Elige el área que mejor se ajusta a tu negocio">Selecciona con quién te gustaría agendar tu reunión en la feria.</SectionHeading><RepresentativeGrid representatives={data.representatives} selectedId={representative.id} onSelect={selectRepresentative}/></div>
         {data.notice && <p className="mt-5 rounded-xl border border-blue-mid bg-blue-50 px-5 py-4 text-sm text-navy">{data.notice}</p>}
         <div className="mt-14"><SectionHeading eyebrow="Paso 1 de 4" title="Selecciona día y horario">Elige el día y horario que más te acomode para tu reunión presencial en nuestro stand.</SectionHeading><SlotPicker days={data.event.days} slots={slots} selectedDay={day} selectedTime={slotTime} loading={loadingSlots} onDay={(value) => { setDay(value); setSlotTime(null); }} onTime={(value) => { setSlotTime(value); setError(null); }}/></div>
-        <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]"><div><SectionHeading eyebrow="Paso 2 de 4" title="Completa tus datos">Con esta información podremos confirmar tu reunión en la feria.</SectionHeading><BookingForm value={form} onChange={(field, value) => setForm((current) => ({ ...current, [field]: value }))}/></div><BookingSummary event={data.event} representative={representative} day={day} slotTime={slotTime} whatsappHref={whatsappHref} pending={pending} error={error} disabled={!formReady || !slotTime || !data.configured || representative.isPlaceholder} onConfirm={confirm}/></div>
+        <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]"><div><SectionHeading eyebrow="Paso 2 de 4" title="Completa tus datos">Con esta información podremos confirmar tu reunión en la feria.</SectionHeading><BookingForm value={form} onChange={(field, value) => setForm((current) => ({ ...current, [field]: value }))}/></div><BookingSummary event={data.event} representative={representative} day={day} slotTime={slotTime} whatsappHref={whatsappHref} pending={pending} error={error} disabled={!formReady || !slotTime || !data.configured} onConfirm={confirm}/></div>
       </section>
       <HowItWorks/>
       <ContactDirect representative={representative} configured={data.configured}/>
