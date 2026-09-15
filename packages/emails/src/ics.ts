@@ -68,7 +68,6 @@ export function buildIcs(input: BuildIcsInput) {
     throw new Error("La duración debe ser un número entero positivo.");
   }
 
-  formatInTimezone(input.start, input.timezone);
   const end = new Date(input.start.getTime() + input.durationMinutes * 60_000);
   const lines = [
     "BEGIN:VCALENDAR",
