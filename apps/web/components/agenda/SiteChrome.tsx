@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 export function SiteHeader() {
@@ -6,7 +7,7 @@ export function SiteHeader() {
     <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
       <Image src="/brand/logo-completo-horizontal.webp" alt="Todo Carnes" width={128} height={44} priority />
       <nav aria-label="Navegación principal" className="hidden items-center gap-7 text-sm font-semibold text-navy md:flex">
-        <a href="#equipo">Áreas comerciales</a><a href="#como-funciona">Soluciones</a><a href="#equipo">Equipo</a><a href="#contacto">Contacto</a>
+        <Link href="/#areas">Líneas de negocio</Link><Link href="/#soluciones">Servicios</Link><a href="#entrada-cortesia">Entrada de cortesía</a><a href="#equipo">Equipo</a>
         <a href="#reserva" className="rounded-full bg-navy px-5 py-2.5 text-white">Hablemos</a>
       </nav>
     </header>
@@ -17,8 +18,8 @@ export function SiteFooter() {
   return (
     <footer className="bg-navy text-white">
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-12 sm:px-8 md:grid-cols-[1fr_auto] md:items-end">
-        <div><Image src="/brand/logo-completo-horizontal.webp" alt="Todo Carnes" width={150} height={52} className="rounded bg-white p-2"/><p className="mt-4 text-sm text-blue-50">Soluciones cárnicas B2B para la industria alimentaria.</p></div>
-        <div className="flex flex-wrap gap-5 text-sm text-blue-50"><a href="#equipo">Áreas comerciales</a><a href="#como-funciona">Soluciones</a><a href="#contacto">Contacto</a></div>
+        <div><Image src="/brand/logo-blanco.png" alt="Todo Carnes" width={150} height={113} className="h-auto w-36 object-contain"/><p className="mt-4 text-sm text-blue-50">Soluciones cárnicas B2B para la industria alimentaria.</p></div>
+        <div className="flex flex-wrap gap-5 text-sm text-blue-50"><a href="#reserva">Agendar reunión</a><a href="#entrada-cortesia">Entrada de cortesía</a><a href="#contacto">Contacto</a></div>
         <p className="text-xs text-blue-50/70 md:col-span-2">© 2026 Todo Carnes. Todos los derechos reservados.</p>
       </div>
     </footer>

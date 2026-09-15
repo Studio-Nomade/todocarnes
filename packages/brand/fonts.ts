@@ -1,9 +1,3 @@
-export const oliviarFontFamily = '"Oliviar Sans", ui-sans-serif, sans-serif';
+export const montserratFontFamily = '"Montserrat", ui-sans-serif, sans-serif';
 
-export const oliviarFontFace = `@font-face {
-  font-family: "Oliviar Sans";
-  src: url("./fonts/oliviar/oliviar-sans-regular.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}`;
+export const montserratWeights = [300, 400, 500, 600, 700] as const;

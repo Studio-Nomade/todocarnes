@@ -1,23 +1,24 @@
-@import "@todocarnes/brand/oliviar.css";
+@import "@todocarnes/brand/montserrat.css";
+@import "@todocarnes/brand/theme.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-display: "Oliviar Sans";
-  --font-sans: ui-sans-serif;
+  --font-display: "Montserrat";
+  --font-sans: "Montserrat";
 }
 
 body {
   margin: 0;
-  background: #ffffff;
-  color: #424242;
+  background: var(--brand-white);
+  color: var(--brand-ink);
   font-family: var(--font-sans), ui-sans-serif, sans-serif;
 }
 
 *:focus-visible {
-  outline: 3px solid #2563eb;
+  outline: 3px solid var(--brand-blue);
   outline-offset: 3px;
 }
 
@@ -28,9 +29,9 @@ body {
   z-index: 100;
   transform: translateY(-200%);
   border-radius: 9999px;
-  background: #ffffff;
+  background: var(--brand-white);
   padding: 0.75rem 1rem;
-  color: #0d244f;
+  color: var(--brand-navy);
   font-weight: 700;
 }
 
@@ -43,6 +44,14 @@ body {
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 button,

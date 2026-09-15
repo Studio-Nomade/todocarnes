@@ -4,10 +4,9 @@ Tokens, preset de Tailwind y activos compartidos de Todo Carnes.
 
 ## Tipografía
 
-- `font-display`: Oliviar Sans en la web pública.
-- `font-sans`: la aplicación consumidora define `--font-sans`; el admin conserva Montserrat y la
-  web usa la pila de sistema.
-- La fuente Oliviar se sirve localmente desde `fonts/oliviar/`; no usa CDN.
+- `font-display` y `font-sans`: Montserrat auto-hospedada en pesos 300, 400, 500, 600 y 700.
+- Web y admin importan `@todocarnes/brand/montserrat.css`; no se usa CDN ni se duplican los `.woff2`.
+- `theme.css` expone los mismos colores de `tokens.ts` como variables CSS para estilos globales.
 
 ## Logos
 
@@ -18,7 +17,5 @@ Tokens, preset de Tailwind y activos compartidos de Todo Carnes.
 | `isologo-cropped.webp` | Isologo compacto sobre fondos claros |
 | `isologo.webp` | Isologo con mayor área transparente sobre fondos claros |
 
-Los cuatro WebP entregados son full color. Para fondos navy debe usarse una variante blanca; esa
-variante existe en el admin legado, pero no se duplica aquí porque no vino incluida en el set WebP
-de la web. Hasta que diseño entregue esa exportación, estos logos se usan solamente sobre fondos
-claros.
+Los cuatro WebP entregados son full color y se usan sobre fondos claros. La web pública incluye la
+variante blanca entregada por el cliente en `apps/web/public/brand/logo-blanco.png` para sus footers.

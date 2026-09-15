@@ -33,6 +33,7 @@ export type AgendaPageData = {
   event: AgendaEvent;
   representatives: PublicRepresentative[];
   configured: boolean;
+  courtesyConfigured: boolean;
   notice?: string;
 };
 
