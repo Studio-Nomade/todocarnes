@@ -2,12 +2,21 @@
   "name": "@todocarnes/db",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "types": "./src/types.ts",
+  "exports": {
+    ".": "./src/types.ts",
+    "./types": "./src/types.ts"
+  },
   "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "tsc --noEmit",
     "db:push": "supabase db push --linked",
     "db:migration:list": "supabase migration list --linked",
     "db:types": "supabase gen types typescript --linked > src/types.ts"
   },
   "devDependencies": {
-    "supabase": "^2.109.1"
+    "supabase": "^2.109.1",
+    "typescript": "^5.9.2"
   }
 }
