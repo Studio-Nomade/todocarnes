@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { AgendaClient } from "@/components/agenda/AgendaClient";
 import { AgendaHero } from "@/components/agenda/AgendaHero";
-import { HowItWorks } from "@/components/agenda/HowItWorks";
 import { SiteFooter, SiteHeader } from "@/components/agenda/SiteChrome";
 import { getAgendaPageData } from "@/lib/agenda/data";
 
@@ -14,5 +13,5 @@ export const metadata: Metadata = {
 
 export default async function AgendaPage() {
   const data = await getAgendaPageData();
-  return <main><SiteHeader/><AgendaHero/><AgendaClient data={data}/><HowItWorks/><SiteFooter/></main>;
+  return <main><SiteHeader/><AgendaHero/><AgendaClient data={data}/><SiteFooter/></main>;
 }

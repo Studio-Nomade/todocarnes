@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createBooking, getAvailability } from "@/app/agenda/actions";
 import type { AgendaPageData, AgendaSlot, BookingFormState, PublicRepresentative } from "@/lib/agenda/types";
+import { buildWhatsAppHref } from "@/lib/agenda/whatsapp";
 import { AgendaStepper } from "./AgendaStepper";
 import { BookingForm } from "./BookingForm";
 import { BookingSummary } from "./BookingSummary";
@@ -10,6 +11,9 @@ import { RepresentativeGrid } from "./RepresentativeGrid";
 import { SectionHeading } from "./SiteChrome";
 import { SlotPicker } from "./SlotPicker";
 import { SuccessState } from "./SuccessState";
+import { ContactDirect } from "./ContactDirect";
+import { HowItWorks } from "./HowItWorks";
+import { dayLabel } from "./SlotPicker";
 
 const EMPTY_FORM: BookingFormState = { name: "", company: "", cargo: "", email: "", phone: "", topics: "", cameFrom: "" };
 
@@ -60,6 +64,7 @@ export function AgendaClient({ data }: { data: AgendaPageData }) {
 
   const formReady = useMemo(() => Boolean(form.name.trim() && form.company.trim() && form.cargo.trim() && form.email.includes("@") && form.phone.replace(/\D/g, "").length === 9), [form]);
   const currentStep = completed ? 4 : formReady && slotTime ? 3 : slotTime ? 2 : 1;
+  const whatsappHref = buildWhatsAppHref({ representative, dayLabel: dayLabel(day), slotTime, customerName: form.name });
 
   function selectRepresentative(rep: PublicRepresentative) {
     setRepresentative(rep); setDay(data.event.days[0]); setSlotTime(null); setError(null);
@@ -84,8 +89,10 @@ export function AgendaClient({ data }: { data: AgendaPageData }) {
         <div id="equipo"><SectionHeading eyebrow="Nuestro equipo" title="Elige el área que mejor se ajusta a tu negocio">Selecciona con quién te gustaría agendar tu reunión en la feria.</SectionHeading><RepresentativeGrid representatives={data.representatives} selectedId={representative.id} onSelect={selectRepresentative}/></div>
         {data.notice && <p className="mt-5 rounded-xl border border-blue-mid bg-blue-50 px-5 py-4 text-sm text-navy">{data.notice}</p>}
         <div className="mt-14"><SectionHeading eyebrow="Paso 1 de 4" title="Selecciona día y horario">Elige el día y horario que más te acomode para tu reunión presencial en nuestro stand.</SectionHeading><SlotPicker days={data.event.days} slots={slots} selectedDay={day} selectedTime={slotTime} loading={loadingSlots} onDay={(value) => { setDay(value); setSlotTime(null); }} onTime={(value) => { setSlotTime(value); setError(null); }}/></div>
-        <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]"><div><SectionHeading eyebrow="Paso 2 de 4" title="Completa tus datos">Con esta información podremos confirmar tu reunión en la feria.</SectionHeading><BookingForm value={form} onChange={(field, value) => setForm((current) => ({ ...current, [field]: value }))}/></div><BookingSummary event={data.event} representative={representative} day={day} slotTime={slotTime} pending={pending} error={error} disabled={!formReady || !slotTime || !data.configured || representative.isPlaceholder} onConfirm={confirm}/></div>
+        <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]"><div><SectionHeading eyebrow="Paso 2 de 4" title="Completa tus datos">Con esta información podremos confirmar tu reunión en la feria.</SectionHeading><BookingForm value={form} onChange={(field, value) => setForm((current) => ({ ...current, [field]: value }))}/></div><BookingSummary event={data.event} representative={representative} day={day} slotTime={slotTime} whatsappHref={whatsappHref} pending={pending} error={error} disabled={!formReady || !slotTime || !data.configured || representative.isPlaceholder} onConfirm={confirm}/></div>
       </section>
+      <HowItWorks/>
+      <ContactDirect representative={representative} configured={data.configured}/>
     </>
   );
 }

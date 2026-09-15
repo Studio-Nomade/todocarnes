@@ -56,3 +56,15 @@ export type CreateBookingInput = BookingFormState & {
 export type CreateBookingResult =
   | { ok: true; bookingId: string; emailSent: boolean }
   | { ok: false; error: "invalid_data" | "invalid_selection" | "slot_taken" | "server_error" };
+
+export type AgendaLeadFormState = {
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  message: string;
+};
+
+export type CreateAgendaLeadResult =
+  | { ok: true; leadId: string; emailSent: boolean }
+  | { ok: false; error: "invalid_data" | "server_error" };

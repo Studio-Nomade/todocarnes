@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { bookingInputSchema, isSlotConflict, normalizeChilePhone } from "./validation";
+import { agendaLeadInputSchema, bookingInputSchema, isSlotConflict, normalizeChilePhone } from "./validation";
 
 const validBooking = {
   eventId: "00000000-0000-4000-8000-000000000000",
@@ -30,4 +30,16 @@ test("rechaza teléfonos incompletos y reconoce carreras por unique violation", 
   assert.equal(bookingInputSchema.safeParse({ ...validBooking, phone: "123" }).success, false);
   assert.equal(isSlotConflict({ code: "23505" }), true);
   assert.equal(isSlotConflict({ code: "42501" }), false);
+});
+
+test("valida un lead sin representante y normaliza su teléfono", () => {
+  const result = agendaLeadInputSchema.parse({
+    repId: "",
+    name: "Ana Pérez",
+    company: "",
+    email: "ana@example.com",
+    phone: "+56 9 8765 4321",
+    message: "Necesito información",
+  });
+  assert.equal(result.phone, "+56987654321");
 });

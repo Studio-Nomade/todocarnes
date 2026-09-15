@@ -38,6 +38,15 @@ export const bookingInputSchema = z.object({
   cameFrom: z.enum(contactOrigins).or(z.literal("")),
 });
 
+export const agendaLeadInputSchema = z.object({
+  repId: z.string().uuid().or(z.literal("")),
+  name: z.string().trim().min(2).max(120),
+  company: z.string().trim().max(160),
+  email: z.email().max(254),
+  phone: phoneSchema,
+  message: z.string().trim().max(1000),
+});
+
 export function isSlotConflict(error: { code?: string } | null) {
   return error?.code === "23505";
 }
