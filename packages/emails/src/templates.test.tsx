@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { render } from "@react-email/render";
-import { BookingConfirmation, LeadAck, LeadNotification } from "./templates";
+import { BookingConfirmation, CourtesyConfirmation, LeadAck, LeadNotification } from "./templates";
 
-test("renderiza las tres plantillas transaccionales", async () => {
+test("renderiza las cuatro plantillas transaccionales", async () => {
   const booking = await render(
     <BookingConfirmation
       clientName="Camila"
@@ -19,10 +19,22 @@ test("renderiza las tres plantillas transaccionales", async () => {
   const notification = await render(
     <LeadNotification email="camila@example.com" name="Camila" area="Food Service" />,
   );
+  const courtesy = await render(
+    <CourtesyConfirmation
+      area="Food Service"
+      cargo="Jefa de compras"
+      company="Ejemplo SpA"
+      eventLocation="Espacio Riesco"
+      eventName="Feria Food & Service 2026"
+      name="Camila"
+    />,
+  );
 
   assert.match(booking, /Tu reunión está confirmada/);
   assert.match(booking, /11:00/);
   assert.match(ack, /Gracias por contactarnos/);
   assert.match(notification, /Nuevo contacto comercial/);
   assert.match(notification, /camila@example\.com/);
+  assert.match(courtesy, /Recibimos tu solicitud de entrada/);
+  assert.match(courtesy, /Ejemplo SpA/);
 });

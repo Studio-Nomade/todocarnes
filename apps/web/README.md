@@ -40,3 +40,15 @@ migraciones manuales al Supabase de producción y recién entonces mergear. Este
 automatiza migraciones.
 
 Los registros de dominio están en [`docs/infrastructure.md`](../../docs/infrastructure.md).
+
+## Medios de procesos pendientes
+
+La sección unificada “Nuestros procesos” deja preparados poster estático y fuentes WebM/MP4 para
+corte, gramaje, porcionado, procesamiento, descongelado, embalaje, etiquetado, maquila y marca propia.
+Mientras el cliente no entregue los loops se usan imágenes estáticas y un aviso explícito. Al
+incorporar los archivos en `public/landing/processes/`, completar `webm` y `mp4` en
+`ProcessMedia.tsx`.
+
+En desktop, el hover sobre cada concepto cambia el fondo de la sección y reproduce su loop; en
+dispositivos táctiles se activa con tap. Con `prefers-reduced-motion` siempre queda el poster; los
+videos usan `preload="none"`.

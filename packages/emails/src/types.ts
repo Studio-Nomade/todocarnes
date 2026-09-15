@@ -22,6 +22,14 @@ export type BookingEventData = {
   timezone?: string;
 };
 
+export type CourtesyEmailData = {
+  name: string;
+  company: string;
+  cargo: string;
+  email: string;
+  area: string;
+};
+
 export type LeadEmailData = {
   name: string;
   company?: string | null;

@@ -9,7 +9,8 @@
     "./tokens": "./tokens.ts",
     "./tailwind-preset": "./tailwind-preset.ts",
     "./fonts": "./fonts.ts",
-    "./oliviar.css": "./oliviar.css",
+    "./montserrat.css": "./montserrat.css",
+    "./theme.css": "./theme.css",
     "./logos/*": "./logos/*"
   },
   "scripts": {

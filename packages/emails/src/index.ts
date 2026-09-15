@@ -5,6 +5,7 @@ export type {
   BookingEventData,
   BookingRepresentative,
   ContactPerson,
+  CourtesyEmailData,
   LeadEmailData,
   SendResult,
 } from "./types";

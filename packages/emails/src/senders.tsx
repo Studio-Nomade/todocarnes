@@ -1,16 +1,50 @@
 import { Resend } from "resend";
 import { buildIcs } from "./ics";
-import { BookingConfirmation, LeadAck, LeadNotification } from "./templates";
+import { BookingConfirmation, CourtesyConfirmation, LeadAck, LeadNotification } from "./templates";
 import type {
   BookingEmailData,
   BookingEventData,
   BookingRepresentative,
+  CourtesyEmailData,
   LeadEmailData,
   SendResult,
 } from "./types";
 
 if (typeof window !== "undefined") {
   throw new Error("@todocarnes/emails/senders solo puede importarse desde el servidor.");
+}
+
+export async function sendCourtesyConfirmation({
+  request,
+  event,
+}: {
+  request: CourtesyEmailData;
+  event: { name: string; location: string };
+}): Promise<SendResult> {
+  const config = getEmailConfig();
+  if (!config) return { ok: false, error: "Falta configurar RESEND_API_KEY o EMAIL_FROM." };
+
+  try {
+    const resend = new Resend(config.apiKey);
+    const response = await resend.emails.send({
+      from: config.from,
+      to: request.email,
+      replyTo: config.replyTo,
+      subject: "Recibimos tu solicitud de entrada — Todo Carnes",
+      react: (
+        <CourtesyConfirmation
+          {...request}
+          eventLocation={event.location}
+          eventName={event.name}
+          logoUrl={config.logoUrl}
+        />
+      ),
+    });
+    if (response.error || !response.data?.id) return failed(response.error);
+    return { ok: true, id: response.data.id };
+  } catch (error) {
+    return failed(error);
+  }
 }
 
 type EmailConfig = {
