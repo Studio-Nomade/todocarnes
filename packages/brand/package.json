@@ -1,0 +1,23 @@
+{
+  "name": "@todocarnes/brand",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": ["*.css"],
+  "exports": {
+    ".": "./tokens.ts",
+    "./tokens": "./tokens.ts",
+    "./tailwind-preset": "./tailwind-preset.ts",
+    "./fonts": "./fonts.ts",
+    "./oliviar.css": "./oliviar.css",
+    "./logos/*": "./logos/*"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5"
+  }
+}
