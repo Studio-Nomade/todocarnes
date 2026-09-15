@@ -18,6 +18,7 @@ export async function createAgendaLead(input: AgendaLeadFormState & { repId: str
           .eq("id", parsed.data.repId)
           .eq("role", "commercial")
           .eq("is_public", true)
+          .eq("status", "active")
           .maybeSingle()
       : { data: null, error: null };
 

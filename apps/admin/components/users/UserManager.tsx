@@ -5,6 +5,7 @@ import { createCommercialUser, setUserStatus } from "@/lib/actions/users";
 import type { UserRecord } from "@/lib/users/types";
 import type { CommercialUserInput } from "@/lib/validators/user";
 import { UserForm } from "./UserForm";
+import { UserPublicProfileForm } from "./UserPublicProfileForm";
 
 export function UserManager({
   currentUserId,
@@ -30,14 +31,20 @@ export function UserManager({
       setUsers((current) => [
         ...current,
         {
+          area: null,
           createdAt: new Date().toISOString(),
           email: values.email,
           id: result.id,
+          isPublic: false,
           jobTitle: values.jobTitle ?? "",
           name: values.name,
           phone: values.phone ?? "",
+          photoUrl: null,
+          publicBio: "",
+          publicOrder: 0,
           role: "commercial",
           status: "active",
+          whatsapp: "",
         },
       ]);
       setNotice(`Se creó la cuenta de ${values.name}.`);
@@ -76,37 +83,51 @@ export function UserManager({
             {users.map((user) => {
               const isSelf = user.id === currentUserId;
               return (
-                <li className="flex flex-wrap items-center gap-3 px-5 py-4" key={user.id}>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium text-navy">{user.name}</p>
-                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
-                        user.role === "admin" ? "bg-blue-50 text-blue" : "bg-gray-100 text-ink/60"
-                      }`}>
-                        {user.role === "admin" ? "Admin" : "Comercial"}
-                      </span>
-                      {isSelf ? <span className="text-[11px] text-ink/40">tú</span> : null}
+                <li className="px-5 py-4" key={user.id}>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-medium text-navy">{user.name}</p>
+                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
+                          user.role === "admin" ? "bg-blue-50 text-blue" : "bg-gray-100 text-ink/60"
+                        }`}>
+                          {user.role === "admin" ? "Admin" : "Comercial"}
+                        </span>
+                        {user.isPublic ? <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue">Público</span> : null}
+                        {isSelf ? <span className="text-[11px] text-ink/40">tú</span> : null}
+                      </div>
+                      <p className="mt-1 truncate text-xs text-ink/55">
+                        {user.email}{user.jobTitle ? ` · ${user.jobTitle}` : ""}
+                      </p>
                     </div>
-                    <p className="mt-1 truncate text-xs text-ink/55">
-                      {user.email}{user.jobTitle ? ` · ${user.jobTitle}` : ""}
-                    </p>
+                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                      user.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-ink/55"
+                    }`}>
+                      {user.status === "active" ? "Activo" : "Inactivo"}
+                    </span>
+                    <button
+                      className={`shrink-0 text-xs font-semibold disabled:opacity-30 ${
+                        user.status === "active" ? "text-red-700 hover:underline" : "text-emerald-700 hover:underline"
+                      }`}
+                      disabled={isPending || (isSelf && user.status === "active")}
+                      onClick={() => toggle(user)}
+                      title={isSelf && user.status === "active" ? "No puedes desactivar tu propia cuenta" : undefined}
+                      type="button"
+                    >
+                      {user.status === "active" ? "Desactivar" : "Activar"}
+                    </button>
                   </div>
-                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                    user.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-ink/55"
-                  }`}>
-                    {user.status === "active" ? "Activo" : "Inactivo"}
-                  </span>
-                  <button
-                    className={`shrink-0 text-xs font-semibold disabled:opacity-30 ${
-                      user.status === "active" ? "text-red-700 hover:underline" : "text-emerald-700 hover:underline"
-                    }`}
-                    disabled={isPending || (isSelf && user.status === "active")}
-                    onClick={() => toggle(user)}
-                    title={isSelf && user.status === "active" ? "No puedes desactivar tu propia cuenta" : undefined}
-                    type="button"
-                  >
-                    {user.status === "active" ? "Desactivar" : "Activar"}
-                  </button>
+                  {user.role === "commercial" ? (
+                    <details className="mt-4 rounded-lg bg-gray-50 px-4 py-3">
+                      <summary className="cursor-pointer text-sm font-semibold text-navy">Editar perfil público</summary>
+                      <UserPublicProfileForm
+                        onChange={(profile) => setUsers((current) => current.map((item) => (
+                          item.id === user.id ? { ...item, ...profile } : item
+                        )))}
+                        user={user}
+                      />
+                    </details>
+                  ) : null}
                 </li>
               );
             })}

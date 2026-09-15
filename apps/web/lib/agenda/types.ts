@@ -10,8 +10,8 @@ export type PublicRepresentative = {
   areaLabel: string;
   photoUrl: string | null;
   whatsapp: string | null;
+  contactEmail: string | null;
   bio: string;
-  isPlaceholder: boolean;
 };
 
 export type AgendaEvent = {

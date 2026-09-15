@@ -22,7 +22,7 @@ export function ContactDirect({ representative, configured }: { representative: 
     event.preventDefault();
     if (!configured) return;
     setPending(true); setStatus("idle");
-    const result = await createAgendaLead({ ...form, repId: representative.isPlaceholder ? "" : representative.id });
+    const result = await createAgendaLead({ ...form, repId: representative.id });
     setPending(false);
     if (!result.ok) { setStatus("error"); return; }
     setStatus(result.emailSent ? "sent" : "sent_without_email");

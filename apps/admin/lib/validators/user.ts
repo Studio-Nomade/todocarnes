@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { commercialAreas } from "@/lib/leads/constants";
 
 export const commercialUserSchema = z.object({
   email: z.string().trim().email("Ingresa un correo válido.").max(254),
@@ -15,3 +16,16 @@ export type CommercialUserInput = z.infer<typeof commercialUserSchema>;
 
 export const userIdSchema = z.string().uuid("El usuario no es válido.");
 export const userStatusSchema = z.enum(["active", "inactive"]);
+
+export const publicProfileSchema = z.object({
+  area: z.enum(commercialAreas).nullable(),
+  isPublic: z.boolean(),
+  publicBio: z.string().trim().max(600, "La biografía no puede superar 600 caracteres."),
+  publicOrder: z.coerce.number().int().min(0).max(999),
+  userId: userIdSchema,
+  whatsapp: z.string().trim().max(30),
+}).superRefine((value, context) => {
+  if (value.isPublic && !value.area) context.addIssue({ code: "custom", message: "Selecciona un área antes de publicar.", path: ["area"] });
+});
+
+export type PublicProfileInput = z.infer<typeof publicProfileSchema>;
