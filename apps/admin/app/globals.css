@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --font-display: "Montserrat";
+  --font-sans: "Montserrat";
+}
+
 @font-face {
   font-family: "Montserrat";
   src: url("/fonts/Montserrat-Light.woff2") format("woff2");

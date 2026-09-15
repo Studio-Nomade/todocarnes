@@ -12,6 +12,7 @@ ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY apps/admin/package.json ./apps/admin/package.json
 COPY apps/web/package.json ./apps/web/package.json
+COPY packages/brand/package.json ./packages/brand/package.json
 COPY packages/db/package.json ./packages/db/package.json
 RUN pnpm install --frozen-lockfile --filter todocarnes --filter @todocarnes/admin...
 
