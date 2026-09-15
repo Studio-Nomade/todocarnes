@@ -1,7 +1,7 @@
 import { Capacity } from "@/components/landing/Capacity";
 import { CommercialAreas } from "@/components/landing/CommercialAreas";
 import { CommercialTeam } from "@/components/landing/CommercialTeam";
-import { ContactPreview } from "@/components/landing/ContactPreview";
+import { LandingContactForm } from "@/components/landing/LandingContactForm";
 import { CustomSolutions } from "@/components/landing/CustomSolutions";
 import { DonPancho } from "@/components/landing/DonPancho";
 import { LandingFooter } from "@/components/landing/LandingFooter";
@@ -29,7 +29,7 @@ export default async function HomePage() {
         <CustomSolutions />
         <DonPancho />
         <ProcessSteps />
-        <ContactPreview />
+        <LandingContactForm configured={team.configured} />
       </main>
       <LandingFooter />
     </>
