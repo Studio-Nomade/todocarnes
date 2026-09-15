@@ -13,10 +13,10 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY apps/admin/package.json ./apps/admin/package.json
 COPY apps/web/package.json ./apps/web/package.json
 COPY packages/db/package.json ./packages/db/package.json
-RUN pnpm install --frozen-lockfile --filter todocarnes --filter catalog-builder...
+RUN pnpm install --frozen-lockfile --filter todocarnes --filter @todocarnes/admin...
 
 COPY . .
-RUN pnpm turbo run build --filter=catalog-builder
+RUN pnpm turbo run build --filter=@todocarnes/admin
 
 EXPOSE 3000
-CMD ["pnpm", "--filter", "catalog-builder", "start"]
+CMD ["pnpm", "--filter", "@todocarnes/admin", "start"]
