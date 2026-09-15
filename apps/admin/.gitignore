@@ -1,0 +1,52 @@
+# Material fuente privado — ver -context/README.md
+-context/
+
+# Dependencias
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# Entorno — NUNCA commitear credenciales reales
+.env
+.env.local
+.env*.local
+.env.production
+
+# Salidas de export / trabajo local
+/exports/
+/output/
+/tmp/
+*.pdf
+!docs/**/*.pdf
+
+# Testing
+coverage/
+/playwright-report/
+/test-results/
+
+# Editor / SO
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Supabase local
+.supabase/
+
+# Vercel / Railway
+.vercel

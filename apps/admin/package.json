@@ -1,0 +1,41 @@
+{
+  "name": "@todocarnes/admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "import:catalog-v02": "tsx --env-file=.env.local data/import/catalog-v02.ts",
+    "import:optimized-images": "tsx --env-file=.env.local data/import/optimized-product-images.ts",
+    "optimize:secondary-images": "tsx --env-file=.env.local data/import/resize-approved-secondary-images.ts",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "node --import tsx --test data/import/catalog-v02-products.test.ts lib/pdf/page-order.test.ts lib/images/errors.test.ts lib/catalogs/format.test.ts lib/catalogs/order.test.ts lib/validators/catalog.test.ts lib/validators/product.test.ts lib/products/variants.test.ts",
+    "seed": "tsx --env-file=.env.local data/seed/index.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.10.0",
+    "@supabase/supabase-js": "2.100.1",
+    "next": "15.5.20",
+    "openai": "^6.49.0",
+    "playwright": "1.61.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "sharp": "^0.34.5",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.20",
+    "postcss": "^8.4.49",
+    "supabase": "^2.109.1",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.23.1",
+    "typescript": "^5"
+  }
+}
