@@ -35,8 +35,8 @@ El proyecto remoto ya está creado y linkeado. La configuración y las migracion
    pnpm --filter @todocarnes/db db:types
    ```
 
-   El comando escribe `packages/db/src/types.ts`. H0.1 deja el script preparado; no requiere
-   generar ni versionar tipos nuevos para completar la migración estructural.
+   El comando escribe `packages/db/src/types.ts`; revisar y versionar el diff junto con cada cambio
+   de esquema.
 
 2. **Sembrar los datos de demo** (categorías, cortes, productos, catálogo armado y **los usuarios**):
 
@@ -57,9 +57,9 @@ El proyecto remoto ya está creado y linkeado. La configuración y las migracion
 
 ## 2. Railway
 
-1. **Nuevo proyecto** → *Deploy from GitHub repo* → elegí `Studio-Nomade/todocarnes`, rama `main`
-   (o `develop` si querés mostrar lo último). En Railway dejá **Root Directory** en la raíz del repo
-   y configurá el Dockerfile path como `apps/admin/Dockerfile`.
+1. **Nuevo proyecto** → *Deploy from GitHub repo* → elegí `Studio-Nomade/todocarnes`. En Railway
+   dejá **Root Directory** en la raíz del repo y configurá el Dockerfile path como
+   `apps/admin/Dockerfile`.
 2. **Variables de entorno** (Settings → Variables) — ver la tabla de abajo.
 3. **Deploy.** El primer build tarda (baja la imagen de Playwright, ~1–2 GB).
 4. **Generar el dominio**: Settings → Networking → *Generate Domain*. Copiá la URL pública
@@ -80,10 +80,27 @@ El proyecto remoto ya está creado y linkeado. La configuración y las migracion
 | `PRINT_TOKEN` | string aleatorio largo | **Secreta** — protege `/print`. Generá una nueva, no reuses la de dev |
 | `IMAGE_PROVIDER` | `mock` | `mock` para la demo (no gasta API). `openai` para generación real |
 | `OPENAI_API_KEY` | key de OpenAI | Solo si `IMAGE_PROVIDER=openai` y el pago está aprobado |
+| `RESEND_API_KEY` | key de Resend | **Secreta**, solo runtime; nunca build arg |
+| `EMAIL_FROM` | `Todo Carnes <no-reply@todocarnes.cl>` | Requiere dominio verificado en Resend |
+| `EMAIL_REPLY_TO` | buzón comercial existente | Destino de respaldo y respuestas |
+| `NEXT_PUBLIC_SITE_URL` | URL pública de la web | Origen usado para activos públicos de emails |
 
 > `APP_URL` puede apuntar a la propia URL pública. Si preferís evitar el ida-y-vuelta por internet,
 > podés usar `http://localhost:3000` **solo si** fijás `PORT=3000` en Railway (por defecto Railway
 > inyecta un `PORT` dinámico, y ahí `localhost:3000` no sirve).
+
+### Entornos y dominio
+
+- `develop` despliega al environment/servicio de staging con variables, Supabase y URL propios.
+- `main` despliega a producción y recibe `admin.todocarnes.cl`.
+- Promover mediante PR de `develop` a `main` después de validar login, catálogo y export PDF en
+  staging. Aplicar antes las migraciones manuales al Supabase del entorno destino.
+
+Para el dominio de producción, agregar en Railway `admin.todocarnes.cl`, copiar el target que
+Railway entregue y crear el CNAME en SiteGround. Después actualizar `APP_URL` a
+`https://admin.todocarnes.cl` y redesplegar para cerrar el lazo del export.
+
+La tabla completa de DNS y correo está en [`docs/infrastructure.md`](../../../docs/infrastructure.md).
 
 ---
 
