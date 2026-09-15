@@ -11,4 +11,18 @@
 
 body {
   margin: 0;
+  background: #ffffff;
+  color: #424242;
+  font-family: var(--font-sans), ui-sans-serif, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+button,
+a,
+input,
+textarea {
+  -webkit-tap-highlight-color: transparent;
 }
