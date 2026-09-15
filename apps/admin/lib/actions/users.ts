@@ -1,10 +1,12 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { commercialUserSchema, userIdSchema, userStatusSchema } from "@/lib/validators/user";
-import type { UserMutationResult } from "@/lib/users/types";
+import { commercialUserSchema, publicProfileSchema, userIdSchema, userStatusSchema } from "@/lib/validators/user";
+import type { ProfilePhotoMutationResult, PublicProfileMutationResult, UserMutationResult } from "@/lib/users/types";
+import { validateAndConvertImage } from "@/lib/images/upload";
 
 export async function createCommercialUser(input: unknown): Promise<UserMutationResult> {
   await requireRole(["admin"]);
@@ -39,6 +41,8 @@ export async function createCommercialUser(input: unknown): Promise<UserMutation
       job_title: parsed.data.jobTitle,
       name: parsed.data.name,
       phone: parsed.data.phone,
+      is_public: false,
+      public_order: 0,
       role: "commercial",
       status: "active",
     })
@@ -52,6 +56,52 @@ export async function createCommercialUser(input: unknown): Promise<UserMutation
 
   revalidatePath("/users");
   return { id: userId, success: true };
+}
+
+export async function updateCommercialPublicProfile(input: unknown): Promise<PublicProfileMutationResult> {
+  await requireRole(["admin"]);
+  const parsed = publicProfileSchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Revisa los datos públicos.", success: false };
+  const admin = createAdminClient();
+  const result = await admin.from("profiles").update({
+    area: parsed.data.area,
+    is_public: parsed.data.isPublic,
+    public_bio: parsed.data.publicBio || null,
+    public_order: parsed.data.publicOrder,
+    whatsapp: parsed.data.whatsapp || null,
+  }).eq("id", parsed.data.userId).eq("role", "commercial").select("photo_url").maybeSingle();
+  if (result.error || !result.data) return { error: "No se pudo actualizar el perfil público.", success: false };
+  revalidatePath("/users");
+  return { profile: { area: parsed.data.area, isPublic: parsed.data.isPublic, photoUrl: result.data.photo_url, publicBio: parsed.data.publicBio, publicOrder: parsed.data.publicOrder, whatsapp: parsed.data.whatsapp }, success: true };
+}
+
+export async function uploadCommercialPhoto(userId: unknown, formData: FormData): Promise<ProfilePhotoMutationResult> {
+  await requireRole(["admin"]);
+  const parsedId = userIdSchema.safeParse(userId);
+  const file = formData.get("file");
+  if (!parsedId.success || !(file instanceof File)) return { error: "Selecciona un vendedor y una imagen válida.", success: false };
+  const admin = createAdminClient();
+  const profile = await admin.from("profiles").select("id,photo_url").eq("id", parsedId.data).eq("role", "commercial").maybeSingle();
+  if (profile.error || !profile.data) return { error: "El vendedor no existe.", success: false };
+  try {
+    const buffer = await validateAndConvertImage(file);
+    const path = `${parsedId.data}/${randomUUID()}.webp`;
+    const upload = await admin.storage.from("profile-photos").upload(path, buffer, { contentType: "image/webp", upsert: false });
+    if (upload.error) throw new Error("No se pudo guardar la fotografía.");
+    const photoUrl = admin.storage.from("profile-photos").getPublicUrl(path).data.publicUrl;
+    const update = await admin.from("profiles").update({ photo_url: photoUrl }).eq("id", parsedId.data).eq("role", "commercial").select("id").maybeSingle();
+    if (update.error || !update.data) {
+      await admin.storage.from("profile-photos").remove([path]);
+      throw new Error("No se pudo asociar la fotografía al vendedor.");
+    }
+    const marker = "/storage/v1/object/public/profile-photos/";
+    const previousPath = profile.data.photo_url?.includes(marker) ? decodeURIComponent(profile.data.photo_url.split(marker)[1] ?? "") : "";
+    if (previousPath) await admin.storage.from("profile-photos").remove([previousPath]);
+    revalidatePath("/users");
+    return { photoUrl, success: true };
+  } catch (error: unknown) {
+    return { error: error instanceof Error ? error.message : "No se pudo procesar la fotografía.", success: false };
+  }
 }
 
 export async function setUserStatus(id: unknown, status: unknown): Promise<UserMutationResult> {

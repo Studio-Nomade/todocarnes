@@ -51,6 +51,7 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
         .eq("id", parsed.data.repId)
         .eq("role", "commercial")
         .eq("is_public", true)
+        .eq("status", "active")
         .maybeSingle(),
       client
         .from("booking_events")

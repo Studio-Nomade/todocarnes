@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 
 async function PublicCommercialTeam() {
   const team = await getPublicRepresentatives();
-  return <CommercialTeam {...team} />;
+  return <CommercialTeam representatives={team.representatives} />;
 }
 
 async function PublicContactForm() {

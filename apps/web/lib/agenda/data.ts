@@ -1,15 +1,15 @@
 import "server-only";
 
-import { FALLBACK_EVENT, PLACEHOLDER_REPRESENTATIVES } from "./constants";
+import { FALLBACK_EVENT } from "./constants";
 import { createAgendaAdminClient, hasAgendaDatabaseConfig } from "./server";
 import type { AgendaPageData } from "./types";
 import { getPublicRepresentatives } from "@/lib/public-representatives";
 
 const unconfigured: AgendaPageData = {
   event: FALLBACK_EVENT,
-  representatives: PLACEHOLDER_REPRESENTATIVES,
+  representatives: [],
   configured: false,
-  notice: "La agenda está en modo demostración hasta configurar los perfiles comerciales públicos.",
+  notice: "La agenda se habilitará cuando existan perfiles comerciales públicos configurados.",
 };
 
 export async function getAgendaPageData(): Promise<AgendaPageData> {

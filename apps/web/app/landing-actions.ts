@@ -23,7 +23,7 @@ export async function createLandingLead(input: LandingLeadInput): Promise<Landin
       if ((count ?? 0) >= LANDING_RATE_LIMIT) return { ok: false, error: "rate_limited" };
     }
 
-    const { data: rep, error: repError } = await client.from("profiles").select("id,name,contact_email").eq("role", "commercial").eq("is_public", true).eq("area", parsed.data.area).order("public_order", { ascending: true }).limit(1).maybeSingle();
+    const { data: rep, error: repError } = await client.from("profiles").select("id,name,contact_email").eq("role", "commercial").eq("status", "active").eq("is_public", true).eq("area", parsed.data.area).order("public_order", { ascending: true }).limit(1).maybeSingle();
     if (repError) throw repError;
     const { data: lead, error } = await client.from("leads").insert({ name: parsed.data.name, company: parsed.data.company || null, email: parsed.data.email, phone: parsed.data.phone, area: parsed.data.area, source: "landing", assigned_rep_id: rep?.id ?? null, utm: { ip_hash: ipHash, submission_id: parsed.data.submissionId } }).select("id").single();
     if (error || !lead) throw error ?? new Error("Lead no creado");

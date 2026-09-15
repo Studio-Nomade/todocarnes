@@ -12,7 +12,6 @@ export type PublicRepresentative = {
   whatsapp: string | null;
   contactEmail: string | null;
   bio: string;
-  isPlaceholder: boolean;
 };
 
 export type AgendaEvent = {
