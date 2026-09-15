@@ -1,18 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
-
-export function SiteHeader() {
-  return (
-    <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
-      <Image src="/brand/logo-completo-horizontal.webp" alt="Todo Carnes" width={128} height={44} priority />
-      <nav aria-label="Navegación principal" className="hidden items-center gap-7 text-sm font-semibold text-navy md:flex">
-        <Link href="/#areas">Líneas de negocio</Link><Link href="/#soluciones">Servicios</Link><a href="#entrada-cortesia">Entrada de cortesía</a><a href="#equipo">Equipo</a>
-        <a href="#reserva" className="rounded-full bg-navy px-5 py-2.5 text-white">Hablemos</a>
-      </nav>
-    </header>
-  );
-}
 
 export function SiteFooter() {
   return (

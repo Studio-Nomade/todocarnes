@@ -43,10 +43,12 @@ Los registros de dominio están en [`docs/infrastructure.md`](../../docs/infrast
 
 ## Medios de procesos pendientes
 
-La sección “Nuestros procesos” deja preparados poster estático y fuentes WebM/MP4 para corte,
-pesaje, envasado y etiquetado. Mientras el cliente no entregue esos recursos se muestran placeholders
-explícitos y la antigua imagen de la máquina no se carga. Al incorporar los archivos en
-`public/landing/processes/`, completar `poster`, `webm` y `mp4` en `ProcessMedia.tsx`.
+La sección unificada “Nuestros procesos” deja preparados poster estático y fuentes WebM/MP4 para
+corte, gramaje, porcionado, procesamiento, descongelado, embalaje, etiquetado, maquila y marca propia.
+Mientras el cliente no entregue los loops se usan imágenes estáticas y un aviso explícito. Al
+incorporar los archivos en `public/landing/processes/`, completar `webm` y `mp4` en
+`ProcessMedia.tsx`.
 
-En desktop el loop se reproduce al hover y vuelve al poster al salir. En dispositivos táctiles se
-activa con tap. Con `prefers-reduced-motion` siempre queda el poster; los videos usan `preload="none"`.
+En desktop, el hover sobre cada concepto cambia el fondo de la sección y reproduce su loop; en
+dispositivos táctiles se activa con tap. Con `prefers-reduced-motion` siempre queda el poster; los
+videos usan `preload="none"`.

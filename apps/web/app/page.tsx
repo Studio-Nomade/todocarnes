@@ -4,7 +4,6 @@ import { Capacity } from "@/components/landing/Capacity";
 import { CommercialAreas } from "@/components/landing/CommercialAreas";
 import { CommercialTeam } from "@/components/landing/CommercialTeam";
 import { LandingContactForm } from "@/components/landing/LandingContactForm";
-import { CustomSolutions } from "@/components/landing/CustomSolutions";
 import { DonPancho } from "@/components/landing/DonPancho";
 import { FoodServiceBanner } from "@/components/landing/FoodServiceBanner";
 import { LandingFooter } from "@/components/landing/LandingFooter";
@@ -53,7 +52,6 @@ export default function HomePage() {
         <Solutions />
         <ProcessMedia />
         <OperationsTabs />
-        <CustomSolutions />
         <Capacity />
         <Suspense fallback={<div className="min-h-96 bg-gray-50" aria-label="Cargando equipo comercial" />}><PublicCommercialTeam /></Suspense>
         <ProcessSteps />

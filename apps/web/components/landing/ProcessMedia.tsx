@@ -3,20 +3,33 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-type ProcessAsset = { title: string; description: string; poster?: string; webm?: string; mp4?: string };
+type ProcessItem = {
+  title: string;
+  description: string;
+  poster: string;
+  webm?: string;
+  mp4?: string;
+};
 
-const processes: ProcessAsset[] = [
-  { title: "Corte", description: "Precisión según producto y uso." },
-  { title: "Pesaje", description: "Gramajes consistentes para cada operación." },
-  { title: "Envasado", description: "Formatos que protegen y simplifican el manejo." },
-  { title: "Etiquetado", description: "Presentaciones listas para cada canal." },
+const processes: ProcessItem[] = [
+  { title: "Corte", description: "Cortes precisos según producto, rendimiento y uso final.", poster: "/landing/hero-processing.jpg" },
+  { title: "Gramaje", description: "Porciones consistentes para controlar costo y operación.", poster: "/landing/capability.jpg" },
+  { title: "Porcionado", description: "Formatos listos para simplificar la preparación.", poster: "/landing/processing.jpg" },
+  { title: "Procesamiento", description: "Procesos adaptados a requerimientos productivos específicos.", poster: "/landing/processing.jpg" },
+  { title: "Descongelado", description: "Manejo controlado para preservar calidad y continuidad.", poster: "/landing/warehouse.jpg" },
+  { title: "Embalaje", description: "Protección y presentación alineadas a cada canal.", poster: "/landing/capability.jpg" },
+  { title: "Etiquetado", description: "Identificación y terminaciones listas para comercializar.", poster: "/landing/plant-aerial.jpg" },
+  { title: "Maquila", description: "Capacidad productiva para desarrollar soluciones a medida.", poster: "/landing/hero-processing.jpg" },
+  { title: "Marca Propia", description: "Productos desarrollados para representar tu marca.", poster: "/landing/don-pancho.jpg" },
 ];
 
-function ProcessCard({ process }: { process: ProcessAsset }) {
-  const video = useRef<HTMLVideoElement>(null);
-  const [active, setActive] = useState(false);
+export function ProcessMedia() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const hasMedia = Boolean(process.poster && (process.webm || process.mp4));
+  const video = useRef<HTMLVideoElement>(null);
+  const activeProcess = processes[activeIndex];
+  const hasVideo = Boolean(activeProcess.webm || activeProcess.mp4);
 
   useEffect(() => {
     const query = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -26,46 +39,69 @@ function ProcessCard({ process }: { process: ProcessAsset }) {
     return () => query.removeEventListener("change", update);
   }, []);
 
-  async function play() {
-    if (!hasMedia || reducedMotion || !video.current) return;
-    setActive(true);
-    try { await video.current.play(); } catch { setActive(false); }
+  useEffect(() => {
+    if (!video.current) return;
+    video.current.load();
+    if (playing && !reducedMotion) {
+      void video.current.play().catch(() => setPlaying(false));
+    }
+  }, [activeIndex, playing, reducedMotion]);
+
+  function select(index: number, shouldPlay: boolean) {
+    setActiveIndex(index);
+    setPlaying(shouldPlay && !reducedMotion);
   }
 
-  function stop() {
+  function stopVideo() {
+    setPlaying(false);
     if (!video.current) return;
     video.current.pause();
     video.current.currentTime = 0;
-    setActive(false);
   }
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-navy/10 bg-white">
-      <button
-        type="button"
-        disabled={!hasMedia || reducedMotion}
-        aria-label={hasMedia ? `${active ? "Pausar" : "Reproducir"} video de ${process.title}` : `Video de ${process.title} pendiente`}
-        onClick={() => active ? stop() : void play()}
-        onMouseEnter={() => void play()}
-        onMouseLeave={stop}
-        className="relative block aspect-[4/3] w-full overflow-hidden bg-navy text-left disabled:cursor-default"
-      >
-        {process.poster ? <Image src={process.poster} alt={`Proceso de ${process.title.toLowerCase()}`} fill sizes="(min-width:1024px) 25vw, 50vw" className="object-cover"/> : (
-          <span className="absolute inset-0 grid place-items-center bg-gradient-to-br from-navy to-navy/80 p-6 text-center text-blue-50"><span><span aria-hidden="true" className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-blue/60 text-xl">▶</span><span className="mt-4 block text-xs font-bold uppercase tracking-[0.15em]">Material audiovisual pendiente</span></span></span>
-        )}
-        {hasMedia ? <video ref={video} muted loop playsInline preload="none" poster={process.poster} className={`absolute inset-0 h-full w-full object-cover transition-opacity ${active ? "opacity-100" : "opacity-0"}`}><source src={process.webm} type="video/webm"/><source src={process.mp4} type="video/mp4"/></video> : null}
-      </button>
-      <div className="p-5"><h3 className="text-lg text-navy">{process.title}</h3><p className="mt-2 text-sm leading-6 text-ink/70">{process.description}</p></div>
-    </article>
-  );
-}
-
-export function ProcessMedia() {
-  return (
-    <section id="procesos" className="scroll-mt-24 px-6 py-14 sm:px-8 lg:py-20">
-      <div className="mx-auto max-w-7xl">
-        <div className="grid gap-5 lg:grid-cols-2 lg:items-end"><div><p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">Nuestros procesos</p><h2 className="mt-3 text-3xl text-navy sm:text-4xl">De la necesidad al formato final.</h2></div><p className="max-w-xl leading-7 text-ink/70">Procesos adaptados a la operación de cada cliente. En móvil, los videos se activarán con un toque; con movimiento reducido permanecerán como imagen estática.</p></div>
-        <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{processes.map((process) => <ProcessCard key={process.title} process={process}/>)}</div>
+    <section
+      id="procesos"
+      onMouseLeave={stopVideo}
+      className="relative min-h-[680px] scroll-mt-24 overflow-hidden bg-navy px-6 py-16 text-white sm:px-8 lg:py-20"
+    >
+      <Image key={activeProcess.poster} src={activeProcess.poster} alt="" fill sizes="100vw" className="object-cover"/>
+      {hasVideo ? (
+        <video ref={video} key={`${activeProcess.title}-video`} muted loop playsInline preload="none" poster={activeProcess.poster} className={`absolute inset-0 h-full w-full object-cover transition-opacity ${playing ? "opacity-100" : "opacity-0"}`}>
+          {activeProcess.webm ? <source src={activeProcess.webm} type="video/webm"/> : null}
+          {activeProcess.mp4 ? <source src={activeProcess.mp4} type="video/mp4"/> : null}
+        </video>
+      ) : null}
+      <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/80 to-navy/25"/>
+      <div className="relative mx-auto flex min-h-[550px] max-w-7xl flex-col justify-between">
+        <div className="max-w-3xl">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue">Nuestros procesos</p>
+          <h2 className="mt-4 text-3xl sm:text-4xl">¿Lo que necesitas no existe en un catálogo?</h2>
+          <p className="mt-4 max-w-2xl leading-7 text-blue-50/80">Desarrollamos soluciones según las necesidades reales de cada operación.</p>
+          <div aria-live="polite" className="mt-12">
+            <p className="text-5xl font-bold leading-none sm:text-6xl lg:text-7xl">{activeProcess.title}</p>
+            <p className="mt-5 max-w-xl text-lg leading-7 text-blue-50">{activeProcess.description}</p>
+            {!hasVideo ? <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-blue">Loop audiovisual pendiente</p> : null}
+          </div>
+        </div>
+        <div>
+          <div className="flex snap-x gap-2 overflow-x-auto pb-3" aria-label="Procesos disponibles">
+            {processes.map((process, index) => (
+              <button
+                key={process.title}
+                type="button"
+                aria-pressed={activeIndex === index}
+                onFocus={() => select(index, false)}
+                onMouseEnter={() => select(index, true)}
+                onClick={() => select(index, true)}
+                className={`shrink-0 snap-start rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors ${activeIndex === index ? "border-blue bg-blue text-navy" : "border-white/40 bg-navy/30 text-white hover:border-blue"}`}
+              >
+                {process.title}
+              </button>
+            ))}
+          </div>
+          <a href="#contacto" className="mt-5 inline-block rounded-full bg-white px-6 py-3 text-sm font-bold text-navy">Cuéntanos qué necesitas desarrollar</a>
+        </div>
       </div>
     </section>
   );

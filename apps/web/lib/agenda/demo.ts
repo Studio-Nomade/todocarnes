@@ -1,0 +1,44 @@
+import type { PublicRepresentative } from "./types";
+
+export const DEMO_REPRESENTATIVES: PublicRepresentative[] = [
+  {
+    id: "00000000-0000-4000-8000-000000000101",
+    name: "Víctor Andrades",
+    area: "food_service",
+    areaLabel: "Food Service",
+    photoUrl: null,
+    whatsapp: null,
+    contactEmail: null,
+    bio: "Soluciones para operadores gastronómicos y clientes especializados.",
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000102",
+    name: "Paulina Urbina",
+    area: "retail_ggcc",
+    areaLabel: "Retail / GGCC",
+    photoUrl: null,
+    whatsapp: null,
+    contactEmail: null,
+    bio: "Abastecimiento y desarrollos para grandes cuentas y retail.",
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000103",
+    name: "Fernando Salinas",
+    area: "mmpp_trimmings",
+    areaLabel: "MMPP / Trimmings",
+    photoUrl: null,
+    whatsapp: null,
+    contactEmail: null,
+    bio: "Materias primas para procesos productivos e industriales.",
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000104",
+    name: "Javiera Martínez",
+    area: "ventas_nacionales",
+    areaLabel: "Ventas Nacionales",
+    photoUrl: null,
+    whatsapp: null,
+    contactEmail: null,
+    bio: "Alternativas comerciales para distribuidores y clientes nacionales.",
+  },
+];
