@@ -43,6 +43,7 @@ export const PLACEHOLDER_REPRESENTATIVES: PublicRepresentative[] = placeholderDe
     areaLabel: AREA_LABELS[area],
     photoUrl: null,
     whatsapp: null,
+    contactEmail: null,
     bio,
     isPlaceholder: true,
   }),

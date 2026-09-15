@@ -1,8 +1,9 @@
 import "server-only";
 
-import { areaLabel, FALLBACK_EVENT, PLACEHOLDER_REPRESENTATIVES } from "./constants";
+import { FALLBACK_EVENT, PLACEHOLDER_REPRESENTATIVES } from "./constants";
 import { createAgendaAdminClient, hasAgendaDatabaseConfig } from "./server";
 import type { AgendaPageData } from "./types";
+import { getPublicRepresentatives } from "@/lib/public-representatives";
 
 const unconfigured: AgendaPageData = {
   event: FALLBACK_EVENT,
@@ -22,15 +23,10 @@ export async function getAgendaPageData(): Promise<AgendaPageData> {
       .eq("slug", "food-service-2026")
       .eq("is_active", true)
       .maybeSingle(),
-    client
-      .from("profiles")
-      .select("id,name,area,photo_url,whatsapp,public_bio")
-      .eq("is_public", true)
-      .eq("role", "commercial")
-      .order("public_order", { ascending: true }),
+    getPublicRepresentatives(),
   ]);
 
-  if (eventResult.error || repsResult.error || !eventResult.data || !repsResult.data?.length) {
+  if (eventResult.error || !eventResult.data || !repsResult.configured) {
     console.error("[agenda] No fue posible cargar la configuración pública.");
     return unconfigured;
   }
@@ -45,15 +41,6 @@ export async function getAgendaPageData(): Promise<AgendaPageData> {
       slotTimes: eventResult.data.slot_times,
       slotMinutes: eventResult.data.slot_minutes,
     },
-    representatives: repsResult.data.map((rep) => ({
-      id: rep.id,
-      name: rep.name,
-      area: rep.area,
-      areaLabel: areaLabel(rep.area),
-      photoUrl: rep.photo_url,
-      whatsapp: rep.whatsapp,
-      bio: rep.public_bio ?? "Asesoría comercial especializada para encontrar la solución adecuada.",
-      isPlaceholder: false,
-    })),
+    representatives: repsResult.representatives,
   };
 }
