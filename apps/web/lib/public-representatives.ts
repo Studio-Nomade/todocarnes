@@ -1,10 +1,11 @@
 import "server-only";
 
+import { cache } from "react";
 import { AREA_LABELS, PLACEHOLDER_REPRESENTATIVES } from "@/lib/agenda/constants";
 import { createAgendaAdminClient, hasAgendaDatabaseConfig } from "@/lib/agenda/server";
 import type { CommercialArea, PublicRepresentative } from "@/lib/agenda/types";
 
-export async function getPublicRepresentatives(): Promise<{ configured: boolean; representatives: PublicRepresentative[] }> {
+export const getPublicRepresentatives = cache(async function getPublicRepresentatives(): Promise<{ configured: boolean; representatives: PublicRepresentative[] }> {
   if (!hasAgendaDatabaseConfig()) return { configured: false, representatives: PLACEHOLDER_REPRESENTATIVES };
 
   const { data, error } = await createAgendaAdminClient()
@@ -33,4 +34,4 @@ export async function getPublicRepresentatives(): Promise<{ configured: boolean;
       isPlaceholder: false,
     })),
   };
-}
+});

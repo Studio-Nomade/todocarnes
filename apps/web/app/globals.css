@@ -16,6 +16,31 @@ body {
   font-family: var(--font-sans), ui-sans-serif, sans-serif;
 }
 
+*:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  border-radius: 9999px;
+  background: #ffffff;
+  padding: 0.75rem 1rem;
+  color: #0d244f;
+  font-weight: 700;
+}
+
+.skip-link:focus { transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -25,4 +50,21 @@ a,
 input,
 textarea {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Secondary copy must remain readable at the smallest supported text sizes. */
+.text-ink\/60,
+.text-ink\/65,
+.text-ink\/70,
+.text-ink\/75 {
+  color: rgb(66 66 66 / 0.85);
+}
+
+.text-navy\/45,
+.text-navy\/50 {
+  color: rgb(13 36 79 / 0.75);
+}
+
+.text-blue-50\/50 {
+  color: rgb(239 248 255 / 0.8);
 }
