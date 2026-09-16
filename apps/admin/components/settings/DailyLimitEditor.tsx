@@ -42,7 +42,7 @@ export function DailyLimitEditor({ initialLimit }: { initialLimit: number }) {
           />
         </label>
         <button
-          className="rounded-lg bg-navy px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+          className="admin-button-primary px-4"
           disabled={isPending}
           onClick={save}
           type="button"

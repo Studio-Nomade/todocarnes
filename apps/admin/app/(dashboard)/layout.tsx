@@ -20,13 +20,13 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
           </Link>
           <div className="hidden items-center gap-6 text-sm lg:flex">
             <Link
-              className="rounded-lg border border-ink/10 px-3 py-2 font-medium text-navy hover:bg-gray-50"
+              className="admin-button-secondary px-4 py-2"
               href="/profile"
             >
               {profile.name}
             </Link>
             <form action={logout}>
-              <button className="font-medium text-navy" type="submit">Salir</button>
+              <button className="admin-button-secondary px-4 py-2" type="submit">Salir</button>
             </form>
           </div>
           <details className="group relative lg:hidden">
@@ -50,9 +50,9 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 text-center text-xs text-ink/45 sm:flex-row sm:px-8 sm:text-left">
           <div className="flex items-center gap-3">
             <Image alt="Studio Nomade" className="h-8 w-8 object-contain opacity-55 grayscale" height={4500} src="/brand/nomade-logo.png" width={4500} />
-            <span>Prototipo desarrollado por Studio Nomade</span>
+            <span>Plataforma desarrollada por Studio Nomade</span>
           </div>
-          <span>Todos los derechos reservados · Prohibida su reproducción</span>
+          <span>© 2026 Todo Carnes · Todos los derechos reservados</span>
         </div>
       </footer>
     </div>

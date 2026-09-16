@@ -33,7 +33,7 @@ export function PromptEditor({ setting }: { setting: PromptSetting }) {
           <p className="mt-1 font-mono text-xs text-ink/45">{setting.key}</p>
         </div>
         <button
-          className="rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="admin-button-primary px-4 py-2"
           disabled={isPending || value === setting.value}
           onClick={save}
           type="button"

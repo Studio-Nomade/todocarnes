@@ -23,8 +23,8 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="grid w-full grid-cols-2 gap-3 sm:w-auto">
-          <Link className="rounded-lg border border-navy/20 bg-white px-4 py-2.5 text-center text-sm font-semibold text-navy hover:bg-blue-50" href="/products/new">Crear producto</Link>
-          <Link className="rounded-lg bg-navy px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-navy/90" href="/catalogs">Crear catálogo</Link>
+          <Link className="admin-button-secondary px-4" href="/products/new">Crear producto</Link>
+          <Link className="admin-button-primary px-4" href="/catalogs">Crear catálogo</Link>
         </div>
       </div>
 

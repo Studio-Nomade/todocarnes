@@ -75,7 +75,7 @@ export function ProfileEditor({ initialProfile }: { initialProfile: ProfileInput
       <div className="mt-8 flex flex-col-reverse items-stretch gap-4 border-t border-ink/10 pt-6 sm:flex-row sm:items-center sm:justify-end">
         {message ? <p className="text-sm font-medium text-ink/65" role="status">{message}</p> : null}
         <button
-          className="rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-60"
+          className="admin-button-primary"
           disabled={isPending}
           type="submit"
         >

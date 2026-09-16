@@ -93,7 +93,7 @@ export function ImageSlotCard({
 
         <div className="mt-4 flex flex-wrap gap-2">
           <button
-            className="rounded-lg bg-navy px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
+            className="admin-button-primary px-3 py-2 text-xs"
             disabled={!sourceAvailable || isPending}
             onClick={() => run(() => generateProductImage(productId, slot), "Generando, ~1 min…")}
             title={sourceAvailable ? "Generar una nueva vista" : "Sube una imagen fuente antes de generar"}
@@ -101,7 +101,7 @@ export function ImageSlotCard({
           >
             {displayed ? "Regenerar" : "Generar"}
           </button>
-          <label className="cursor-pointer rounded-lg border border-ink/15 px-3 py-2 text-xs font-semibold text-navy hover:bg-gray-50">
+          <label className="admin-button-secondary cursor-pointer px-3 py-2 text-xs">
             Subir manual
             <input
               accept="image/jpeg,image/png,image/webp"

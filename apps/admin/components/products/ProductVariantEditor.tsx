@@ -70,7 +70,7 @@ export function ProductVariantEditor({ onChange, product }: ProductVariantEditor
           </p>
         </div>
         <button
-          className="rounded-lg border border-navy/20 bg-white px-3 py-2 text-xs font-semibold text-navy hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="admin-button-secondary px-3 py-2 text-xs"
           disabled={!canAdd}
           onClick={add}
           title={canAdd ? "Agregar otra variante" : "Los campos alcanzaron su máximo de caracteres"}
