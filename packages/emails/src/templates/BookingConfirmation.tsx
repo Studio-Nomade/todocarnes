@@ -1,5 +1,6 @@
-import { Heading, Hr, Text } from "@react-email/components";
+import { Heading, Text } from "@react-email/components";
 import { colors } from "@todocarnes/brand";
+import { bodyTextStyle, EmailDetails, headingStyle } from "./EmailDetails";
 import { EmailShell } from "./EmailShell";
 
 export type BookingConfirmationProps = {
@@ -16,17 +17,20 @@ export type BookingConfirmationProps = {
 
 export function BookingConfirmation(props: BookingConfirmationProps) {
   return (
-    <EmailShell logoUrl={props.logoUrl} preview={`Reunión confirmada con ${props.representativeName}`}>
-      <Heading style={{ color: colors.navy, fontSize: 28 }}>Tu reunión está confirmada</Heading>
-      <Text>Hola {props.clientName}, reservamos tu espacio para conversar con Todo Carnes.</Text>
-      <Hr style={{ borderColor: colors["blue-50"] }} />
-      <Text><strong>Evento:</strong> {props.eventName}</Text>
-      <Text><strong>Representante:</strong> {props.representativeName}</Text>
-      {props.area ? <Text><strong>Área:</strong> {props.area}</Text> : null}
-      <Text><strong>Fecha:</strong> {props.dateLabel}</Text>
-      <Text><strong>Hora:</strong> {props.timeLabel} ({props.durationMinutes} minutos)</Text>
-      <Text><strong>Lugar:</strong> {props.location}</Text>
-      <Text style={{ color: colors.ink }}>Adjuntamos una invitación para agregar la reunión a tu calendario.</Text>
+    <EmailShell eventLocation={props.location} eventName={props.eventName} logoUrl={props.logoUrl} preview={`Tu reunión con ${props.representativeName} está confirmada`} variant="food-service">
+      <Heading style={headingStyle}>Tu reunión está confirmada</Heading>
+      <Text style={bodyTextStyle}>Hola {props.clientName}, reservamos tu espacio para conversar con el equipo de Todo Carnes en Food &amp; Service 2026.</Text>
+      <EmailDetails rows={[
+        { label: "Área", value: props.area },
+        { label: "Representante", value: props.representativeName },
+        { label: "Fecha", value: props.dateLabel },
+        { label: "Hora", value: props.timeLabel },
+        { label: "Duración", value: `${props.durationMinutes} minutos` },
+        { label: "Lugar / stand", value: props.location },
+      ]} />
+      <Text style={{ ...bodyTextStyle, color: colors.navy, fontWeight: 700, margin: "20px 0 0" }}>
+        Adjuntamos el archivo .ics para que agregues la reunión a tu calendario.
+      </Text>
     </EmailShell>
   );
 }

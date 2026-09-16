@@ -2,6 +2,7 @@
 
 import { sendLeadAck, sendLeadNotification } from "@todocarnes/emails/senders";
 import { createAgendaAdminClient } from "@/lib/agenda/server";
+import { areaLabel } from "@/lib/agenda/constants";
 import type { AgendaLeadFormState, CreateAgendaLeadResult } from "@/lib/agenda/types";
 import { agendaLeadInputSchema } from "@/lib/agenda/validation";
 
@@ -52,14 +53,16 @@ export async function createAgendaLead(input: AgendaLeadFormState & { repId: str
       company: parsed.data.company || null,
       email: parsed.data.email,
       phone: parsed.data.phone,
-      area: rep?.area ?? null,
+      area: rep?.area ? areaLabel(rep.area) : null,
       message: parsed.data.message || null,
     };
+    const emailRep = rep ? { name: rep.name, email: rep.contact_email } : null;
     const [ack, notification] = await Promise.all([
-      sendLeadAck({ lead: emailLead }),
+      sendLeadAck({ lead: emailLead, origin: "agenda_contact", rep: emailRep }),
       sendLeadNotification({
         lead: emailLead,
-        rep: rep ? { name: rep.name, email: rep.contact_email } : null,
+        origin: "agenda_contact",
+        rep: emailRep,
       }),
     ]);
     const emailSent = ack.ok && notification.ok;

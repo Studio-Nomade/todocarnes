@@ -6,9 +6,12 @@ export type ContactPerson = {
 export type BookingEmailData = {
   name: string;
   company?: string | null;
+  cargo?: string | null;
   email: string;
+  phone?: string | null;
   area?: string | null;
   topics?: string | null;
+  cameFrom?: string | null;
   icsUid: string;
   start: Date;
 };
@@ -27,6 +30,7 @@ export type CourtesyEmailData = {
   company: string;
   cargo: string;
   email: string;
+  phone: string;
   area: string;
 };
 
@@ -38,6 +42,8 @@ export type LeadEmailData = {
   area?: string | null;
   message?: string | null;
 };
+
+export type EmailContactOrigin = "agenda_contact" | "landing";
 
 export type SendResult =
   | { ok: true; id: string }
