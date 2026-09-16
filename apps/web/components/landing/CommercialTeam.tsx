@@ -17,7 +17,7 @@ export function CommercialTeam({ representatives }: { representatives: PublicRep
             {visibleRepresentatives.map((rep) => {
               const number = normalizeWhatsAppNumber(rep.whatsapp);
               return (
-                <article key={rep.id} className="flex items-start gap-4 rounded-2xl bg-white p-4 shadow-sm">
+                <article key={rep.id} className="group/representative flex items-start gap-4 rounded-2xl bg-white p-4 shadow-sm">
                   <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-navy/15">
                     {rep.photoUrl ? (
                       <Image
@@ -25,7 +25,7 @@ export function CommercialTeam({ representatives }: { representatives: PublicRep
                         alt={`Retrato de ${rep.name}`}
                         fill
                         sizes="64px"
-                        className="object-cover"
+                        className="object-cover transition-[filter] duration-300 motion-reduce:transition-none [@media(hover:hover)_and_(pointer:fine)]:grayscale group-hover/representative:grayscale-0 group-focus-within/representative:grayscale-0"
                       />
                     ) : (
                       <span className="sr-only">Fotografía pendiente</span>
