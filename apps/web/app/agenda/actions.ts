@@ -5,7 +5,7 @@ import { areaLabel } from "@/lib/agenda/constants";
 import { zonedDateTimeToUtc } from "@/lib/agenda/timezone";
 import type { AgendaSlot, CreateBookingInput, CreateBookingResult } from "@/lib/agenda/types";
 import { availabilityInputSchema, bookingInputSchema, isSlotConflict } from "@/lib/agenda/validation";
-import { sendBookingConfirmation } from "@todocarnes/emails/senders";
+import { sendBookingConfirmation, sendBookingNotification } from "@todocarnes/emails/senders";
 
 export async function getAvailability(input: {
   repId: string;
@@ -106,32 +106,38 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
       return { ok: false, error: "server_error" };
     }
 
-    const emailResult = await sendBookingConfirmation({
-      booking: {
-        name: parsed.data.name,
-        company: parsed.data.company,
-        email: parsed.data.email,
-        area: areaLabel(rep.area),
-        topics: parsed.data.topics || null,
-        icsUid: booking.ics_uid,
-        start: zonedDateTimeToUtc(parsed.data.day, normalizedTime, "America/Santiago"),
-      },
-      rep: { name: rep.name, email: rep.contact_email },
-      event: {
-        name: event.name,
-        location: event.location ?? "Stand Todo Carnes — Feria Food & Service 2026",
-        slotMinutes: event.slot_minutes,
-        timezone: "America/Santiago",
-      },
-    });
+    const emailBooking = {
+      name: parsed.data.name,
+      company: parsed.data.company,
+      cargo: parsed.data.cargo,
+      email: parsed.data.email,
+      phone: parsed.data.phone,
+      area: areaLabel(rep.area),
+      topics: parsed.data.topics || null,
+      cameFrom: parsed.data.cameFrom || null,
+      icsUid: booking.ics_uid,
+      start: zonedDateTimeToUtc(parsed.data.day, normalizedTime, "America/Santiago"),
+    };
+    const emailRep = { name: rep.name, email: rep.contact_email };
+    const emailEvent = {
+      name: event.name,
+      location: event.location ?? "Espacio por confirmar",
+      slotMinutes: event.slot_minutes,
+      timezone: "America/Santiago",
+    };
+    const [confirmation, notification] = await Promise.all([
+      sendBookingConfirmation({ booking: emailBooking, rep: emailRep, event: emailEvent }),
+      sendBookingNotification({ booking: emailBooking, rep: emailRep, event: emailEvent }),
+    ]);
 
-    if (!emailResult.ok) {
-      console.error("[agenda] La reserva se creó, pero falló el correo de confirmación.", {
+    const emailSent = confirmation.ok && notification.ok;
+    if (!emailSent) {
+      console.error("[agenda] La reserva se creó, pero uno o más correos fallaron.", {
         bookingId: booking.id,
       });
     }
 
-    return { ok: true, bookingId: booking.id, emailSent: emailResult.ok };
+    return { ok: true, bookingId: booking.id, emailSent };
   } catch {
     console.error("[agenda] Error inesperado al crear la reserva.");
     return { ok: false, error: "server_error" };
