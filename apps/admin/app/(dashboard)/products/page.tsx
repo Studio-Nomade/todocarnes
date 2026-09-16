@@ -30,7 +30,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <h1 className="mt-2 text-3xl font-semibold text-navy">Productos</h1>
           <p className="mt-2 text-sm text-ink/60">{result.products.length} producto{result.products.length === 1 ? "" : "s"} en esta vista</p>
         </div>
-        <Link className="w-full rounded-lg bg-navy px-5 py-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-navy/90 sm:w-auto" href="/products/new">Nuevo producto</Link>
+        <Link className="admin-button-primary w-full py-3 shadow-sm sm:w-auto" href="/products/new">Nuevo producto</Link>
       </div>
       <ProductFilters brands={result.brands} categories={result.categories} cuts={result.cuts} values={values} />
       <div className="mt-5">

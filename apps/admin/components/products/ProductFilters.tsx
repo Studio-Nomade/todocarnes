@@ -50,8 +50,8 @@ export function ProductFilters({
         <option value="inactive">Inactivo</option>
       </select>
       <div className="flex items-center gap-3">
-        <button className="h-10 flex-1 rounded-lg bg-navy px-4 text-sm font-semibold text-white hover:bg-navy/90 lg:flex-none" type="submit">Filtrar</button>
-        <Link className="px-2 text-xs font-medium text-ink/55 hover:text-navy" href="/products">Limpiar</Link>
+        <button className="admin-button-primary h-10 flex-1 px-4 lg:flex-none" type="submit">Filtrar</button>
+        <Link className="admin-button-secondary h-10 px-4 text-xs" href="/products">Limpiar</Link>
       </div>
     </form>
   );

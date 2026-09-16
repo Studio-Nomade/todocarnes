@@ -37,7 +37,7 @@ export function SendCatalogEmail({
   return (
     <>
       <button
-        className="w-full rounded-lg border border-blue/30 bg-blue-50 px-4 py-2 text-sm font-semibold text-navy hover:bg-blue-100 sm:w-auto"
+        className="admin-button-secondary w-full px-4 py-2 sm:w-auto"
         onClick={() => setOpen(true)}
         type="button"
       >
@@ -138,14 +138,14 @@ export function SendCatalogEmail({
               </p>
               <div className="flex flex-col-reverse gap-3 border-t border-ink/10 pt-5 sm:flex-row sm:justify-end">
                 <button
-                  className="rounded-lg px-4 py-2.5 text-sm font-semibold text-ink/60 hover:bg-gray-100"
+                  className="admin-button-secondary"
                   onClick={() => setOpen(false)}
                   type="button"
                 >
                   Cancelar
                 </button>
                 <button
-                  className="rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy/90"
+                  className="admin-button-primary"
                   type="submit"
                 >
                   Enviar correo

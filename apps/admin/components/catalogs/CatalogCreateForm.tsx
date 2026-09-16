@@ -54,7 +54,7 @@ export function CatalogCreateForm() {
           ))}
         </select>
       </label>
-      <button className="h-11 rounded-lg bg-navy px-5 text-sm font-semibold text-white hover:bg-navy/90 disabled:opacity-60" disabled={isPending} type="submit">
+      <button className="admin-button-primary h-11" disabled={isPending} type="submit">
         {isPending ? "Creando…" : "Crear catálogo"}
       </button>
       {error ? <p className="text-sm text-red-700 lg:col-span-4" role="alert">{error}</p> : null}

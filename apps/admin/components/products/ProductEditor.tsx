@@ -69,8 +69,8 @@ export function ProductEditor({
           <p className="mt-5 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">{error}</p>
         ) : null}
         <div className="mt-6 flex flex-col-reverse gap-3 border-t border-ink/10 pt-5 sm:flex-row sm:items-center sm:justify-end">
-          <Link className="rounded-lg px-4 py-2.5 text-center text-sm font-medium text-ink/65 hover:bg-gray-50" href="/products">Cancelar</Link>
-          <button className="rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy/90 disabled:cursor-wait disabled:opacity-60" disabled={isPending} type="submit">
+          <Link className="admin-button-secondary" href="/products">Cancelar</Link>
+          <button className="admin-button-primary" disabled={isPending} type="submit">
             {isPending ? "Guardando…" : productId ? "Guardar cambios" : "Crear producto"}
           </button>
         </div>

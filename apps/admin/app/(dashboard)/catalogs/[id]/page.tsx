@@ -41,7 +41,7 @@ export default async function CatalogBuilderPage({ params }: BuilderPageProps) {
         </div>
         <div className="grid w-full grid-cols-1 gap-3 min-[420px]:grid-cols-3 sm:w-auto">
           <form action={`/catalogs/${catalog.id}/preview`} className="w-full" method="get">
-            <button className="w-full rounded-lg border border-ink/15 px-4 py-2 text-sm font-semibold text-navy hover:bg-gray-50" type="submit">
+            <button className="admin-button-secondary w-full px-4 py-2" type="submit">
               Previsualizar
             </button>
           </form>
