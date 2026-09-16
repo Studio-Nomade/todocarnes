@@ -1,6 +1,6 @@
 "use server";
 
-import { sendCourtesyConfirmation } from "@todocarnes/emails/senders";
+import { sendCourtesyConfirmation, sendCourtesyNotification } from "@todocarnes/emails/senders";
 import { areaLabel } from "@/lib/agenda/constants";
 import { createAgendaAdminClient } from "@/lib/agenda/server";
 import type { CourtesyRequestInput, CreateCourtesyRequestResult } from "@/lib/courtesy/types";
@@ -12,12 +12,24 @@ export async function createCourtesyRequest(input: CourtesyRequestInput): Promis
 
   try {
     const client = createAgendaAdminClient();
-    const { data: event, error: eventError } = await client
-      .from("booking_events")
-      .select("id,name,location")
-      .eq("id", parsed.data.eventId)
-      .eq("is_active", true)
-      .maybeSingle();
+    const [{ data: event, error: eventError }, repResult] = await Promise.all([
+      client
+        .from("booking_events")
+        .select("id,name,location")
+        .eq("id", parsed.data.eventId)
+        .eq("is_active", true)
+        .maybeSingle(),
+      client
+        .from("profiles")
+        .select("name,contact_email")
+        .eq("role", "commercial")
+        .eq("status", "active")
+        .eq("is_public", true)
+        .eq("area", parsed.data.area)
+        .order("public_order", { ascending: true })
+        .limit(1)
+        .maybeSingle(),
+    ]);
 
     if (eventError || !event) return { ok: false, error: "invalid_data" };
 
@@ -41,27 +53,34 @@ export async function createCourtesyRequest(input: CourtesyRequestInput): Promis
       return { ok: false, error: "server_error" };
     }
 
-    const emailResult = await sendCourtesyConfirmation({
-      request: {
-        name: parsed.data.name,
-        company: parsed.data.company,
-        cargo: parsed.data.cargo,
-        email: parsed.data.email,
-        area: areaLabel(parsed.data.area),
-      },
-      event: {
-        name: event.name,
-        location: event.location ?? "Stand Todo Carnes — Feria Food & Service 2026",
-      },
-    });
+    const emailRequest = {
+      name: parsed.data.name,
+      company: parsed.data.company,
+      cargo: parsed.data.cargo,
+      email: parsed.data.email,
+      phone: parsed.data.phone,
+      area: areaLabel(parsed.data.area),
+    };
+    const emailEvent = {
+      name: event.name,
+      location: event.location ?? "Espacio por confirmar",
+    };
+    const emailRep = repResult.data
+      ? { name: repResult.data.name, email: repResult.data.contact_email }
+      : null;
+    const [confirmation, notification] = await Promise.all([
+      sendCourtesyConfirmation({ request: emailRequest, event: emailEvent }),
+      sendCourtesyNotification({ request: emailRequest, event: emailEvent, rep: emailRep }),
+    ]);
 
-    if (!emailResult.ok) {
-      console.error("[agenda] La solicitud se guardó, pero falló el correo de confirmación.", {
+    const emailSent = confirmation.ok && notification.ok;
+    if (!emailSent) {
+      console.error("[agenda] La solicitud se guardó, pero uno o más correos fallaron.", {
         requestId: request.id,
       });
     }
 
-    return { ok: true, requestId: request.id, emailSent: emailResult.ok };
+    return { ok: true, requestId: request.id, emailSent };
   } catch {
     console.error("[agenda] Error inesperado al guardar la solicitud de cortesía.");
     return { ok: false, error: "server_error" };

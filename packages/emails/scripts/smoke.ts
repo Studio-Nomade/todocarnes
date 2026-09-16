@@ -4,6 +4,7 @@ const recipient = process.env.RESEND_SMOKE_TO?.trim();
 if (!recipient) throw new Error("Definí RESEND_SMOKE_TO para ejecutar el envío de humo.");
 
 const result = await sendLeadAck({
+  origin: "landing",
   lead: {
     name: "Prueba Todo Carnes",
     email: recipient,

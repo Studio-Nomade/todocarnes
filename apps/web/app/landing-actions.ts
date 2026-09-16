@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { sendLeadAck, sendLeadNotification } from "@todocarnes/emails/senders";
+import { areaLabel } from "@/lib/agenda/constants";
 import { createAgendaAdminClient } from "@/lib/agenda/server";
 import { firstForwardedIp, hashRequestIp, LANDING_RATE_LIMIT, LANDING_RATE_WINDOW_MS } from "@/lib/landing/security";
 import type { LandingLeadInput, LandingLeadResult } from "@/lib/landing/types";
@@ -28,9 +29,12 @@ export async function createLandingLead(input: LandingLeadInput): Promise<Landin
     const { data: lead, error } = await client.from("leads").insert({ name: parsed.data.name, company: parsed.data.company || null, email: parsed.data.email, phone: parsed.data.phone, area: parsed.data.area, source: "landing", assigned_rep_id: rep?.id ?? null, utm: { ip_hash: ipHash, submission_id: parsed.data.submissionId } }).select("id").single();
     if (error || !lead) throw error ?? new Error("Lead no creado");
 
-    const emailLead = { name: parsed.data.name, company: parsed.data.company || null, email: parsed.data.email, phone: parsed.data.phone, area: parsed.data.area };
+    const emailLead = { name: parsed.data.name, company: parsed.data.company || null, email: parsed.data.email, phone: parsed.data.phone, area: areaLabel(parsed.data.area) };
     const recipient = rep ? { name: rep.name, email: rep.contact_email } : null;
-    const [ack, notification] = await Promise.all([sendLeadAck({ lead: emailLead }), sendLeadNotification({ lead: emailLead, rep: recipient })]);
+    const [ack, notification] = await Promise.all([
+      sendLeadAck({ lead: emailLead, origin: "landing", rep: recipient }),
+      sendLeadNotification({ lead: emailLead, origin: "landing", rep: recipient }),
+    ]);
     const emailSent = ack.ok && notification.ok;
     if (!emailSent) console.error("[landing] El lead se guardó, pero uno o más correos fallaron.", { leadId: lead.id });
     return { ok: true, leadId: lead.id, emailSent };

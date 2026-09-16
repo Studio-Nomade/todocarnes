@@ -24,6 +24,7 @@ Configurar valores independientes para Preview y Production. Nunca copiar valore
 | `RESEND_API_KEY` | servidor | secreta y separada por entorno |
 | `EMAIL_FROM` | servidor | remitente del dominio verificado |
 | `EMAIL_REPLY_TO` | servidor | buzón comercial de respuesta, recomendado |
+| `EMAIL_INTERNAL_TO` | servidor | buzón central para notificaciones internas |
 | `NEXT_PUBLIC_SITE_URL` | cliente | URL canónica: preview o `https://todocarnes.cl` |
 
 El build debe pasar sin secretos server-side. Las variables `NEXT_PUBLIC_*` de CI son valores dummy
