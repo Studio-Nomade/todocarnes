@@ -32,7 +32,7 @@ export function ServiceForm({ disabled, initialValues, onSubmit, submitLabel }: 
         Descripción
         <textarea className={`${inputClass} min-h-28 resize-y`} maxLength={600} minLength={10} onChange={(event) => setDescription(event.target.value)} required value={description} />
       </label>
-      <button className="rounded-lg bg-navy px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy/90 disabled:opacity-50" disabled={disabled} type="submit">
+      <button className="admin-button-primary px-4" disabled={disabled} type="submit">
         {disabled ? "Guardando…" : submitLabel}
       </button>
     </form>

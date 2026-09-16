@@ -189,7 +189,7 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
                 </optgroup>
               ))}
             </select>
-            <button className="h-10 shrink-0 rounded-lg bg-navy px-4 text-sm font-semibold text-white hover:bg-navy/90 disabled:opacity-50" disabled={!toAdd || isPending} onClick={addProduct} type="button">
+            <button className="admin-button-primary h-10 shrink-0 px-4" disabled={!toAdd || isPending} onClick={addProduct} type="button">
               Agregar
             </button>
           </div>

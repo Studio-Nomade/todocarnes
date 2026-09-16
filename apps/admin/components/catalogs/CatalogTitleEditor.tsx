@@ -57,10 +57,10 @@ export function CatalogTitleEditor({ catalogId, initialTitle }: CatalogTitleEdit
             value={draft}
           />
           <div className="flex gap-2">
-            <button className="h-11 rounded-lg bg-navy px-4 text-sm font-semibold text-white disabled:opacity-50" disabled={isPending} type="submit">
+            <button className="admin-button-primary h-11 px-4" disabled={isPending} type="submit">
               {isPending ? "Guardando…" : "Guardar"}
             </button>
-            <button className="h-11 rounded-lg border border-ink/15 px-4 text-sm font-semibold text-ink/60 disabled:opacity-50" disabled={isPending} onClick={cancel} type="button">
+            <button className="admin-button-secondary h-11 px-4" disabled={isPending} onClick={cancel} type="button">
               Cancelar
             </button>
           </div>

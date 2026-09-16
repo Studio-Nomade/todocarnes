@@ -60,7 +60,7 @@ export function UserForm({
         </label>
       </div>
       <button
-        className="w-full rounded-lg bg-navy px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy/90 disabled:opacity-50"
+        className="admin-button-primary w-full px-4"
         disabled={disabled}
         type="submit"
       >

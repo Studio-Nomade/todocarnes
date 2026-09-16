@@ -19,6 +19,8 @@ const serviceLinks = [
   ["Don Pancho", "#don-pancho"],
 ] as const;
 
+const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL?.trim() || "https://todocarnesadmin.up.railway.app";
+
 export function LandingHeader() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -64,6 +66,7 @@ export function LandingHeader() {
           </div>
           {mainLinks.slice(1).map(([label, href, id]) => <Link key={href} href={landingHref(href)} aria-current={active === id ? "location" : undefined} className={linkClass(id)}>{label}</Link>)}
           <Link href="/agenda" className="rounded-full border border-navy/20 px-5 py-2.5 text-navy hover:bg-blue-50">Food Service 2026</Link>
+          <a href={adminUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-navy/20 px-5 py-2.5 text-navy hover:bg-blue-50">Ingreso<span className="sr-only"> (abre en una pestaña nueva)</span></a>
           <Link href={landingHref("#contacto")} className="rounded-full bg-navy px-5 py-2.5 text-white hover:bg-blue-700">Hablemos</Link>
         </nav>
         <button type="button" aria-expanded={mobileOpen} aria-controls="mobile-nav" aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"} onClick={() => setMobileOpen((current) => !current)} className="grid h-11 w-11 place-items-center rounded-full border border-navy/20 text-2xl text-navy lg:hidden">{mobileOpen ? "×" : "☰"}</button>
@@ -77,6 +80,7 @@ export function LandingHeader() {
           </details>
           {mainLinks.slice(1).map(([label, href]) => <Link key={href} href={landingHref(href)} onClick={closeMobile} className="block border-b border-navy/10 py-3 font-semibold text-navy">{label}</Link>)}
           <Link href="/agenda" onClick={closeMobile} className="mt-5 block rounded-full border border-navy/20 px-6 py-3 text-center font-bold text-navy">Food Service 2026</Link>
+          <a href={adminUrl} target="_blank" rel="noopener noreferrer" onClick={closeMobile} className="mt-3 block rounded-full border border-navy/20 px-6 py-3 text-center font-bold text-navy">Ingreso<span className="sr-only"> (abre en una pestaña nueva)</span></a>
           <Link href={landingHref("#contacto")} onClick={closeMobile} className="mt-3 block rounded-full bg-navy px-6 py-3 text-center font-bold text-white">Hablemos</Link>
         </nav>
       ) : null}

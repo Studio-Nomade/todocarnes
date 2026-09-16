@@ -59,7 +59,7 @@ export function CatalogBrandingForm({ catalogId, initialClientName, logoUrl }: C
           Logo del cliente · PNG
           <input accept="image/png" className="mt-1.5 block w-full text-sm text-ink/65 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-2.5 file:font-semibold file:text-navy" name="clientLogo" type="file" />
         </label>
-        <button className="h-11 rounded-lg bg-navy px-5 text-sm font-semibold text-white disabled:opacity-50" disabled={isPending} type="submit">
+        <button className="admin-button-primary h-11" disabled={isPending} type="submit">
           {isPending ? "Guardando…" : "Guardar"}
         </button>
         <div className="md:col-span-3">

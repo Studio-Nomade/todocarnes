@@ -106,7 +106,7 @@ export function UserPublicProfileForm({
       {error ? <p className="text-sm text-red-700 sm:col-span-2" role="alert">{error}</p> : null}
       {notice ? <p className="text-sm text-emerald-700 sm:col-span-2" role="status">{notice}</p> : null}
       <div className="sm:col-span-2">
-        <button className="rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" disabled={isPending} type="submit">
+        <button className="admin-button-primary px-4 py-2" disabled={isPending} type="submit">
           {isPending ? "Guardando..." : "Guardar perfil público"}
         </button>
       </div>

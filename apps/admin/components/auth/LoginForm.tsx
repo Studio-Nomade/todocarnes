@@ -47,7 +47,7 @@ export function LoginForm() {
         <input autoComplete="current-password" className="mt-2 w-full rounded-lg border border-ink/20 px-4 py-3 outline-none focus:border-blue" minLength={6} name="password" required type="password" />
       </label>
       {error ? <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
-      <button className="w-full rounded-lg bg-navy px-4 py-3 font-semibold text-white disabled:opacity-60" disabled={loading} type="submit">
+      <button className="admin-button-primary w-full py-3" disabled={loading} type="submit">
         {loading ? "Ingresando…" : "Ingresar"}
       </button>
     </form>
