@@ -244,6 +244,7 @@ async function ensureUser(
   const profile = await supabase.from("profiles").upsert({
     id: user.id,
     name: input.name,
+    contact_email: input.email,
     role: input.role,
     status: "active",
   });
