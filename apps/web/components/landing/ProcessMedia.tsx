@@ -50,17 +50,9 @@ export function ProcessMedia() {
     setVideoIndex(nextVideoIndex);
   }
 
-  function resetProcess() {
-    video.current?.pause();
-    setVideoReady(false);
-    setVideoIndex(null);
-    setActiveIndex(0);
-  }
-
   return (
     <section
       id="procesos"
-      onMouseLeave={resetProcess}
       className="relative min-h-[680px] scroll-mt-24 overflow-hidden bg-navy px-6 py-16 text-white sm:px-8 lg:py-20"
     >
       <div
@@ -107,9 +99,7 @@ export function ProcessMedia() {
                 type="button"
                 aria-pressed={activeIndex === index}
                 onFocus={() => select(index, true)}
-                onBlur={resetProcess}
                 onMouseEnter={() => select(index, true)}
-                onMouseLeave={resetProcess}
                 onClick={() => select(index, true)}
                 className={`shrink-0 snap-start rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors ${activeIndex === index ? "border-blue bg-blue text-navy" : "border-white/40 bg-navy/30 text-white hover:border-blue"}`}
               >
