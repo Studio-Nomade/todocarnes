@@ -19,7 +19,7 @@ const serviceLinks = [
   ["Don Pancho", "#don-pancho"],
 ] as const;
 
-const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL?.trim() || "https://todocarnesadmin.up.railway.app";
+const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL?.trim() || "https://admin.todocarnes.cl";
 
 export function LandingHeader() {
   const pathname = usePathname();
