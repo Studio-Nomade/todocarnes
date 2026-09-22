@@ -39,7 +39,7 @@ export async function createLandingLead(input: LandingLeadInput): Promise<Landin
       sendLeadNotification({ lead: emailLead, origin: "landing", rep: recipients[0] ?? null }),
     ]);
     const emailSent = ack.ok && notification.ok;
-    if (!emailSent) console.error("[landing] El lead se guardó, pero uno o más correos fallaron.", { leadId: lead.id });
+    if (!emailSent) console.error("[landing] El lead se guardó, pero uno o más correos fallaron.", { leadId: lead.id, acuse: ack.ok ? "ok" : ack.error, interno: notification.ok ? "ok" : notification.error });
     return { ok: true, leadId: lead.id, emailSent };
   } catch {
     console.error("[landing] No fue posible procesar el contacto.");

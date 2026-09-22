@@ -77,6 +77,8 @@ export async function createCourtesyRequest(input: CourtesyRequestInput): Promis
     if (!emailSent) {
       console.error("[agenda] La solicitud se guardó, pero uno o más correos fallaron.", {
         requestId: request.id,
+        confirmacion: confirmation.ok ? "ok" : confirmation.error,
+        interno: notification.ok ? "ok" : notification.error,
       });
     }
 
