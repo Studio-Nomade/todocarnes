@@ -1,6 +1,6 @@
-import { readFile } from "node:fs/promises";
 import { Resend, type Attachment } from "resend";
 import { buildIcs } from "./ics";
+import { EMAIL_LOGO_BASE64, EMAIL_LOGO_FILENAME } from "./logo";
 import {
   BookingConfirmation,
   BookingNotification,
@@ -49,16 +49,18 @@ export function representativeCc(reps: (BookingRepresentative | null | undefined
 
 const EMAIL_LOGO_CONTENT_ID = "todo-carnes-logo";
 const EMAIL_LOGO_URL = `cid:${EMAIL_LOGO_CONTENT_ID}`;
-let logoContentPromise: Promise<string> | undefined;
 
-async function emailLogoAttachment(): Promise<Attachment> {
-  logoContentPromise ??= readFile(new URL("../assets/logo-blanco.png", import.meta.url))
-    .then((content) => content.toString("base64"));
+/**
+ * El logo va incrustado en base64 (ver ./logo.ts). No se lee del disco: el bundler reescribe
+ * `new URL(..., import.meta.url)` a una ruta web, así que `readFile` fallaba en producción y tiraba
+ * el envío antes de llegar a Resend.
+ */
+function emailLogoAttachment(): Attachment {
   return {
-    content: await logoContentPromise,
+    content: EMAIL_LOGO_BASE64,
     contentId: EMAIL_LOGO_CONTENT_ID,
     contentType: "image/png",
-    filename: "todo-carnes-logo-blanco.png",
+    filename: EMAIL_LOGO_FILENAME,
   };
 }
 
@@ -76,11 +78,15 @@ function getEmailConfig(): EmailConfig | null {
   };
 }
 
+/** Conserva el motivo real: Resend devuelve un objeto `{ name, message }`, no un Error. */
 function failed(error: unknown): SendResult {
-  return {
-    ok: false,
-    error: error instanceof Error ? error.message : "No fue posible enviar el correo.",
-  };
+  if (error instanceof Error) return { ok: false, error: error.message };
+  if (error && typeof error === "object") {
+    const { name, message } = error as { name?: unknown; message?: unknown };
+    const detail = [name, message].filter((part): part is string => typeof part === "string" && part.length > 0).join(": ");
+    if (detail) return { ok: false, error: detail };
+  }
+  return { ok: false, error: "No fue posible enviar el correo." };
 }
 
 function dateParts(start: Date, timezone: string) {
@@ -141,7 +147,7 @@ export async function sendBookingConfirmation({ booking, rep, event }: {
         />
       ),
       attachments: [
-        await emailLogoAttachment(),
+        emailLogoAttachment(),
         {
           content: Buffer.from(calendar, "utf8").toString("base64"),
           filename: "reunion-todo-carnes.ics",
@@ -172,7 +178,7 @@ export async function sendBookingNotification({ booking, rep, event }: {
       to,
       replyTo: booking.email,
       subject: `Nueva reunión — ${booking.name} — ${booking.area ?? "Sin área"}`,
-      attachments: [await emailLogoAttachment()],
+      attachments: [emailLogoAttachment()],
       react: (
         <BookingNotification
           {...booking}
@@ -206,7 +212,7 @@ export async function sendCourtesyConfirmation({ request, event }: {
       to: request.email,
       replyTo: config.replyTo,
       subject: "Recibimos tu solicitud de entrada — Food & Service 2026",
-      attachments: [await emailLogoAttachment()],
+      attachments: [emailLogoAttachment()],
       react: (
         <CourtesyConfirmation
           {...request}
@@ -239,7 +245,7 @@ export async function sendCourtesyNotification({ request, event, rep }: {
       to,
       replyTo: request.email,
       subject: `Nueva solicitud de cortesía — ${request.name} — ${request.area}`,
-      attachments: [await emailLogoAttachment()],
+      attachments: [emailLogoAttachment()],
       react: (
         <CourtesyNotification
           {...request}
@@ -279,7 +285,7 @@ export async function sendLeadAck({ lead, origin, rep, ccReps = [] }: {
       subject: agenda
         ? "Recibimos tu solicitud de contacto — Todo Carnes"
         : "Recibimos tu mensaje — Todo Carnes",
-      attachments: [await emailLogoAttachment()],
+      attachments: [emailLogoAttachment()],
       react: agenda ? (
         <ContactAckAgenda area={lead.area} logoUrl={config.logoUrl} name={lead.name} representativeName={rep?.name} />
       ) : (
@@ -310,7 +316,7 @@ export async function sendLeadNotification({ lead, origin, rep }: {
       to,
       replyTo: lead.email,
       subject: `${agenda ? "Contacto agenda" : "Contacto landing"} — ${lead.name} — ${lead.area ?? "Sin área"}`,
-      attachments: [await emailLogoAttachment()],
+      attachments: [emailLogoAttachment()],
       react: agenda ? (
         <ContactNotifAgenda {...lead} logoUrl={config.logoUrl} representativeName={rep?.name} />
       ) : (
