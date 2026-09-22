@@ -311,7 +311,7 @@ export type Database = {
       }
       courtesy_requests: {
         Row: {
-          area: Database["public"]["Enums"]["area_comercial"]
+          area: Database["public"]["Enums"]["area_comercial"] | null
           cargo: string
           company: string
           created_at: string
@@ -319,11 +319,13 @@ export type Database = {
           event_id: string
           id: string
           name: string
+          last_name: string
+          rut: string
           phone: string
           status: string
         }
         Insert: {
-          area: Database["public"]["Enums"]["area_comercial"]
+          area?: Database["public"]["Enums"]["area_comercial"] | null
           cargo: string
           company: string
           created_at?: string
@@ -331,11 +333,13 @@ export type Database = {
           event_id: string
           id?: string
           name: string
+          last_name: string
+          rut: string
           phone: string
           status?: string
         }
         Update: {
-          area?: Database["public"]["Enums"]["area_comercial"]
+          area?: Database["public"]["Enums"]["area_comercial"] | null
           cargo?: string
           company?: string
           created_at?: string
@@ -343,6 +347,8 @@ export type Database = {
           event_id?: string
           id?: string
           name?: string
+          last_name?: string
+          rut?: string
           phone?: string
           status?: string
         }
@@ -362,6 +368,8 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          last_name: string
+          rut: string
           slug: string
           sort_order: number
           updated_at: string
@@ -371,6 +379,8 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          last_name: string
+          rut: string
           slug: string
           sort_order?: number
           updated_at?: string
@@ -380,6 +390,8 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          last_name?: string
+          rut?: string
           slug?: string
           sort_order?: number
           updated_at?: string

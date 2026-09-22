@@ -48,7 +48,6 @@ export default function HomePage() {
       <main id="contenido">
         <LandingHero />
         <CommercialAreas />
-        <DonPancho />
         <Solutions />
         <ProcessMedia />
         <OperationsTabs />
@@ -56,6 +55,7 @@ export default function HomePage() {
         <Suspense fallback={<div className="min-h-96 bg-gray-50" aria-label="Cargando equipo comercial" />}><PublicCommercialTeam /></Suspense>
         <ProcessSteps />
         <Suspense fallback={<div className="min-h-64" aria-label="Cargando evento Food Service" />}><PublicFoodServiceBanner /></Suspense>
+        <DonPancho />
         <Suspense fallback={<div className="min-h-96 bg-blue-50" aria-label="Cargando formulario de contacto" />}><PublicContactForm /></Suspense>
       </main>
       <LandingFooter />

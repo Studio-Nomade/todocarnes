@@ -5,9 +5,10 @@ import { EmailShell } from "./EmailShell";
 
 export type CourtesyConfirmationProps = {
   name: string;
+  lastName: string;
+  rut: string;
   company: string;
   cargo: string;
-  area: string;
   eventName: string;
   eventLocation: string;
   logoUrl?: string;
@@ -19,9 +20,10 @@ export function CourtesyConfirmation(props: CourtesyConfirmationProps) {
       <Heading style={headingStyle}>Recibimos tu solicitud de entrada</Heading>
       <Text style={bodyTextStyle}>Hola {props.name}, registramos tu solicitud de cortesía para Food &amp; Service 2026.</Text>
       <EmailDetails rows={[
+        { label: "Nombre", value: `${props.name} ${props.lastName}`.trim() },
+        { label: "RUT", value: props.rut },
         { label: "Empresa", value: props.company },
         { label: "Cargo", value: props.cargo },
-        { label: "Área de interés", value: props.area },
         { label: "Lugar / stand", value: props.eventLocation },
       ]} />
       <Text style={{ ...bodyTextStyle, color: colors.navy, margin: "20px 0 0" }}>
