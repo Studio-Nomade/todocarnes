@@ -31,3 +31,9 @@ export const FALLBACK_EVENT: AgendaEvent = {
 export function areaLabel(area: CommercialArea | null) {
   return area ? AREA_LABELS[area] : "Área comercial";
 }
+
+/** Une varias áreas en una etiqueta legible ("Retail / GGCC + Food Service"). */
+export function areasLabel(areas: readonly CommercialArea[] | null | undefined, fallback: CommercialArea | null = null) {
+  const list = areas?.length ? [...new Set(areas)] : fallback ? [fallback] : [];
+  return list.length ? list.map((area) => AREA_LABELS[area]).join(" + ") : "Área comercial";
+}

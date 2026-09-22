@@ -4,6 +4,7 @@ export type CommercialOption = { id: string; name: string };
 
 export type LeadListItem = {
   area: CommercialArea | null;
+  areas: CommercialArea[];
   assignedRepId: string | null;
   assignedRepName: string | null;
   company: string | null;

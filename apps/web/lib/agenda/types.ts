@@ -7,6 +7,7 @@ export type PublicRepresentative = {
   id: string;
   name: string;
   area: CommercialArea | null;
+  areas: CommercialArea[];
   areaLabel: string;
   photoUrl: string | null;
   whatsapp: string | null;

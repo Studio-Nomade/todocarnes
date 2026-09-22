@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
-import { AREA_LABELS } from "@/lib/agenda/constants";
+import { areasLabel } from "@/lib/agenda/constants";
 import { createAgendaAdminClient, hasAgendaDatabaseConfig } from "@/lib/agenda/server";
 import type { CommercialArea, PublicRepresentative } from "@/lib/agenda/types";
 
@@ -10,7 +10,7 @@ export const getPublicRepresentatives = cache(async function getPublicRepresenta
 
   const { data, error } = await createAgendaAdminClient()
     .from("profiles")
-    .select("id,name,area,photo_url,whatsapp,public_bio,contact_email")
+    .select("id,name,area,areas,photo_url,whatsapp,public_bio,contact_email")
     .eq("is_public", true)
     .eq("role", "commercial")
     .eq("status", "active")
@@ -27,7 +27,8 @@ export const getPublicRepresentatives = cache(async function getPublicRepresenta
       id: rep.id,
       name: rep.name,
       area: rep.area,
-      areaLabel: rep.area ? AREA_LABELS[rep.area as CommercialArea] : "Área comercial",
+      areas: rep.areas.length ? rep.areas : rep.area ? [rep.area as CommercialArea] : [],
+      areaLabel: areasLabel(rep.areas, rep.area),
       photoUrl: rep.photo_url,
       whatsapp: rep.whatsapp,
       contactEmail: rep.contact_email,

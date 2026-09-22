@@ -1,11 +1,11 @@
 import Image from "next/image";
 
 const operations = [
-  { title: "Abastecimiento", description: "Planificamos continuidad, disponibilidad y alternativas según tu canal.", image: "/landing/warehouse.jpg" },
-  { title: "Volumen", description: "Ajustamos la respuesta a los volúmenes y frecuencias de cada operación.", image: "/landing/plant-aerial.jpg" },
-  { title: "Formatos", description: "Definimos presentaciones alineadas al uso, almacenamiento y venta.", image: "/landing/don-pancho.jpg" },
-  { title: "Procesamiento", description: "Adaptamos cortes y procesos a los requerimientos de tu producción.", image: "/landing/processing.jpg" },
-  { title: "Desarrollo", description: "Convertimos una necesidad comercial en una solución concreta.", image: "/landing/hero-processing.jpg" },
+  { title: "Abastecimiento", description: "Planificamos continuidad, disponibilidad y alternativas según tu canal.", image: "/landing/banners/abastecimiento.webp" },
+  { title: "Volumen", description: "Ajustamos la respuesta a los volúmenes y frecuencias de cada operación.", image: "/landing/banners/volumen.webp" },
+  { title: "Formatos", description: "Definimos presentaciones alineadas al uso, almacenamiento y venta.", image: "/landing/banners/formatos.webp" },
+  { title: "Procesamiento", description: "Adaptamos cortes y procesos a los requerimientos de tu producción.", image: "/landing/banners/procesamiento.webp" },
+  { title: "Desarrollo", description: "Convertimos una necesidad comercial en una solución concreta.", image: "/landing/banners/desarrollo.webp" },
 ] as const;
 
 export function OperationsTabs() {

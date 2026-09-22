@@ -2,7 +2,7 @@
 
 import { sendLeadAck, sendLeadNotification } from "@todocarnes/emails/senders";
 import { createAgendaAdminClient } from "@/lib/agenda/server";
-import { areaLabel } from "@/lib/agenda/constants";
+import { areasLabel } from "@/lib/agenda/constants";
 import type { AgendaLeadFormState, CreateAgendaLeadResult } from "@/lib/agenda/types";
 import { agendaLeadInputSchema } from "@/lib/agenda/validation";
 
@@ -15,7 +15,7 @@ export async function createAgendaLead(input: AgendaLeadFormState & { repId: str
     const repResult = parsed.data.repId
       ? await client
           .from("profiles")
-          .select("id,name,area,contact_email")
+          .select("id,name,area,areas,contact_email")
           .eq("id", parsed.data.repId)
           .eq("role", "commercial")
           .eq("is_public", true)
@@ -39,6 +39,7 @@ export async function createAgendaLead(input: AgendaLeadFormState & { repId: str
         source: "agenda_contact",
         assigned_rep_id: rep?.id ?? null,
         area: rep?.area ?? null,
+        areas: rep?.areas ?? [],
       })
       .select("id")
       .single();
@@ -53,7 +54,7 @@ export async function createAgendaLead(input: AgendaLeadFormState & { repId: str
       company: parsed.data.company || null,
       email: parsed.data.email,
       phone: parsed.data.phone,
-      area: rep?.area ? areaLabel(rep.area) : null,
+      area: rep ? areasLabel(rep.areas, rep.area) : null,
       message: parsed.data.message || null,
     };
     const emailRep = rep ? { name: rep.name, email: rep.contact_email } : null;

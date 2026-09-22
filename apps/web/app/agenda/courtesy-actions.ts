@@ -25,7 +25,7 @@ export async function createCourtesyRequest(input: CourtesyRequestInput): Promis
         .eq("role", "commercial")
         .eq("status", "active")
         .eq("is_public", true)
-        .eq("area", parsed.data.area)
+        .contains("areas", [parsed.data.area])
         .order("public_order", { ascending: true })
         .limit(1)
         .maybeSingle(),

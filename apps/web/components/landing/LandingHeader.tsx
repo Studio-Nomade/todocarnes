@@ -52,7 +52,7 @@ export function LandingHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-navy/10 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8">
-        <Link href={landingHref("#inicio")} aria-label="Todo Carnes, inicio"><Image src="/brand/logo-completo-horizontal.webp" alt="" width={132} height={46} priority /></Link>
+        <Link href={landingHref("#inicio")} aria-label="Todo Carnes, inicio" className="flex shrink-0 items-center py-3"><Image src="/brand/logo-completo-horizontal.webp" alt="" width={82} height={56} priority className="h-12 lg:h-14" style={{ width: "auto" }} /></Link>
         <nav aria-label="Navegación principal" className="hidden items-center gap-5 text-sm font-semibold lg:flex">
           <Link href={landingHref("#areas")} aria-current={active === "areas" ? "location" : undefined} className={linkClass("areas")}>Líneas de negocio</Link>
           <div

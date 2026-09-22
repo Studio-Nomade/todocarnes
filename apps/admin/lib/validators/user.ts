@@ -18,14 +18,14 @@ export const userIdSchema = z.string().uuid("El usuario no es válido.");
 export const userStatusSchema = z.enum(["active", "inactive"]);
 
 export const publicProfileSchema = z.object({
-  area: z.enum(commercialAreas).nullable(),
+  areas: z.array(z.enum(commercialAreas)).max(commercialAreas.length).transform((values) => [...new Set(values)]),
   isPublic: z.boolean(),
   publicBio: z.string().trim().max(600, "La biografía no puede superar 600 caracteres."),
   publicOrder: z.coerce.number().int().min(0).max(999),
   userId: userIdSchema,
   whatsapp: z.string().trim().max(30),
 }).superRefine((value, context) => {
-  if (value.isPublic && !value.area) context.addIssue({ code: "custom", message: "Selecciona un área antes de publicar.", path: ["area"] });
+  if (value.isPublic && !value.areas.length) context.addIssue({ code: "custom", message: "Selecciona al menos un área antes de publicar.", path: ["areas"] });
 });
 
 export type PublicProfileInput = z.infer<typeof publicProfileSchema>;
