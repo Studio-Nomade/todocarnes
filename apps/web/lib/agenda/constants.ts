@@ -22,7 +22,7 @@ export const ORIGIN_OPTIONS: { value: ContactOrigin; label: string }[] = [
 export const FALLBACK_EVENT: AgendaEvent = {
   id: "00000000-0000-4000-8000-000000000000",
   name: "Feria Food & Service 2026",
-  location: "Stand Todo Carnes — Feria Food & Service 2026 (espacio por confirmar)",
+  location: "Stand 2-A100 — Feria Food & Service 2026",
   days: ["2026-09-29", "2026-09-30", "2026-10-01"],
   slotTimes: ["11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00"],
   slotMinutes: 30,

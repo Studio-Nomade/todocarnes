@@ -121,7 +121,7 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
     const emailRep = { name: rep.name, email: rep.contact_email };
     const emailEvent = {
       name: event.name,
-      location: event.location ?? "Espacio por confirmar",
+      location: event.location ?? "Stand 2-A100",
       slotMinutes: event.slot_minutes,
       timezone: "America/Santiago",
     };

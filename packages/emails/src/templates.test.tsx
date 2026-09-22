@@ -25,11 +25,11 @@ const commonContact = {
 test("renderiza las ocho plantillas transaccionales con sus dos familias", async () => {
   const templates = await Promise.all([
     render(<BookingConfirmation area="Food Service" clientName="Camila" dateLabel="martes, 29 de septiembre de 2026" durationMinutes={30} eventName="Feria Food & Service 2026" location="Espacio Riesco · Stand 2-A100" representativeName="Víctor Andrades" timeLabel="11:00" />),
-    render(<CourtesyConfirmation area="Food Service" cargo="Jefa de compras" company="Ejemplo SpA" eventLocation="Espacio Riesco · Stand 2-A100" eventName="Feria Food & Service 2026" name="Camila" />),
+    render(<CourtesyConfirmation cargo="Jefa de compras" company="Ejemplo SpA" eventLocation="Espacio Riesco · Stand 2-A100" eventName="Feria Food & Service 2026" lastName="Rojas" name="Camila" rut="12.345.678-5" />),
     render(<ContactAckAgenda area="Food Service" name="Camila" representativeName="Víctor Andrades" />),
     render(<ContactAckLanding area="Food Service" name="Camila" />),
     render(<BookingNotification {...commonContact} cameFrom="Invitación" cargo="Jefa de compras" dateLabel="martes, 29 de septiembre de 2026" durationMinutes={30} eventName="Feria Food & Service 2026" location="Espacio Riesco · Stand 2-A100" timeLabel="11:00" topics="Formatos y abastecimiento" />),
-    render(<CourtesyNotification {...commonContact} cargo="Jefa de compras" eventLocation="Espacio Riesco · Stand 2-A100" eventName="Feria Food & Service 2026" />),
+    render(<CourtesyNotification {...commonContact} cargo="Jefa de compras" eventLocation="Espacio Riesco · Stand 2-A100" eventName="Feria Food & Service 2026" lastName="Rojas" rut="12.345.678-5" />),
     render(<ContactNotifAgenda {...commonContact} />),
     render(<ContactNotifLanding {...commonContact} />),
   ]);
@@ -38,9 +38,9 @@ test("renderiza las ocho plantillas transaccionales con sus dos familias", async
   for (const html of templates) {
     assert.match(html, /max-width:600px/);
     assert.match(html, /Montserrat, Arial, sans-serif/);
-    assert.match(html, /Todo Carnes/);
+    assert.match(html, /TodoCarnes/);
   }
-  assert.match(templates[0], /Todo Carnes \| Espacio Food Service/);
+  assert.match(templates[0], /TodoCarnes \| Espacio Food Service/);
   assert.match(templates[0], /archivo \.ics/);
   assert.match(templates[1], /te contactaremos/);
   assert.match(templates[2], /desde la agenda/);

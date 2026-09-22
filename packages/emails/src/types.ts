@@ -27,11 +27,12 @@ export type BookingEventData = {
 
 export type CourtesyEmailData = {
   name: string;
+  lastName: string;
+  rut: string;
   company: string;
   cargo: string;
   email: string;
   phone: string;
-  area: string;
 };
 
 export type LeadEmailData = {
