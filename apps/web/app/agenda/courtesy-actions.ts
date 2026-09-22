@@ -1,7 +1,6 @@
 "use server";
 
 import { sendCourtesyConfirmation, sendCourtesyNotification } from "@todocarnes/emails/senders";
-import { areaLabel } from "@/lib/agenda/constants";
 import { createAgendaAdminClient } from "@/lib/agenda/server";
 import type { CourtesyRequestInput, CreateCourtesyRequestResult } from "@/lib/courtesy/types";
 import { courtesyRequestSchema } from "@/lib/courtesy/validation";
@@ -12,24 +11,12 @@ export async function createCourtesyRequest(input: CourtesyRequestInput): Promis
 
   try {
     const client = createAgendaAdminClient();
-    const [{ data: event, error: eventError }, repResult] = await Promise.all([
-      client
-        .from("booking_events")
-        .select("id,name,location")
-        .eq("id", parsed.data.eventId)
-        .eq("is_active", true)
-        .maybeSingle(),
-      client
-        .from("profiles")
-        .select("name,contact_email")
-        .eq("role", "commercial")
-        .eq("status", "active")
-        .eq("is_public", true)
-        .contains("areas", [parsed.data.area])
-        .order("public_order", { ascending: true })
-        .limit(1)
-        .maybeSingle(),
-    ]);
+    const { data: event, error: eventError } = await client
+      .from("booking_events")
+      .select("id,name,location")
+      .eq("id", parsed.data.eventId)
+      .eq("is_active", true)
+      .maybeSingle();
 
     if (eventError || !event) return { ok: false, error: "invalid_data" };
 
@@ -38,11 +25,12 @@ export async function createCourtesyRequest(input: CourtesyRequestInput): Promis
       .insert({
         event_id: event.id,
         name: parsed.data.name,
+        last_name: parsed.data.lastName,
+        rut: parsed.data.rut,
         company: parsed.data.company,
         cargo: parsed.data.cargo,
         email: parsed.data.email,
         phone: parsed.data.phone,
-        area: parsed.data.area,
         status: "pending",
       })
       .select("id")
@@ -55,22 +43,20 @@ export async function createCourtesyRequest(input: CourtesyRequestInput): Promis
 
     const emailRequest = {
       name: parsed.data.name,
+      lastName: parsed.data.lastName,
+      rut: parsed.data.rut,
       company: parsed.data.company,
       cargo: parsed.data.cargo,
       email: parsed.data.email,
       phone: parsed.data.phone,
-      area: areaLabel(parsed.data.area),
     };
     const emailEvent = {
       name: event.name,
-      location: event.location ?? "Espacio por confirmar",
+      location: event.location ?? "Stand 2-A100",
     };
-    const emailRep = repResult.data
-      ? { name: repResult.data.name, email: repResult.data.contact_email }
-      : null;
     const [confirmation, notification] = await Promise.all([
       sendCourtesyConfirmation({ request: emailRequest, event: emailEvent }),
-      sendCourtesyNotification({ request: emailRequest, event: emailEvent, rep: emailRep }),
+      sendCourtesyNotification({ request: emailRequest, event: emailEvent }),
     ]);
 
     const emailSent = confirmation.ok && notification.ok;

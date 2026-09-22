@@ -1,6 +1,6 @@
 import { Resend, type Attachment } from "resend";
 import { buildIcs } from "./ics";
-import { EMAIL_LOGO_BASE64, EMAIL_LOGO_FILENAME } from "./logo";
+import { EMAIL_HEADER_BASE64, EMAIL_HEADER_CONTENT_TYPE, EMAIL_HEADER_FILENAME } from "./email-header";
 import {
   BookingConfirmation,
   BookingNotification,
@@ -47,20 +47,20 @@ export function representativeCc(reps: (BookingRepresentative | null | undefined
   return [...new Set(emails)];
 }
 
-const EMAIL_LOGO_CONTENT_ID = "todo-carnes-logo";
-const EMAIL_LOGO_URL = `cid:${EMAIL_LOGO_CONTENT_ID}`;
+const EMAIL_HEADER_CONTENT_ID = "todocarnes-header";
+const EMAIL_HEADER_URL = `cid:${EMAIL_HEADER_CONTENT_ID}`;
 
 /**
- * El logo va incrustado en base64 (ver ./logo.ts). No se lee del disco: el bundler reescribe
- * `new URL(..., import.meta.url)` a una ruta web, así que `readFile` fallaba en producción y tiraba
- * el envío antes de llegar a Resend.
+ * Cabecera de marca de todos los correos, incrustada en base64 (ver ./email-header.ts). No se lee del
+ * disco: el bundler reescribe `new URL(..., import.meta.url)` a una ruta web, así que `readFile`
+ * fallaba en producción y tiraba el envío antes de llegar a Resend.
  */
-function emailLogoAttachment(): Attachment {
+function emailHeaderAttachment(): Attachment {
   return {
-    content: EMAIL_LOGO_BASE64,
-    contentId: EMAIL_LOGO_CONTENT_ID,
-    contentType: "image/png",
-    filename: EMAIL_LOGO_FILENAME,
+    content: EMAIL_HEADER_BASE64,
+    contentId: EMAIL_HEADER_CONTENT_ID,
+    contentType: EMAIL_HEADER_CONTENT_TYPE,
+    filename: EMAIL_HEADER_FILENAME,
   };
 }
 
@@ -74,7 +74,7 @@ function getEmailConfig(): EmailConfig | null {
     from,
     replyTo: process.env.EMAIL_REPLY_TO?.trim() || undefined,
     internalTo: parseEmailList(process.env.EMAIL_INTERNAL_TO),
-    logoUrl: EMAIL_LOGO_URL,
+    logoUrl: EMAIL_HEADER_URL,
   };
 }
 
@@ -140,14 +140,14 @@ export async function sendBookingConfirmation({ booking, rep, event }: {
           dateLabel={labels.dateLabel}
           durationMinutes={event.slotMinutes}
           eventName={event.name}
-          location={event.location || "Espacio por confirmar"}
+          location={event.location || "Stand 2-A100"}
           logoUrl={config.logoUrl}
           representativeName={rep.name}
           timeLabel={labels.timeLabel}
         />
       ),
       attachments: [
-        emailLogoAttachment(),
+        emailHeaderAttachment(),
         {
           content: Buffer.from(calendar, "utf8").toString("base64"),
           filename: "reunion-todo-carnes.ics",
@@ -178,14 +178,14 @@ export async function sendBookingNotification({ booking, rep, event }: {
       to,
       replyTo: booking.email,
       subject: `Nueva reunión — ${booking.name} — ${booking.area ?? "Sin área"}`,
-      attachments: [emailLogoAttachment()],
+      attachments: [emailHeaderAttachment()],
       react: (
         <BookingNotification
           {...booking}
           dateLabel={labels.dateLabel}
           durationMinutes={event.slotMinutes}
           eventName={event.name}
-          location={event.location || "Espacio por confirmar"}
+          location={event.location || "Stand 2-A100"}
           logoUrl={config.logoUrl}
           representativeName={rep?.name}
           timeLabel={labels.timeLabel}
@@ -212,11 +212,11 @@ export async function sendCourtesyConfirmation({ request, event }: {
       to: request.email,
       replyTo: config.replyTo,
       subject: "Recibimos tu solicitud de entrada — Food & Service 2026",
-      attachments: [emailLogoAttachment()],
+      attachments: [emailHeaderAttachment()],
       react: (
         <CourtesyConfirmation
           {...request}
-          eventLocation={event.location || "Espacio por confirmar"}
+          eventLocation={event.location || "Stand 2-A100"}
           eventName={event.name}
           logoUrl={config.logoUrl}
         />
@@ -229,10 +229,9 @@ export async function sendCourtesyConfirmation({ request, event }: {
   }
 }
 
-export async function sendCourtesyNotification({ request, event, rep }: {
+export async function sendCourtesyNotification({ request, event }: {
   request: CourtesyEmailData;
   event: { name: string; location: string };
-  rep?: BookingRepresentative | null;
 }): Promise<SendResult> {
   const config = getEmailConfig();
   if (!config) return { ok: false, error: "Falta configurar RESEND_API_KEY o EMAIL_FROM." };
@@ -244,15 +243,14 @@ export async function sendCourtesyNotification({ request, event, rep }: {
       from: config.from,
       to,
       replyTo: request.email,
-      subject: `Nueva solicitud de cortesía — ${request.name} — ${request.area}`,
-      attachments: [emailLogoAttachment()],
+      subject: `Nueva solicitud de cortesía — ${request.name} ${request.lastName} — ${request.company}`,
+      attachments: [emailHeaderAttachment()],
       react: (
         <CourtesyNotification
           {...request}
-          eventLocation={event.location || "Espacio por confirmar"}
+          eventLocation={event.location || "Stand 2-A100"}
           eventName={event.name}
           logoUrl={config.logoUrl}
-          representativeName={rep?.name}
         />
       ),
     });
@@ -285,7 +283,7 @@ export async function sendLeadAck({ lead, origin, rep, ccReps = [] }: {
       subject: agenda
         ? "Recibimos tu solicitud de contacto — Todo Carnes"
         : "Recibimos tu mensaje — Todo Carnes",
-      attachments: [emailLogoAttachment()],
+      attachments: [emailHeaderAttachment()],
       react: agenda ? (
         <ContactAckAgenda area={lead.area} logoUrl={config.logoUrl} name={lead.name} representativeName={rep?.name} />
       ) : (
@@ -316,7 +314,7 @@ export async function sendLeadNotification({ lead, origin, rep }: {
       to,
       replyTo: lead.email,
       subject: `${agenda ? "Contacto agenda" : "Contacto landing"} — ${lead.name} — ${lead.area ?? "Sin área"}`,
-      attachments: [emailLogoAttachment()],
+      attachments: [emailHeaderAttachment()],
       react: agenda ? (
         <ContactNotifAgenda {...lead} logoUrl={config.logoUrl} representativeName={rep?.name} />
       ) : (

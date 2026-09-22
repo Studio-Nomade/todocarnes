@@ -1,13 +1,12 @@
-import type { CommercialArea } from "@/lib/agenda/types";
-
 export type CourtesyRequestInput = {
   eventId: string;
   name: string;
+  lastName: string;
+  rut: string;
   company: string;
   cargo: string;
   email: string;
   phone: string;
-  area: CommercialArea | "";
   website: string;
 };
 
