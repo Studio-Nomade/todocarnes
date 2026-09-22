@@ -1,10 +1,10 @@
 import Image from "next/image";
 
 const areas = [
-  { id: "linea-materias-primas", title: "Materias primas / Trimmings", text: "Materias primas para procesos productivos e industriales.", image: "/landing/hero-processing.jpg" },
-  { id: "retail", title: "Retail / GGCC", text: "Abastecimiento, formatos y desarrollos para grandes cuentas y retail.", image: "/landing/warehouse.jpg" },
-  { id: "food-service", title: "Food Service", text: "Soluciones y formatos para operadores gastronómicos y clientes especializados.", image: "/landing/processing.jpg" },
-  { id: "ventas-nacionales", title: "Ventas Nacionales", text: "Abastecimiento y alternativas comerciales para distribuidores y clientes nacionales.", image: "/landing/plant-aerial.jpg" },
+  { id: "linea-materias-primas", title: "Materias primas / Trimmings", text: "Materias primas para procesos productivos e industriales.", image: "/landing/areas/materias-primas.webp" },
+  { id: "retail", title: "Retail / GGCC", text: "Abastecimiento, formatos y desarrollos para grandes cuentas y retail.", image: "/landing/areas/retail.webp" },
+  { id: "food-service", title: "Food Service", text: "Soluciones y formatos para operadores gastronómicos y clientes especializados.", image: "/landing/areas/food-service.webp" },
+  { id: "ventas-nacionales", title: "Ventas Nacionales", text: "Abastecimiento y alternativas comerciales para distribuidores y clientes nacionales.", image: "/landing/areas/ventas-nacionales.webp" },
 ];
 
 export function CommercialAreas() {

@@ -11,7 +11,7 @@ export function AgendaHero() {
           <div className="mt-7 flex flex-wrap gap-3"><a href="#reserva" className="rounded-full bg-blue px-6 py-3 text-sm font-bold text-navy">Reservar ahora</a><a href="#ubicacion-stand" className="rounded-full border border-white px-6 py-3 text-sm font-bold">Ver stand</a></div>
           <div className="mt-9 grid gap-4 text-sm sm:grid-cols-2"><div className="flex gap-3"><AgendaIcon name="calendar" className="h-6 w-6 text-blue"/><span><strong className="block">Fecha</strong>Mar 29 SEP – Jue 01 OCT</span></div><div className="flex gap-3"><AgendaIcon name="clock" className="h-6 w-6 text-blue"/><span><strong className="block">Reuniones de 30 min</strong>Espacio por confirmar</span></div></div>
         </div>
-        <div className="relative min-h-96 md:min-h-full"><Image src="/agenda/hero-stand.jpg" alt="Reunión comercial en el stand de Todo Carnes" fill priority className="object-cover" sizes="(min-width: 768px) 50vw, 100vw"/></div>
+        <div className="relative min-h-96 md:min-h-full"><Image src="/agenda/hero-food-service.webp" alt="Reunión comercial en el stand de Todo Carnes" fill priority className="object-cover" sizes="(min-width: 768px) 50vw, 100vw"/></div>
     </section>
   );
 }

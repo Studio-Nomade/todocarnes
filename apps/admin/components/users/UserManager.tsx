@@ -32,6 +32,7 @@ export function UserManager({
         ...current,
         {
           area: null,
+          areas: [],
           createdAt: new Date().toISOString(),
           email: values.email,
           id: result.id,

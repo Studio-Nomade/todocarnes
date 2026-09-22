@@ -29,9 +29,23 @@ type EmailConfig = {
   apiKey: string;
   from: string;
   replyTo?: string;
-  internalTo?: string;
+  internalTo: string[];
   logoUrl: string;
 };
+
+/** Convierte "a@x.cl, b@y.cl; c@z.cl" en una lista limpia y sin duplicados. */
+export function parseEmailList(value: string | null | undefined): string[] {
+  if (!value) return [];
+  const emails = value.split(/[,;\s]+/).map((item) => item.trim().toLowerCase()).filter((item) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(item));
+  return [...new Set(emails)];
+}
+
+/** Emails de vendedores para CC: sin vacíos, sin duplicados y sin repetir al destinatario principal. */
+export function representativeCc(reps: (BookingRepresentative | null | undefined)[], exclude?: string): string[] {
+  const skip = exclude?.trim().toLowerCase();
+  const emails = reps.map((rep) => rep?.email?.trim().toLowerCase()).filter((email): email is string => Boolean(email) && email !== skip);
+  return [...new Set(emails)];
+}
 
 const EMAIL_LOGO_CONTENT_ID = "todo-carnes-logo";
 const EMAIL_LOGO_URL = `cid:${EMAIL_LOGO_CONTENT_ID}`;
@@ -57,7 +71,7 @@ function getEmailConfig(): EmailConfig | null {
     apiKey,
     from,
     replyTo: process.env.EMAIL_REPLY_TO?.trim() || undefined,
-    internalTo: process.env.EMAIL_INTERNAL_TO?.trim() || undefined,
+    internalTo: parseEmailList(process.env.EMAIL_INTERNAL_TO),
     logoUrl: EMAIL_LOGO_URL,
   };
 }
@@ -81,8 +95,8 @@ function dateParts(start: Date, timezone: string) {
   };
 }
 
-function internalRecipient(config: EmailConfig): string | SendResult {
-  return config.internalTo ?? { ok: false, error: "Falta configurar EMAIL_INTERNAL_TO." };
+function internalRecipient(config: EmailConfig): string[] | SendResult {
+  return config.internalTo.length ? config.internalTo : { ok: false, error: "Falta configurar EMAIL_INTERNAL_TO." };
 }
 
 export async function sendBookingConfirmation({ booking, rep, event }: {
@@ -149,14 +163,13 @@ export async function sendBookingNotification({ booking, rep, event }: {
   const config = getEmailConfig();
   if (!config) return { ok: false, error: "Falta configurar RESEND_API_KEY o EMAIL_FROM." };
   const to = internalRecipient(config);
-  if (typeof to !== "string") return to;
+  if (!Array.isArray(to)) return to;
 
   try {
     const labels = dateParts(booking.start, event.timezone ?? "America/Santiago");
     const response = await new Resend(config.apiKey).emails.send({
       from: config.from,
       to,
-      cc: rep?.email || undefined,
       replyTo: booking.email,
       subject: `Nueva reunión — ${booking.name} — ${booking.area ?? "Sin área"}`,
       attachments: [await emailLogoAttachment()],
@@ -218,13 +231,12 @@ export async function sendCourtesyNotification({ request, event, rep }: {
   const config = getEmailConfig();
   if (!config) return { ok: false, error: "Falta configurar RESEND_API_KEY o EMAIL_FROM." };
   const to = internalRecipient(config);
-  if (typeof to !== "string") return to;
+  if (!Array.isArray(to)) return to;
 
   try {
     const response = await new Resend(config.apiKey).emails.send({
       from: config.from,
       to,
-      cc: rep?.email || undefined,
       replyTo: request.email,
       subject: `Nueva solicitud de cortesía — ${request.name} — ${request.area}`,
       attachments: [await emailLogoAttachment()],
@@ -245,19 +257,24 @@ export async function sendCourtesyNotification({ request, event, rep }: {
   }
 }
 
-export async function sendLeadAck({ lead, origin, rep }: {
+export async function sendLeadAck({ lead, origin, rep, ccReps = [] }: {
   lead: LeadEmailData;
   origin: EmailContactOrigin;
+  /** Vendedor principal (reply-to y nombre en la plantilla). */
   rep?: BookingRepresentative | null;
+  /** Vendedores adicionales en copia (ej. todas las áreas elegidas en el landing). */
+  ccReps?: (BookingRepresentative | null)[];
 }): Promise<SendResult> {
   const config = getEmailConfig();
   if (!config) return { ok: false, error: "Falta configurar RESEND_API_KEY o EMAIL_FROM." };
 
   try {
     const agenda = origin === "agenda_contact";
+    const cc = representativeCc([rep, ...ccReps], lead.email);
     const response = await new Resend(config.apiKey).emails.send({
       from: config.from,
       to: lead.email,
+      cc: cc.length ? cc : undefined,
       replyTo: config.replyTo ?? rep?.email,
       subject: agenda
         ? "Recibimos tu solicitud de contacto — Todo Carnes"
@@ -284,14 +301,13 @@ export async function sendLeadNotification({ lead, origin, rep }: {
   const config = getEmailConfig();
   if (!config) return { ok: false, error: "Falta configurar RESEND_API_KEY o EMAIL_FROM." };
   const to = internalRecipient(config);
-  if (typeof to !== "string") return to;
+  if (!Array.isArray(to)) return to;
 
   try {
     const agenda = origin === "agenda_contact";
     const response = await new Resend(config.apiKey).emails.send({
       from: config.from,
       to,
-      cc: rep?.email || undefined,
       replyTo: lead.email,
       subject: `${agenda ? "Contacto agenda" : "Contacto landing"} — ${lead.name} — ${lead.area ?? "Sin área"}`,
       attachments: [await emailLogoAttachment()],

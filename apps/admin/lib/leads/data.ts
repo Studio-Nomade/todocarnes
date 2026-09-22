@@ -10,6 +10,7 @@ import { leadFiltersSchema, safeLeadSearch } from "./validation";
 
 const leadRowSchema = z.object({
   area: z.enum(commercialAreas).nullable(),
+  areas: z.array(z.enum(commercialAreas)).optional().default([]),
   assigned_rep_id: z.string().uuid().nullable(),
   came_from: z.string().nullable().optional(),
   company: z.string().nullable(),
@@ -40,6 +41,7 @@ export async function listCommercialOptions(): Promise<CommercialOption[]> {
 function mapLead(row: z.infer<typeof leadRowSchema>, names: Map<string, string>): LeadListItem {
   return {
     area: row.area,
+    areas: row.areas.length ? row.areas : row.area ? [row.area] : [],
     assignedRepId: row.assigned_rep_id,
     assignedRepName: row.assigned_rep_id ? names.get(row.assigned_rep_id) ?? "Vendedor no disponible" : null,
     company: row.company,
@@ -69,13 +71,13 @@ export async function listLeads(input: unknown): Promise<LeadListResult> {
   const from = (filters.page - 1) * LEAD_PAGE_SIZE;
   let query = createAdminClient()
     .from("leads")
-    .select("id,name,company,email,area,source,assigned_rep_id,status,created_at", { count: "exact" })
+    .select("id,name,company,email,area,areas,source,assigned_rep_id,status,created_at", { count: "exact" })
     .order("created_at", { ascending: false })
     .range(from, from + LEAD_PAGE_SIZE - 1);
 
   query = scopeLeadQuery(query, profile);
   if (filters.status) query = query.eq("status", filters.status);
-  if (filters.area) query = query.eq("area", filters.area);
+  if (filters.area) query = query.contains("areas", [filters.area]);
   if (profile.role === "admin" && filters.assignedRepId) query = query.eq("assigned_rep_id", filters.assignedRepId);
   if (filters.search) {
     const search = safeLeadSearch(filters.search);
@@ -94,7 +96,7 @@ export async function getLead(id: unknown): Promise<LeadDetail | null> {
   const profile = await requireRole(["admin", "commercial"]);
   const parsedId = z.string().uuid().safeParse(id);
   if (!parsedId.success) return null;
-  let query = createAdminClient().from("leads").select("id,name,company,email,phone,area,message,source,came_from,assigned_rep_id,status,created_at").eq("id", parsedId.data);
+  let query = createAdminClient().from("leads").select("id,name,company,email,phone,area,areas,message,source,came_from,assigned_rep_id,status,created_at").eq("id", parsedId.data);
   query = scopeLeadQuery(query, profile);
   const result = await query.maybeSingle();
   if (result.error) throw new Error("No se pudo cargar el lead.");

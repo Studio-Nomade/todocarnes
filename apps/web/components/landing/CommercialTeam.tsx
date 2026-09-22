@@ -13,11 +13,11 @@ export function CommercialTeam({ representatives }: { representatives: PublicRep
           <h2 className="mt-3 text-3xl text-navy sm:text-4xl">Encuentra a la persona indicada para tu operación.</h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-ink/70">Elige primero el área que quieres resolver; te conectamos con quien conoce ese tipo de negocio.</p>
         </div>
-        <div className="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-9 flex flex-wrap justify-center gap-6">
             {visibleRepresentatives.map((rep) => {
               const number = normalizeWhatsAppNumber(rep.whatsapp);
               return (
-                <article key={rep.id} className="group/representative flex items-start gap-4 rounded-2xl bg-white p-4 shadow-sm">
+                <article key={rep.id} className="group/representative flex w-full items-start gap-4 rounded-2xl bg-white p-4 shadow-sm sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)]">
                   <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-navy/15">
                     {rep.photoUrl ? (
                       <Image

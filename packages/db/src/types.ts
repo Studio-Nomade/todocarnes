@@ -461,6 +461,7 @@ export type Database = {
       leads: {
         Row: {
           area: Database["public"]["Enums"]["area_comercial"] | null
+          areas: Database["public"]["Enums"]["area_comercial"][]
           assigned_rep_id: string | null
           came_from: Database["public"]["Enums"]["contact_origin"] | null
           company: string | null
@@ -477,6 +478,7 @@ export type Database = {
         }
         Insert: {
           area?: Database["public"]["Enums"]["area_comercial"] | null
+          areas?: Database["public"]["Enums"]["area_comercial"][]
           assigned_rep_id?: string | null
           came_from?: Database["public"]["Enums"]["contact_origin"] | null
           company?: string | null
@@ -493,6 +495,7 @@ export type Database = {
         }
         Update: {
           area?: Database["public"]["Enums"]["area_comercial"] | null
+          areas?: Database["public"]["Enums"]["area_comercial"][]
           assigned_rep_id?: string | null
           came_from?: Database["public"]["Enums"]["contact_origin"] | null
           company?: string | null
@@ -666,6 +669,7 @@ export type Database = {
       profiles: {
         Row: {
           area: Database["public"]["Enums"]["area_comercial"] | null
+          areas: Database["public"]["Enums"]["area_comercial"][]
           contact_email: string
           created_at: string
           id: string
@@ -683,6 +687,7 @@ export type Database = {
         }
         Insert: {
           area?: Database["public"]["Enums"]["area_comercial"] | null
+          areas?: Database["public"]["Enums"]["area_comercial"][]
           contact_email: string
           created_at?: string
           id: string
@@ -700,6 +705,7 @@ export type Database = {
         }
         Update: {
           area?: Database["public"]["Enums"]["area_comercial"] | null
+          areas?: Database["public"]["Enums"]["area_comercial"][]
           contact_email?: string
           created_at?: string
           id?: string

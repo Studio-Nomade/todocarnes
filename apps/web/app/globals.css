@@ -77,3 +77,25 @@ textarea {
 .text-blue-50\/50 {
   color: rgb(239 248 255 / 0.8);
 }
+
+/* Franja de marcas: loop continuo; la pista está duplicada y se desplaza la mitad de su ancho. */
+@keyframes brand-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.brand-marquee-track {
+  animation: brand-marquee 38s linear infinite;
+}
+
+.brand-marquee:hover .brand-marquee-track,
+.brand-marquee:focus-within .brand-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-marquee-track {
+    animation: none;
+    transform: none;
+  }
+}

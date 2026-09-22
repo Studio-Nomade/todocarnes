@@ -12,7 +12,7 @@ export const landingLeadSchema = z.object({
   company: z.string().trim().max(160),
   email: z.email().max(254),
   phone: z.string().trim().transform(normalizeChilePhone).refine((value) => /^\+56\d{9}$/.test(value)),
-  area: z.enum(areas),
+  areas: z.array(z.enum(areas)).min(1).max(areas.length).transform((values) => [...new Set(values)]),
   website: z.string().max(0),
   submissionId: z.string().uuid(),
 });

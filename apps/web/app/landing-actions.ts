@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { sendLeadAck, sendLeadNotification } from "@todocarnes/emails/senders";
-import { areaLabel } from "@/lib/agenda/constants";
+import { areasLabel } from "@/lib/agenda/constants";
 import { createAgendaAdminClient } from "@/lib/agenda/server";
 import { firstForwardedIp, hashRequestIp, LANDING_RATE_LIMIT, LANDING_RATE_WINDOW_MS } from "@/lib/landing/security";
 import type { LandingLeadInput, LandingLeadResult } from "@/lib/landing/types";
@@ -24,16 +24,19 @@ export async function createLandingLead(input: LandingLeadInput): Promise<Landin
       if ((count ?? 0) >= LANDING_RATE_LIMIT) return { ok: false, error: "rate_limited" };
     }
 
-    const { data: rep, error: repError } = await client.from("profiles").select("id,name,contact_email").eq("role", "commercial").eq("status", "active").eq("is_public", true).eq("area", parsed.data.area).order("public_order", { ascending: true }).limit(1).maybeSingle();
+    const areas = parsed.data.areas;
+    // Todos los vendedores que cubren alguna de las áreas elegidas, en orden de publicación.
+    const { data: reps, error: repError } = await client.from("profiles").select("id,name,contact_email").eq("role", "commercial").eq("status", "active").eq("is_public", true).overlaps("areas", areas).order("public_order", { ascending: true });
     if (repError) throw repError;
-    const { data: lead, error } = await client.from("leads").insert({ name: parsed.data.name, company: parsed.data.company || null, email: parsed.data.email, phone: parsed.data.phone, area: parsed.data.area, source: "landing", assigned_rep_id: rep?.id ?? null, utm: { ip_hash: ipHash, submission_id: parsed.data.submissionId } }).select("id").single();
+    const primaryRep = reps?.[0] ?? null;
+    const { data: lead, error } = await client.from("leads").insert({ name: parsed.data.name, company: parsed.data.company || null, email: parsed.data.email, phone: parsed.data.phone, area: areas[0], areas, source: "landing", assigned_rep_id: primaryRep?.id ?? null, utm: { ip_hash: ipHash, submission_id: parsed.data.submissionId } }).select("id").single();
     if (error || !lead) throw error ?? new Error("Lead no creado");
 
-    const emailLead = { name: parsed.data.name, company: parsed.data.company || null, email: parsed.data.email, phone: parsed.data.phone, area: areaLabel(parsed.data.area) };
-    const recipient = rep ? { name: rep.name, email: rep.contact_email } : null;
+    const emailLead = { name: parsed.data.name, company: parsed.data.company || null, email: parsed.data.email, phone: parsed.data.phone, area: areasLabel(areas) };
+    const recipients = (reps ?? []).map((rep) => ({ name: rep.name, email: rep.contact_email }));
     const [ack, notification] = await Promise.all([
-      sendLeadAck({ lead: emailLead, origin: "landing", rep: recipient }),
-      sendLeadNotification({ lead: emailLead, origin: "landing", rep: recipient }),
+      sendLeadAck({ lead: emailLead, origin: "landing", rep: recipients[0] ?? null, ccReps: recipients.slice(1) }),
+      sendLeadNotification({ lead: emailLead, origin: "landing", rep: recipients[0] ?? null }),
     ]);
     const emailSent = ack.ok && notification.ok;
     if (!emailSent) console.error("[landing] El lead se guardó, pero uno o más correos fallaron.", { leadId: lead.id });

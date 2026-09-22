@@ -1,7 +1,7 @@
 "use server";
 
 import { createAgendaAdminClient } from "@/lib/agenda/server";
-import { areaLabel } from "@/lib/agenda/constants";
+import { areasLabel } from "@/lib/agenda/constants";
 import { zonedDateTimeToUtc } from "@/lib/agenda/timezone";
 import type { AgendaSlot, CreateBookingInput, CreateBookingResult } from "@/lib/agenda/types";
 import { availabilityInputSchema, bookingInputSchema, isSlotConflict } from "@/lib/agenda/validation";
@@ -47,7 +47,7 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
     const [{ data: rep }, { data: event }] = await Promise.all([
       client
         .from("profiles")
-        .select("id,name,area,contact_email")
+        .select("id,name,area,areas,contact_email")
         .eq("id", parsed.data.repId)
         .eq("role", "commercial")
         .eq("is_public", true)
@@ -112,7 +112,7 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
       cargo: parsed.data.cargo,
       email: parsed.data.email,
       phone: parsed.data.phone,
-      area: areaLabel(rep.area),
+      area: areasLabel(rep.areas, rep.area),
       topics: parsed.data.topics || null,
       cameFrom: parsed.data.cameFrom || null,
       icsUid: booking.ics_uid,

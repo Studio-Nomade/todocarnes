@@ -3,7 +3,7 @@ import test from "node:test";
 import { publicProfileSchema } from "./user";
 
 const validProfile = {
-  area: "food_service",
+  areas: ["retail_ggcc", "food_service"],
   isPublic: true,
   publicBio: "Atención comercial para operadores gastronómicos.",
   publicOrder: 1,
@@ -16,13 +16,19 @@ test("acepta un perfil público completo", () => {
 });
 
 test("exige un área para publicar un perfil", () => {
-  const result = publicProfileSchema.safeParse({ ...validProfile, area: null });
+  const result = publicProfileSchema.safeParse({ ...validProfile, areas: [] });
   assert.equal(result.success, false);
-  if (!result.success) assert.equal(result.error.issues[0]?.path[0], "area");
+  if (!result.success) assert.equal(result.error.issues[0]?.path[0], "areas");
 });
 
 test("permite mantener privado un perfil sin área", () => {
-  assert.equal(publicProfileSchema.safeParse({ ...validProfile, area: null, isPublic: false }).success, true);
+  assert.equal(publicProfileSchema.safeParse({ ...validProfile, areas: [], isPublic: false }).success, true);
+});
+
+test("acepta varias áreas y elimina duplicados", () => {
+  const result = publicProfileSchema.safeParse({ ...validProfile, areas: ["food_service", "retail_ggcc", "food_service"] });
+  assert.equal(result.success, true);
+  if (result.success) assert.deepEqual(result.data.areas, ["food_service", "retail_ggcc"]);
 });
 
 test("limita el orden y la extensión de la biografía", () => {
