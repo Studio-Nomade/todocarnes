@@ -6,6 +6,8 @@ export type UserRecord = {
   email: string;
   id: string;
   area: CommercialArea | null;
+  /** Todas las áreas que cubre; `area` es la principal (= areas[0]). */
+  areas: CommercialArea[];
   isPublic: boolean;
   jobTitle: string;
   name: string;
@@ -24,7 +26,7 @@ export type UserMutationResult =
 
 export type PublicProfileMutationResult =
   | { error: string; success: false }
-  | { profile: Pick<UserRecord, "area" | "isPublic" | "photoUrl" | "publicBio" | "publicOrder" | "whatsapp">; success: true };
+  | { profile: Pick<UserRecord, "area" | "areas" | "isPublic" | "photoUrl" | "publicBio" | "publicOrder" | "whatsapp">; success: true };
 
 export type ProfilePhotoMutationResult =
   | { error: string; success: false }

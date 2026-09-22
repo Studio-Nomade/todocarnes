@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, useTransition } from "react";
 import { updateCommercialPublicProfile, uploadCommercialPhoto } from "@/lib/actions/users";
-import { AREA_LABELS, commercialAreas } from "@/lib/leads/constants";
+import { AREA_LABELS, commercialAreas, type CommercialArea } from "@/lib/leads/constants";
 import type { UserRecord } from "@/lib/users/types";
 
 export function UserPublicProfileForm({
@@ -13,7 +13,8 @@ export function UserPublicProfileForm({
   onChange: (profile: Partial<UserRecord>) => void;
   user: UserRecord;
 }) {
-  const [area, setArea] = useState(user.area ?? "");
+  const [areas, setAreas] = useState<CommercialArea[]>(user.areas);
+  const toggleArea = (value: CommercialArea) => setAreas((current) => current.includes(value) ? current.filter((item) => item !== value) : [...current, value]);
   const [bio, setBio] = useState(user.publicBio);
   const [isPublic, setIsPublic] = useState(user.isPublic);
   const [order, setOrder] = useState(String(user.publicOrder));
@@ -28,7 +29,7 @@ export function UserPublicProfileForm({
     setNotice("");
     startTransition(async () => {
       const result = await updateCommercialPublicProfile({
-        area: area || null,
+        areas,
         isPublic,
         publicBio: bio,
         publicOrder: order,
@@ -80,13 +81,21 @@ export function UserPublicProfileForm({
           <input accept="image/jpeg,image/png,image/webp" className="mt-2 block max-w-full text-xs font-normal text-ink/60" disabled={isPending} onChange={upload} type="file" />
         </label>
       </div>
-      <label className="text-sm font-semibold text-navy">
-        Área
-        <select className={inputClass} disabled={isPending} onChange={(event) => setArea(event.target.value)} value={area}>
-          <option value="">Sin área</option>
-          {commercialAreas.map((value) => <option key={value} value={value}>{AREA_LABELS[value]}</option>)}
-        </select>
-      </label>
+      <fieldset className="text-sm font-semibold text-navy sm:col-span-2">
+        <legend>Áreas que cubre</legend>
+        <p className="mt-0.5 text-xs font-normal text-ink/60">Puede cubrir más de una. La primera marcada es el área principal.</p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {commercialAreas.map((value) => {
+            const checked = areas.includes(value);
+            return (
+              <label key={value} className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${checked ? "border-blue bg-blue/15 text-navy" : "border-ink/15 bg-white text-ink/80"}`}>
+                <input checked={checked} className="accent-navy" disabled={isPending} onChange={() => toggleArea(value)} type="checkbox" />
+                {AREA_LABELS[value]}
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
       <label className="text-sm font-semibold text-navy">
         Orden público
         <input className={inputClass} disabled={isPending} max="999" min="0" onChange={(event) => setOrder(event.target.value)} type="number" value={order} />

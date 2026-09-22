@@ -9,6 +9,7 @@ import type { UserRecord } from "./types";
 
 const profileRowSchema = z.object({
   area: z.enum(commercialAreas).nullable(),
+  areas: z.array(z.enum(commercialAreas)),
   contact_email: z.string(),
   created_at: z.string(),
   id: z.string().uuid(),
@@ -29,7 +30,7 @@ export async function listProfiles(): Promise<UserRecord[]> {
   const admin = createAdminClient();
   const result = await admin
     .from("profiles")
-    .select("id,name,contact_email,job_title,phone,role,status,created_at,area,photo_url,whatsapp,public_bio,public_order,is_public")
+    .select("id,name,contact_email,job_title,phone,role,status,created_at,area,areas,photo_url,whatsapp,public_bio,public_order,is_public")
     .order("created_at", { ascending: true });
   if (result.error) {
     throw new Error("No se pudieron cargar los usuarios.");
@@ -37,6 +38,7 @@ export async function listProfiles(): Promise<UserRecord[]> {
 
   return z.array(profileRowSchema).parse(result.data).map((row) => ({
     area: row.area,
+    areas: row.areas.length ? row.areas : row.area ? [row.area] : [],
     createdAt: row.created_at,
     email: row.contact_email,
     id: row.id,

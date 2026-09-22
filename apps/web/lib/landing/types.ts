@@ -5,7 +5,7 @@ export type LandingLeadInput = {
   company: string;
   email: string;
   phone: string;
-  area: CommercialArea | "";
+  areas: CommercialArea[];
   website: string;
   submissionId: string;
 };

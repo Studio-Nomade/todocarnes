@@ -39,3 +39,9 @@ export function availableLeadStatuses(current: LeadStatus): readonly LeadStatus[
 export function canTransitionLead(current: LeadStatus, next: LeadStatus): boolean {
   return current === next || transitions[current].includes(next);
 }
+
+/** "Retail / GGCC + Food Service"; cae al área principal si no hay lista. */
+export function areasLabel(areas: readonly CommercialArea[] | null | undefined, fallback: CommercialArea | null = null) {
+  const list = areas?.length ? [...new Set(areas)] : fallback ? [fallback] : [];
+  return list.length ? list.map((area) => AREA_LABELS[area]).join(" + ") : null;
+}

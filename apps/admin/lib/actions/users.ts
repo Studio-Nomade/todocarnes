@@ -64,7 +64,8 @@ export async function updateCommercialPublicProfile(input: unknown): Promise<Pub
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Revisa los datos públicos.", success: false };
   const admin = createAdminClient();
   const result = await admin.from("profiles").update({
-    area: parsed.data.area,
+    area: parsed.data.areas[0] ?? null,
+    areas: parsed.data.areas,
     is_public: parsed.data.isPublic,
     public_bio: parsed.data.publicBio || null,
     public_order: parsed.data.publicOrder,
@@ -72,7 +73,7 @@ export async function updateCommercialPublicProfile(input: unknown): Promise<Pub
   }).eq("id", parsed.data.userId).eq("role", "commercial").select("photo_url").maybeSingle();
   if (result.error || !result.data) return { error: "No se pudo actualizar el perfil público.", success: false };
   revalidatePath("/users");
-  return { profile: { area: parsed.data.area, isPublic: parsed.data.isPublic, photoUrl: result.data.photo_url, publicBio: parsed.data.publicBio, publicOrder: parsed.data.publicOrder, whatsapp: parsed.data.whatsapp }, success: true };
+  return { profile: { area: parsed.data.areas[0] ?? null, areas: parsed.data.areas, isPublic: parsed.data.isPublic, photoUrl: result.data.photo_url, publicBio: parsed.data.publicBio, publicOrder: parsed.data.publicOrder, whatsapp: parsed.data.whatsapp }, success: true };
 }
 
 export async function uploadCommercialPhoto(userId: unknown, formData: FormData): Promise<ProfilePhotoMutationResult> {

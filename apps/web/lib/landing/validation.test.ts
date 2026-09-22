@@ -8,15 +8,21 @@ const base = { name: "Ana Prueba", company: "Empresa", email: "ana@example.com",
 
 test("acepta y normaliza cada área comercial del formulario", () => {
   for (const option of LANDING_AREA_OPTIONS) {
-    const parsed = landingLeadSchema.parse({ ...base, area: option.value });
-    assert.equal(parsed.area, option.value);
+    const parsed = landingLeadSchema.parse({ ...base, areas: [option.value] });
+    assert.deepEqual(parsed.areas, [option.value]);
     assert.equal(parsed.phone, "+56912345678");
   }
 });
 
-test("el honeypot rechaza bots y la selección de área es obligatoria", () => {
-  assert.equal(landingLeadSchema.safeParse({ ...base, area: "food_service", website: "spam" }).success, false);
-  assert.equal(landingLeadSchema.safeParse({ ...base, area: "" }).success, false);
+test("permite varias áreas y elimina duplicados", () => {
+  const parsed = landingLeadSchema.parse({ ...base, areas: ["food_service", "retail_ggcc", "food_service"] });
+  assert.deepEqual(parsed.areas, ["food_service", "retail_ggcc"]);
+});
+
+test("el honeypot rechaza bots y exige al menos un área válida", () => {
+  assert.equal(landingLeadSchema.safeParse({ ...base, areas: ["food_service"], website: "spam" }).success, false);
+  assert.equal(landingLeadSchema.safeParse({ ...base, areas: [] }).success, false);
+  assert.equal(landingLeadSchema.safeParse({ ...base, areas: ["inexistente"] }).success, false);
 });
 
 test("extrae la primera IP del proxy y genera un hash estable", () => {
