@@ -7,6 +7,7 @@ const representative: PublicRepresentative = {
   id: "00000000-0000-4000-8000-000000000001",
   name: "Representante Test",
   area: "food_service",
+  areas: ["food_service"],
   areaLabel: "Food Service",
   photoUrl: null,
   whatsapp: "+56 9 1234 5678",
