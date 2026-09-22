@@ -134,6 +134,8 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
     if (!emailSent) {
       console.error("[agenda] La reserva se creó, pero uno o más correos fallaron.", {
         bookingId: booking.id,
+        confirmacion: confirmation.ok ? "ok" : confirmation.error,
+        interno: notification.ok ? "ok" : notification.error,
       });
     }
 

@@ -67,7 +67,7 @@ export async function createAgendaLead(input: AgendaLeadFormState & { repId: str
       }),
     ]);
     const emailSent = ack.ok && notification.ok;
-    if (!emailSent) console.error("[agenda] El lead se guardó, pero uno o más correos fallaron.", { leadId: lead.id });
+    if (!emailSent) console.error("[agenda] El lead se guardó, pero uno o más correos fallaron.", { leadId: lead.id, acuse: ack.ok ? "ok" : ack.error, interno: notification.ok ? "ok" : notification.error });
 
     return { ok: true, leadId: lead.id, emailSent };
   } catch {
