@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { approveImage, generateProductImage, moveImageToSlot, rejectImage, uploadManualImage } from "@/lib/actions/images";
-import { allImageSlots, type ImageSlot, type ProductImageSlot } from "@/lib/images/slots";
+import { approveImage, generateProductImage, moveImageToSlot, rejectImage, uploadManualImage, uploadSourceImage } from "@/lib/actions/images";
+import { allImageSlots, type ProductImageSlot } from "@/lib/images/slots";
 import type { ProductImageRecord } from "@/lib/images/types";
 
 const statusLabels = { approved: "Aprobada", pending: "Pendiente", rejected: "Rechazada" } as const;
@@ -46,7 +46,7 @@ export function ImageSlotCard({
   images: ProductImageRecord[];
   label: string;
   productId: string;
-  slot: ImageSlot;
+  slot: ProductImageSlot;
   sourceAvailable: boolean;
 }) {
   const router = useRouter();
@@ -74,7 +74,10 @@ export function ImageSlotCard({
   function upload(file: File) {
     const formData = new FormData();
     formData.set("file", file);
-    run(() => uploadManualImage(productId, slot, formData), "Subiendo imagen…");
+    run(
+      () => slot === "source" ? uploadSourceImage(productId, formData) : uploadManualImage(productId, slot, formData),
+      "Subiendo imagen…",
+    );
   }
 
   return (
@@ -115,9 +118,11 @@ export function ImageSlotCard({
         {error ? <p className="mt-3 text-sm font-medium text-red-700" role="alert">{error}</p> : null}
 
         <div className="mt-4 flex flex-wrap gap-2">
-          <button className="admin-button-primary px-3 py-2 text-xs" disabled={!sourceAvailable || isPending} onClick={() => run(() => generateProductImage(productId, slot), "Generando, ~1 min…")} title={sourceAvailable ? "Generar una nueva vista" : "Sube una imagen fuente antes de generar"} type="button">
-            {displayed ? "Regenerar" : "Generar"}
-          </button>
+          {slot !== "source" ? (
+            <button className="admin-button-primary px-3 py-2 text-xs" disabled={!sourceAvailable || isPending} onClick={() => run(() => generateProductImage(productId, slot), "Generando, ~1 min…")} title={sourceAvailable ? "Generar una nueva vista" : "Sube una imagen fuente antes de generar"} type="button">
+              {displayed ? "Regenerar" : "Generar"}
+            </button>
+          ) : null}
           <label className="admin-button-secondary cursor-pointer px-3 py-2 text-xs">
             Subir manual
             <input accept="image/jpeg,image/png,image/webp" className="sr-only" data-testid={`upload-${slot}`} disabled={isPending} onChange={(event) => { const file = event.target.files?.[0]; if (file) upload(file); event.target.value = ""; }} type="file" />

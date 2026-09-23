@@ -1,7 +1,6 @@
 import { imageSlots } from "@/lib/images/slots";
 import type { ProductImageRecord } from "@/lib/images/types";
 import { ImageSlotCard } from "./ImageSlotCard";
-import { SourceImagePanel } from "./SourceImagePanel";
 import { isOfficial } from "@/lib/images/origin";
 
 const slotLabels = {
@@ -18,7 +17,8 @@ export function ProductImageGallery({
   images: ProductImageRecord[];
   productId: string;
 }) {
-  const source = images.find((image) => image.slot === "source" && image.status === "approved");
+  const sourceImages = images.filter((image) => image.slot === "source");
+  const source = sourceImages.find((image) => image.status === "approved");
 
   return (
     <section className="mt-10 border-t border-ink/10 pt-9">
@@ -30,7 +30,15 @@ export function ProductImageGallery({
         </div>
         {!isOfficial(images) ? <span className="rounded-full bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-900">Foto no oficial</span> : null}
       </div>
-      <SourceImagePanel image={source} productId={productId} />
+      <div className="max-w-md">
+        <ImageSlotCard
+          images={sourceImages}
+          label="Imagen fuente"
+          productId={productId}
+          slot="source"
+          sourceAvailable={Boolean(source)}
+        />
+      </div>
       <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {imageSlots.map((slot) => (
           <ImageSlotCard

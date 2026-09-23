@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import type { Dirent } from "node:fs";
 import { access, readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
@@ -44,6 +45,12 @@ type SessionPlan = {
   folderPath: string;
   match: MatchResult;
   ownsApprovedSlots: boolean;
+};
+type OptimizedPlan = {
+  category: string;
+  code: string;
+  files: EligibleFile[];
+  folder: string;
 };
 type ReportRow = {
   archivo: string;
@@ -172,6 +179,55 @@ async function sessionPlans(root: string): Promise<SessionPlan[]> {
   return plans;
 }
 
+function isMissingDirectory(error: unknown): boolean {
+  return error instanceof Error && "code" in error && error.code === "ENOENT";
+}
+
+async function optimizedPlans(root: string, productsWithSession: Set<string>): Promise<OptimizedPlan[]> {
+  const plans: OptimizedPlan[] = [];
+  for (const category of ["cerdo", "pollo", "vacuno", "trimming"]) {
+    const categoryPath = join(root, category);
+    let entries: Dirent[];
+    try {
+      entries = await readdir(categoryPath, { withFileTypes: true });
+    } catch (error: unknown) {
+      if (isMissingDirectory(error)) continue;
+      throw error;
+    }
+    const folders = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort(byteCompare);
+    for (const folder of folders) {
+      const code = folder.match(/CF-\d+/)?.[0];
+      if (!code || productsWithSession.has(code)) continue;
+      const folderPath = join(categoryPath, folder);
+      const files = (await readdir(folderPath, { withFileTypes: true }))
+        .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".webp"))
+        .map((entry) => entry.name)
+        .sort(byteCompare);
+      const eligible: EligibleFile[] = [];
+      for (const file of files) {
+        const path = join(folderPath, file);
+        eligible.push({ file, hash: await sha1(path), path });
+      }
+      plans.push({ category, code, files: eligible, folder });
+    }
+  }
+  return plans;
+}
+
+function optimizedReportRows(plans: OptimizedPlan[]): ReportRow[] {
+  const slots: AssignedSlot["slot"][] = ["main", "secondary_1", "secondary_2", "secondary_3"];
+  return plans.flatMap((plan) => plan.files.map((file, index) => ({
+    archivo: file.file,
+    carpeta: `${plan.category}/${plan.folder}`,
+    estado: index < slots.length ? "approved" : "pending",
+    margen: 50,
+    producto: plan.code,
+    score: 50,
+    slot: slots[index] ?? "secondary_2",
+    veredicto: "matched",
+  })));
+}
+
 function reportRows(plans: SessionPlan[]): ReportRow[] {
   return plans.flatMap((plan) => {
     const product = plan.match.candidate ? productCode(plan.match.candidate as CatalogoJulio2026Product) : `nuevo:${slug(plan.folderName)}`;
@@ -261,14 +317,23 @@ async function saveUnmatchedProduct(admin: AdminClient, context: Awaited<ReturnT
   const cutId = categoryId ? context.cutIds.get(`${categoryId}/${inferred.cut}`) : undefined;
   if (!categoryId || !cutId) throw new Error(`No se pudo inferir categoría/corte para ${folderName}.`);
   const importRef = `sesion:${slug(folderName)}`;
-  const result = await admin.from("products").upsert({
+  const values = {
     box_weight: null, brand: null, category_id: categoryId, code: null, created_by: context.createdBy,
     cut_id: cutId, eyebrow: folderTitle(folderName), format: null, import_ref: importRef,
     notes: `Importado desde ${folderName}. Corte original: ${inferred.realCut}.`, origin: null,
     status: "draft", title: folderTitle(folderName), units: null, updated_by: context.createdBy,
-  }, { onConflict: "import_ref" }).select("id").single();
-  if (result.error) throw new Error(`No se pudo crear ${folderName}: ${result.error.message}`);
-  return idSchema.parse(result.data).id;
+  };
+  const existing = await admin.from("products").select("id").eq("import_ref", importRef).maybeSingle();
+  if (existing.error) throw new Error(`No se pudo buscar ${folderName}: ${existing.error.message}`);
+  if (existing.data) {
+    const id = idSchema.parse(existing.data).id;
+    const updated = await admin.from("products").update(values).eq("id", id);
+    if (updated.error) throw new Error(`No se pudo actualizar ${folderName}: ${updated.error.message}`);
+    return id;
+  }
+  const inserted = await admin.from("products").insert(values).select("id").single();
+  if (inserted.error) throw new Error(`No se pudo crear ${folderName}: ${inserted.error.message}`);
+  return idSchema.parse(inserted.data).id;
 }
 
 async function saveImage(admin: AdminClient, input: {
@@ -353,42 +418,28 @@ async function importSession(admin: AdminClient, context: Awaited<ReturnType<typ
   return productsWithSession;
 }
 
-async function importOptimized(admin: AdminClient, context: Awaited<ReturnType<typeof databaseContext>>, root: string, productIds: Map<string, string>, productsWithSession: Set<string>, reapprove: boolean) {
-  const categories = ["cerdo", "pollo", "vacuno", "trimming"];
+async function importOptimized(admin: AdminClient, context: Awaited<ReturnType<typeof databaseContext>>, plans: OptimizedPlan[], productIds: Map<string, string>, reapprove: boolean) {
   let imported = 0;
-  for (const category of categories) {
-    const categoryPath = join(root, category);
-    const folders = (await readdir(categoryPath, { withFileTypes: true })).filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort(byteCompare);
-    for (const folder of folders) {
-      const code = folder.match(/CF-\d+/)?.[0];
-      if (!code || productsWithSession.has(code)) continue;
-      const productId = productIds.get(code);
-      if (!productId) continue;
-      const folderPath = join(categoryPath, folder);
-      const files = (await readdir(folderPath, { withFileTypes: true })).filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".webp")).map((entry) => entry.name).sort(byteCompare);
-      const eligible: EligibleFile[] = [];
-      for (const file of files) {
-        const path = join(folderPath, file);
-        eligible.push({ file, hash: await sha1(path), path });
-      }
-      const slots: AssignedSlot["slot"][] = ["main", "secondary_1", "secondary_2", "secondary_3"];
-      for (const [index, file] of eligible.entries()) {
+  for (const plan of plans) {
+    const productId = productIds.get(plan.code);
+    if (!productId) continue;
+    const slots: AssignedSlot["slot"][] = ["main", "secondary_1", "secondary_2", "secondary_3"];
+    for (const [index, file] of plan.files.entries()) {
         const slot = slots[index] ?? "secondary_2";
         const status = index < slots.length ? "approved" : "pending";
         await saveImage(admin, {
           createdBy: context.createdBy, file, productId, reapprove, slot, sortOrder: index,
-          sourceKind: "catalog_pdf", sourceRef: `catalogo-pdf/${category}/${folder}/${file}`, status,
-          storageRef: `catalog-pdf/${code.toLowerCase()}`,
+          sourceKind: "catalog_pdf", sourceRef: `catalogo-pdf/${plan.category}/${plan.folder}/${file.file}`, status,
+          storageRef: `catalog-pdf/${plan.code.toLowerCase()}`,
         });
         if (index === 0) {
           await saveImage(admin, {
             createdBy: context.createdBy, file, productId, reapprove, slot: "source", sortOrder: 0,
-            sourceKind: "catalog_pdf", sourceRef: `catalogo-pdf/${category}/${folder}/${file}#source`, status: "approved",
-            storageRef: `catalog-pdf/${code.toLowerCase()}`,
+            sourceKind: "catalog_pdf", sourceRef: `catalogo-pdf/${plan.category}/${plan.folder}/${file.file}#source`, status: "approved",
+            storageRef: `catalog-pdf/${plan.code.toLowerCase()}`,
           });
         }
         imported += 1;
-      }
     }
   }
   console.log(`Imágenes de catálogo PDF importadas: ${imported}.`);
@@ -420,10 +471,13 @@ async function run() {
   const options = parseArguments(process.argv.slice(2));
   await Promise.all([access(options.pdf), access(options.sesion), access(options.optimizadas)]);
   const plans = await sessionPlans(options.sesion);
-  const rows = reportRows(plans);
+  const sessionCodes = new Set(plans.flatMap((plan) => plan.match.candidate ? [productCode(plan.match.candidate as CatalogoJulio2026Product)] : []));
+  const optimized = await optimizedPlans(options.optimizadas, sessionCodes);
+  const rows = reportRows(plans).concat(optimizedReportRows(optimized));
   const uniqueImages = plans.reduce((total, plan) => total + plan.assigned.length, 0);
   const duplicateImages = plans.reduce((total, plan) => total + plan.duplicateWarnings.length, 0);
   console.log(`Sesión: ${plans.length} carpetas, ${uniqueImages} imágenes únicas, ${duplicateImages} duplicadas omitidas.`);
+  console.log(`Catálogo PDF: ${optimized.length} carpetas de respaldo, ${optimized.reduce((total, plan) => total + plan.files.length, 0)} imágenes elegibles.`);
 
   if (options.dryRun) {
     const reportPath = await writeDryRun(rows);
@@ -435,8 +489,8 @@ async function run() {
   const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
   const context = await databaseContext(admin);
   const products = await savePdfProducts(admin, context);
-  const productsWithSession = await importSession(admin, context, plans, products.byCode, options.reaprobar);
-  await importOptimized(admin, context, options.optimizadas, products.byCode, productsWithSession, options.reaprobar);
+  await importSession(admin, context, plans, products.byCode, options.reaprobar);
+  await importOptimized(admin, context, optimized, products.byCode, options.reaprobar);
   await removeObsoleteProducts(admin);
   await rebuildCatalog(admin, products.orderedIds);
   console.log("Importación de julio 2026 completada.");
