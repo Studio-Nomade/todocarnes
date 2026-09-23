@@ -23,7 +23,9 @@ pnpm --filter @todocarnes/emails previews
 El test del calendario verifica explícitamente que el 29 de septiembre de 2026 a las 14:00 UTC se
 renderice a las 11:00 en `America/Santiago`, con término a las 11:30.
 
-El segundo comando regenera los ocho HTML revisables en `packages/emails/previews/`.
+El segundo comando regenera los nueve HTML revisables en `packages/emails/previews/`. La novena
+plantilla corresponde a recuperación de contraseña de Supabase Auth y usa una cabecera pública en
+lugar del adjunto CID.
 
 Para un envío de humo en el sandbox de Resend:
 

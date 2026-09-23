@@ -16,6 +16,10 @@ export type CommercialUserInput = z.infer<typeof commercialUserSchema>;
 
 export const userIdSchema = z.string().uuid("El usuario no es válido.");
 export const userStatusSchema = z.enum(["active", "inactive"]);
+export const resetUserPasswordSchema = z.object({
+  password: commercialUserSchema.shape.password,
+  userId: userIdSchema,
+});
 
 export const publicProfileSchema = z.object({
   areas: z.array(z.enum(commercialAreas)).max(commercialAreas.length).transform((values) => [...new Set(values)]),

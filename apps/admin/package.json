@@ -9,7 +9,7 @@
     "optimize:secondary-images": "tsx --env-file=.env.local data/import/resize-approved-secondary-images.ts",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import tsx --test data/import/catalogo-julio-2026-products.test.ts lib/import/normalize.test.ts lib/import/match.test.ts lib/import/slots.test.ts lib/import/render.test.ts lib/images/origin.test.ts lib/pdf/page-order.test.ts lib/images/errors.test.ts lib/catalogs/format.test.ts lib/catalogs/order.test.ts lib/validators/catalog.test.ts lib/validators/product.test.ts lib/validators/user-public.test.ts lib/products/variants.test.ts lib/leads/lead-rules.test.ts lib/navigation.test.ts",
+    "test": "node --import tsx --test data/import/catalogo-julio-2026-products.test.ts lib/import/normalize.test.ts lib/import/match.test.ts lib/import/slots.test.ts lib/import/render.test.ts lib/images/origin.test.ts lib/pdf/page-order.test.ts lib/images/errors.test.ts lib/catalogs/format.test.ts lib/catalogs/order.test.ts lib/validators/account.test.ts lib/validators/catalog.test.ts lib/validators/product.test.ts lib/validators/user-public.test.ts lib/auth/password-gate.test.ts lib/products/variants.test.ts lib/leads/lead-rules.test.ts lib/navigation.test.ts",
     "seed": "tsx --env-file=.env.local data/seed/index.ts"
   },
   "dependencies": {

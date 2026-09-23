@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { commercialUserSchema, publicProfileSchema, userIdSchema, userStatusSchema } from "@/lib/validators/user";
+import { commercialUserSchema, publicProfileSchema, resetUserPasswordSchema, userIdSchema, userStatusSchema } from "@/lib/validators/user";
 import type { ProfilePhotoMutationResult, PublicProfileMutationResult, UserMutationResult } from "@/lib/users/types";
 import { validateAndConvertImage } from "@/lib/images/upload";
 
@@ -42,6 +42,7 @@ export async function createCommercialUser(input: unknown): Promise<UserMutation
       name: parsed.data.name,
       phone: parsed.data.phone,
       is_public: false,
+      must_change_password: true,
       public_order: 0,
       role: "commercial",
       status: "active",
@@ -56,6 +57,38 @@ export async function createCommercialUser(input: unknown): Promise<UserMutation
 
   revalidatePath("/users");
   return { id: userId, success: true };
+}
+
+export async function resetUserPassword(userId: unknown, password: unknown): Promise<UserMutationResult> {
+  const actor = await requireRole(["admin"]);
+  const parsed = resetUserPasswordSchema.safeParse({ password, userId });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Revisa la contraseña.", success: false };
+  }
+  if (parsed.data.userId === actor.id) {
+    return { error: "Cambia tu propia contraseña desde Mi perfil.", success: false };
+  }
+
+  const admin = createAdminClient();
+  const updated = await admin.auth.admin.updateUserById(parsed.data.userId, {
+    password: parsed.data.password,
+  });
+  if (updated.error) {
+    return { error: "No se pudo restablecer la contraseña.", success: false };
+  }
+
+  const flagged = await admin
+    .from("profiles")
+    .update({ must_change_password: true })
+    .eq("id", parsed.data.userId)
+    .select("id")
+    .single();
+  if (flagged.error || !flagged.data) {
+    return { error: "La contraseña cambió, pero no se pudo exigir el cambio inicial.", success: false };
+  }
+
+  revalidatePath("/users");
+  return { id: parsed.data.userId, success: true };
 }
 
 export async function updateCommercialPublicProfile(input: unknown): Promise<PublicProfileMutationResult> {
