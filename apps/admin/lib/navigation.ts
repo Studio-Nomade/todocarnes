@@ -9,6 +9,7 @@ export const navigationGroups: NavigationGroup[] = [
   { label: "Comercial", items: [
     { href: "/dashboard", label: "Dashboard", roles: allRoles },
     { href: "/leads", label: "Leads", roles: allRoles },
+    { href: "/cortesias", label: "Cortesías", roles: ["admin"] },
     { href: "/agenda", label: "Agenda", roles: allRoles },
   ] },
   { label: "Catálogo", items: [
