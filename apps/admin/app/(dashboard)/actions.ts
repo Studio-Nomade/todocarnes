@@ -5,7 +5,7 @@ import { requireRole } from "@/lib/auth/requireRole";
 import { createClient } from "@/lib/supabase/server";
 
 export async function logout() {
-  await requireRole(["admin", "commercial"]);
+  await requireRole(["admin", "commercial"], { allowPasswordChangeRequired: true });
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/login");

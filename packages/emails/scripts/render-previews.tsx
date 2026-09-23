@@ -10,6 +10,7 @@ import {
   ContactNotifLanding,
   CourtesyConfirmation,
   CourtesyNotification,
+  PasswordRecovery,
 } from "../src/templates";
 
 const outputDirectory = fileURLToPath(new URL("../previews/", import.meta.url));
@@ -37,6 +38,7 @@ const previews = [
   ["06-courtesy-notification.html", <CourtesyNotification {...contact} cargo="Jefa de compras" eventLocation={event.eventLocation} eventName={event.eventName} lastName="Rojas" logoUrl={logoUrl} rut="12.345.678-5" />],
   ["07-contact-notif-agenda.html", <ContactNotifAgenda {...contact} logoUrl={logoUrl} />],
   ["08-contact-notif-landing.html", <ContactNotifLanding {...contact} logoUrl={logoUrl} />],
+  ["09-password-recovery.html", <PasswordRecovery recoveryUrl="{{ .ConfirmationURL }}" />],
 ] as const;
 
 await mkdir(outputDirectory, { recursive: true });

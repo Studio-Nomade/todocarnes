@@ -6,6 +6,7 @@ export type Profile = {
   email: string;
   id: string;
   jobTitle: string;
+  mustChangePassword: boolean;
   name: string;
   phone: string;
   role: Role;
