@@ -100,7 +100,8 @@ escondiendo el botón.
 17. Actions de productos. Todas con `requireRole` + zod.
 18. `/products`: tabla, filtros, búsqueda, paginación simple.
 19. `/products/new` y `/products/[id]`: form + `ProductPageTemplate` en vivo al costado.
-20. Seed de los ~8 productos.
+20. Seed de categorías, cortes, usuarios, settings y catálogo oficial vacío. Los productos se cargan
+    exclusivamente con el importador de julio.
 
 ## M4 — Imágenes
 
@@ -159,6 +160,27 @@ escondiendo el botón.
   `364 + 24 + 28·N + 132`, y el footer empieza en 760: con 9 variantes el bloque se desborda. El
   máximo real del catálogo es Pollo Entero con 5. Si en fase 2 aparece un producto con más, hay que
   paginar la ficha o comprimir las filas de Marca/Procedencia — no basta con achicar la fuente.
+
+## Carga del catálogo Julio 2026
+
+El único camino soportado para cargar productos e imágenes reales es:
+
+```bash
+pnpm --filter @todocarnes/admin import:catalogo-julio -- \
+  --pdf "/ruta/Todo Carnes - Catálogo v01-light.pdf" \
+  --sesion "/ruta/01_Sesión Completa" \
+  --optimizadas "/ruta/02_todocarnes_imagenes_optimizadas_por_producto" \
+  --dry-run
+```
+
+`--dry-run` no conecta a Supabase ni a Storage y deja `catalogo-julio-2026-dry-run.csv` en el
+directorio de ejecución. Después de revisar el cruce se ejecuta el mismo comando sin ese flag. Una
+segunda corrida es idempotente y no reemplaza aprobaciones manuales; `--reaprobar` permite hacerlo
+de forma explícita.
+
+El seed no crea productos ni `catalog_items`: sobre una base limpia deja 4 categorías, 16 cortes y
+el catálogo “Catálogo Oficial Todo Carnes” vacío. También puede volver a ejecutarse después del
+importador sin pisar sus productos ni el orden del catálogo.
 
 ---
 

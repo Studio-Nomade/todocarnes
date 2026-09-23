@@ -326,3 +326,29 @@ cuando debían mostrar solo carne; cantidad en caja incorrecta; imagen borrosa o
 6. Si hay error, se regenera **solo la vista afectada**, no toda la ficha.
 
 La IA no compone la ficha. Solo entrega fotos limpias, aisladas y fieles al producto real.
+
+## 7. Origen, candidatas y corrección manual
+
+Cada fila de `product_images` conserva su procedencia en `source_kind`:
+
+| Valor | Chip en admin | Significado |
+|---|---|---|
+| `session` | Sesión | Fotografía oficial de la sesión Todo Carnes |
+| `catalog_pdf` | Catálogo PDF | Respaldo extraído del material del catálogo |
+| `ai` | IA | Imagen generada por el pipeline del admin |
+| `upload` | Manual | Archivo subido manualmente por un usuario |
+
+La galería muestra todas las filas de cada slot, ordenadas por estado (`approved`, `pending`,
+`rejected`), `sort_order` y fecha. Al seleccionar una miniatura, los botones actúan sobre esa fila:
+
+- **Aprobar** recupera también una candidata rechazada y degrada transaccionalmente la aprobación
+  anterior del mismo slot.
+- **Rechazar** conserva la fila como evidencia, pero la retira del catálogo.
+- **Mover a…** permite corregir el slot. La imagen siempre llega como `pending`; debe aprobarse de
+  forma explícita para no colisionar con el índice único de aprobadas.
+- **Subir manual** y **Generar** crean nuevas candidatas sin ocultar las anteriores.
+
+Un producto se considera oficial solo cuando su imagen `main` aprobada tiene
+`source_kind = 'session'`. En caso contrario el admin muestra el badge ámbar **Foto no oficial** en
+la galería y en la vista previa. El badge no vive en `ProductPageTemplate`, por lo que nunca aparece
+en `/print` ni en el PDF exportado.

@@ -46,105 +46,6 @@ const slugByName: Record<string, string> = {
   Trutros: "trutros",
 };
 
-const products = [
-  {
-    box_weight: "8 KG (Peso Variable)",
-    brand: "Notable",
-    category_slug: "cerdo",
-    code: "CF-1608",
-    cut_slug: "costillar",
-    eyebrow: "Costillar Brasil",
-    format: "Vacío",
-    origin: "Brasil",
-    title: "Costillar de Cerdo Notable",
-    units: "7-8 x caja",
-  },
-  {
-    box_weight: null,
-    brand: null,
-    category_slug: "cerdo",
-    code: "CF-1586",
-    cut_slug: "chuletas",
-    eyebrow: "Chuletas de Cerdo",
-    format: null,
-    origin: null,
-    title: "Punta Chuleta Vetada",
-    units: null,
-  },
-  {
-    box_weight: "14,4 KGS\n15,2 KGS\n16 KGS\n16,8 KGS\n17,6 KGS",
-    brand: "Languiru",
-    category_slug: "pollo",
-    code: "CF-1600\nCF-1601\nCF-1602\nCF-1603\nCF-1604",
-    cut_slug: "pollo-entero",
-    eyebrow: "Pollo Entero",
-    format: "Pollo 1,8 kilos\nPollo 1,9 kilos\nPollo 2,0 kilos\nPollo 2,1 kilos\nPollo 2,2 kilos",
-    origin: "Brasil",
-    title: "Pollo Entero Languiru sin Menudencias",
-    units: "8 unidades x caja\n8 unidades x caja\n8 unidades x caja\n8 unidades x caja\n8 unidades x caja",
-  },
-  {
-    box_weight: "15 KG",
-    brand: "Languiru",
-    category_slug: "pollo",
-    code: "CF-1580",
-    cut_slug: "pechuga",
-    eyebrow: "Pechuga de Pollo",
-    format: "Embolsada",
-    origin: "Brasil",
-    title: "Pechuga con Hueso Individual Languiru",
-    units: "Individual",
-  },
-  {
-    box_weight: "20 KG (Peso Variable)",
-    brand: "Minerva",
-    category_slug: "vacuno",
-    code: "CF-1588",
-    cut_slug: "posta",
-    eyebrow: "Posta de Vacuno",
-    format: "Envasado / caja",
-    origin: "Brasil",
-    title: "Posta Rosada Congelada Pul",
-    units: "3-4 unidades x caja",
-  },
-  {
-    box_weight: "13,61 KGS Fijo",
-    brand: "FLP Foods",
-    category_slug: "vacuno",
-    code: "CF-1577",
-    cut_slug: "higado",
-    eyebrow: "Vacuno",
-    format: "Bloque, bolsa colectiva",
-    origin: "USA",
-    title: "Hígado de Vacuno FLP Foods",
-    units: "-",
-  },
-  {
-    box_weight: "20 KG",
-    brand: "Todo Carnes",
-    category_slug: "trimming",
-    code: "CF-1004",
-    cut_slug: "50-50",
-    eyebrow: "Trimming",
-    format: "Granel",
-    origin: "Nacional",
-    title: "Trimming 50/50",
-    units: "N/A",
-  },
-  {
-    box_weight: "20 KG",
-    brand: "Todo Carnes",
-    category_slug: "trimming",
-    code: "CF-1046",
-    cut_slug: "90-10",
-    eyebrow: "Trimming",
-    format: "Granel",
-    origin: "Nacional",
-    title: "Trimming 90/10",
-    units: "N/A",
-  },
-] as const;
-
 const authUsersSchema = z.object({
   users: z.array(z.object({ email: z.string().email().nullable(), id: z.string().uuid() })),
 });
@@ -312,47 +213,6 @@ async function runSeed() {
     role: "commercial",
   });
 
-  const categorySlugById = new Map(categoryResult.data.map((category) => [category.id, category.slug]));
-  const cutIds = new Map(
-    cutResult.data.map((cut) => {
-      const categorySlug = categorySlugById.get(cut.category_id);
-      if (!categorySlug) {
-        throw new Error(`No existe la categoría del corte ${cut.slug}.`);
-      }
-      return [`${categorySlug}/${cut.slug}`, cut.id];
-    }),
-  );
-  const productRows = products.map((product) => {
-    const categoryId = categoryIds.get(product.category_slug);
-    const cutId = cutIds.get(`${product.category_slug}/${product.cut_slug}`);
-    if (!categoryId || !cutId) {
-      throw new Error(`No existe el corte ${product.category_slug}/${product.cut_slug}.`);
-    }
-    return {
-      box_weight: product.box_weight,
-      brand: product.brand,
-      category_id: categoryId,
-      code: product.code,
-      created_by: adminId,
-      cut_id: cutId,
-      eyebrow: product.eyebrow,
-      format: product.format,
-      origin: product.origin,
-      status: "active",
-      title: product.title,
-      units: product.units,
-      updated_by: adminId,
-    };
-  });
-  const productResult = await supabase
-    .from("products")
-    .upsert(productRows, { onConflict: "code" })
-    .select("id,code");
-  assertNoError(productResult.error, "No se pudieron guardar los productos");
-  if (!productResult.data) {
-    throw new Error("Supabase no devolvió los productos guardados.");
-  }
-
   const existingCatalog = await supabase
     .from("catalogs")
     .select("id")
@@ -383,16 +243,6 @@ async function runSeed() {
   if (!catalogResult.data) {
     throw new Error("Supabase no devolvió el catálogo de muestra.");
   }
-
-  const catalogItems = productResult.data.map((product, sortOrder) => ({
-    catalog_id: catalogResult.data.id,
-    product_id: product.id,
-    sort_order: sortOrder,
-  }));
-  const catalogItemsResult = await supabase
-    .from("catalog_items")
-    .upsert(catalogItems, { onConflict: "catalog_id,product_id" });
-  assertNoError(catalogItemsResult.error, "No se pudo armar el catálogo de muestra");
 
   const categoryCount = await supabase.from("categories").select("*", { count: "exact", head: true });
   const cutCount = await supabase.from("cuts").select("*", { count: "exact", head: true });
