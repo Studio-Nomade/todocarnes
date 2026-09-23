@@ -4,7 +4,7 @@ import { isNavigationItemActive, navigationForRole } from "./navigation";
 
 test("commercial no recibe enlaces administrativos", () => {
   const items = navigationForRole("commercial").flatMap((group) => group.items.map((item) => item.href));
-  assert.deepEqual(items, ["/dashboard", "/leads", "/agenda", "/catalogs", "/products", "/services"]);
+  assert.deepEqual(items, ["/dashboard", "/leads", "/cortesias", "/agenda", "/catalogs", "/products", "/services"]);
 });
 
 test("admin recibe toda la navegación y el estado activo cubre rutas hijas", () => {
