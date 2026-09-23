@@ -5,14 +5,14 @@ import { assignSlots } from "./slots";
 test("foto 14 elige vista 1 y reserva la vista de caja para secondary_3", () => {
   const result = assignSlots([
     "catalogo vista caja.png",
-    "catalogo vista 2.png",
+    "catalogo.png",
     "catalogo vista 1.png",
     "detalle.jpg",
   ]);
 
   assert.deepEqual(result.find((item) => item.file === "catalogo vista 1.png"), { file: "catalogo vista 1.png", order: 0, slot: "main", status: "approved" });
   assert.equal(result.find((item) => item.file === "catalogo vista caja.png")?.slot, "secondary_3");
-  assert.equal(result.find((item) => item.file === "catalogo vista 2.png")?.status, "pending");
+  assert.equal(result.find((item) => item.file === "catalogo.png")?.status, "pending");
 });
 
 test("foto 11 usa el primer archivo byte cuando no existe catalogo", () => {

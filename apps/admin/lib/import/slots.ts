@@ -24,9 +24,10 @@ export function assignSlots(files: string[]): AssignedSlot[] {
   const eligible = byteSort(files.filter((file) => /\.(?:jpe?g|png)$/i.test(file) && basenameWithoutExtension(file) !== ".DS_Store"));
   if (eligible.length === 0) return [];
 
+  const vistaOneHero = eligible.find((file) => /^catalogo vista 1$/i.test(basenameWithoutExtension(file)));
   const exactHero = eligible.find((file) => basenameWithoutExtension(file).toLowerCase() === "catalogo");
   const prefixedHero = eligible.find((file) => basenameWithoutExtension(file).toLowerCase().startsWith("catalogo"));
-  const hero = exactHero ?? prefixedHero ?? eligible[0];
+  const hero = vistaOneHero ?? exactHero ?? prefixedHero ?? eligible[0];
   const assigned: AssignedSlot[] = [{ file: hero, order: 0, slot: "main", status: "approved" }];
   const usedApproved = new Set<AssignedSlot["slot"]>(["main"]);
   const remaining: string[] = [];
