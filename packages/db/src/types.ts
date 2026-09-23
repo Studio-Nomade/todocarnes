@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -318,10 +323,10 @@ export type Database = {
           email: string
           event_id: string
           id: string
-          name: string
           last_name: string
-          rut: string
+          name: string
           phone: string
+          rut: string
           status: string
         }
         Insert: {
@@ -332,10 +337,10 @@ export type Database = {
           email: string
           event_id: string
           id?: string
-          name: string
           last_name: string
-          rut: string
+          name: string
           phone: string
+          rut: string
           status?: string
         }
         Update: {
@@ -346,10 +351,10 @@ export type Database = {
           email?: string
           event_id?: string
           id?: string
-          name?: string
           last_name?: string
-          rut?: string
+          name?: string
           phone?: string
+          rut?: string
           status?: string
         }
         Relationships: [
@@ -368,8 +373,6 @@ export type Database = {
           created_at: string
           id: string
           name: string
-          last_name: string
-          rut: string
           slug: string
           sort_order: number
           updated_at: string
@@ -379,8 +382,6 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
-          last_name: string
-          rut: string
           slug: string
           sort_order?: number
           updated_at?: string
@@ -390,8 +391,6 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
-          last_name?: string
-          rut?: string
           slug?: string
           sort_order?: number
           updated_at?: string
@@ -541,6 +540,9 @@ export type Database = {
           product_id: string
           prompt_used: string | null
           slot: string
+          sort_order: number
+          source_kind: string
+          source_ref: string | null
           status: string
           storage_path: string
           updated_at: string
@@ -553,6 +555,9 @@ export type Database = {
           product_id: string
           prompt_used?: string | null
           slot: string
+          sort_order?: number
+          source_kind?: string
+          source_ref?: string | null
           status?: string
           storage_path: string
           updated_at?: string
@@ -565,6 +570,9 @@ export type Database = {
           product_id?: string
           prompt_used?: string | null
           slot?: string
+          sort_order?: number
+          source_kind?: string
+          source_ref?: string | null
           status?: string
           storage_path?: string
           updated_at?: string
@@ -598,6 +606,7 @@ export type Database = {
           eyebrow: string | null
           format: string | null
           id: string
+          import_ref: string | null
           month_tag: string | null
           notes: string | null
           origin: string | null
@@ -618,6 +627,7 @@ export type Database = {
           eyebrow?: string | null
           format?: string | null
           id?: string
+          import_ref?: string | null
           month_tag?: string | null
           notes?: string | null
           origin?: string | null
@@ -638,6 +648,7 @@ export type Database = {
           eyebrow?: string | null
           format?: string | null
           id?: string
+          import_ref?: string | null
           month_tag?: string | null
           notes?: string | null
           origin?: string | null
