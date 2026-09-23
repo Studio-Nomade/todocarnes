@@ -11,6 +11,8 @@ const imageSchema = z.object({
   id: z.string().uuid(),
   prompt_used: z.string().nullable(),
   slot: allImageSlotSchema,
+  sort_order: z.number().int(),
+  source_kind: z.enum(["session", "catalog_pdf", "ai", "upload"]),
   status: z.enum(["pending", "approved", "rejected"]),
   storage_path: z.string().min(1),
 });
@@ -19,7 +21,9 @@ export async function getProductImages(productId: string): Promise<ProductImageR
   const admin = createAdminClient();
   const result = await admin
     .from("product_images")
-    .select("id,slot,storage_path,status,generated_by_ai,prompt_used,created_at")
+    .select(
+      "id,slot,storage_path,status,generated_by_ai,prompt_used,source_kind,sort_order,created_at",
+    )
     .eq("product_id", productId)
     .order("created_at", { ascending: false });
 

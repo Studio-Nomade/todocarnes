@@ -1,6 +1,7 @@
 import type { ProductImageSlot } from "./slots";
 
 export type ProductImageStatus = "approved" | "pending" | "rejected";
+export type ProductImageSourceKind = "ai" | "catalog_pdf" | "session" | "upload";
 
 export type ProductImageRecord = {
   created_at: string;
@@ -8,6 +9,8 @@ export type ProductImageRecord = {
   id: string;
   prompt_used: string | null;
   slot: ProductImageSlot;
+  sort_order: number;
+  source_kind: ProductImageSourceKind;
   status: ProductImageStatus;
   storage_path: string;
   url: string;
