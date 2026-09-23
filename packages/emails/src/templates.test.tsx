@@ -10,6 +10,7 @@ import {
   ContactNotifLanding,
   CourtesyConfirmation,
   CourtesyNotification,
+  PasswordRecovery,
 } from "./templates";
 
 const commonContact = {
@@ -49,6 +50,17 @@ test("renderiza las ocho plantillas transaccionales con sus dos familias", async
   assert.match(templates[5], /Teléfono/);
   assert.match(templates[6], /Agenda Food &amp; Service 2026/);
   assert.match(templates[7], /Landing Todo Carnes/);
+});
+
+test("la recuperación usa el banner público y conserva la variable de Supabase", async () => {
+  const html = await render(<PasswordRecovery recoveryUrl="{{ .ConfirmationURL }}" />);
+
+  assert.match(html, /https:\/\/todocarnes\.cl\/emails\/header-correos\.jpg/);
+  assert.match(html, /Restablece tu contraseña/);
+  assert.match(html, /TodoCarnes/);
+  assert.match(html, /Soluciones cárnicas para cada forma de operar/);
+  assert.match(html, /\{\{ \.ConfirmationURL \}\}/);
+  assert.doesNotMatch(html, /cid:todocarnes-header/);
 });
 
 test("las notificaciones internas muestran campos faltantes sin ocultarlos", async () => {

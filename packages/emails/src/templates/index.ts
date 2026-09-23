@@ -6,3 +6,4 @@ export { ContactNotifAgenda, type ContactNotifAgendaProps } from "./ContactNotif
 export { ContactNotifLanding, type ContactNotifLandingProps } from "./ContactNotifLanding";
 export { CourtesyConfirmation, type CourtesyConfirmationProps } from "./CourtesyConfirmation";
 export { CourtesyNotification, type CourtesyNotificationProps } from "./CourtesyNotification";
+export { PasswordRecovery, type PasswordRecoveryProps } from "./PasswordRecovery";

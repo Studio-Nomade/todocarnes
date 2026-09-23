@@ -6,6 +6,7 @@ import type { UserRecord } from "@/lib/users/types";
 import type { CommercialUserInput } from "@/lib/validators/user";
 import { UserForm } from "./UserForm";
 import { UserPublicProfileForm } from "./UserPublicProfileForm";
+import { UserPasswordReset } from "./UserPasswordReset";
 
 export function UserManager({
   currentUserId,
@@ -128,6 +129,20 @@ export function UserManager({
                         user={user}
                       />
                     </details>
+                  ) : null}
+                  {!isSelf ? (
+                    <UserPasswordReset
+                      onError={(message) => {
+                        setNotice("");
+                        setError(message);
+                      }}
+                      onSuccess={(message) => {
+                        setError("");
+                        setNotice(message);
+                      }}
+                      userId={user.id}
+                      userName={user.name}
+                    />
                   ) : null}
                 </li>
               );

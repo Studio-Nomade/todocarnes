@@ -698,6 +698,7 @@ export type Database = {
           id: string
           is_public: boolean
           job_title: string
+          must_change_password: boolean
           name: string
           phone: string
           photo_url: string | null
@@ -716,6 +717,7 @@ export type Database = {
           id: string
           is_public?: boolean
           job_title?: string
+          must_change_password?: boolean
           name: string
           phone?: string
           photo_url?: string | null
@@ -734,6 +736,7 @@ export type Database = {
           id?: string
           is_public?: boolean
           job_title?: string
+          must_change_password?: boolean
           name?: string
           phone?: string
           photo_url?: string | null
