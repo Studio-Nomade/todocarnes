@@ -47,7 +47,7 @@ export function LoginForm() {
         Contraseña
         <input autoComplete="current-password" className="mt-2 w-full rounded-lg border border-ink/20 px-4 py-3 outline-none focus:border-blue" minLength={6} name="password" required type="password" />
       </label>
-      <div className="text-right">
+      <div className="text-center">
         <Link className="text-sm font-semibold text-blue hover:underline" href="/recuperar">
           ¿Olvidaste tu contraseña?
         </Link>

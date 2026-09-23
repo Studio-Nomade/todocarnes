@@ -47,6 +47,13 @@ export function representativeCc(reps: (BookingRepresentative | null | undefined
   return [...new Set(emails)];
 }
 
+const COURTESY_NOTIFICATION_RECIPIENT = "amolina@tdcarnes.cl";
+
+/** Asegura que las solicitudes de cortesía lleguen también al responsable definido. */
+export function courtesyNotificationRecipients(internalTo: string[]): string[] {
+  return [...new Set([...internalTo, COURTESY_NOTIFICATION_RECIPIENT])];
+}
+
 const EMAIL_HEADER_CONTENT_ID = "todocarnes-header";
 const EMAIL_HEADER_URL = `cid:${EMAIL_HEADER_CONTENT_ID}`;
 
@@ -241,7 +248,7 @@ export async function sendCourtesyNotification({ request, event }: {
   try {
     const response = await new Resend(config.apiKey).emails.send({
       from: config.from,
-      to,
+      to: courtesyNotificationRecipients(to),
       replyTo: request.email,
       subject: `Nueva solicitud de cortesía — ${request.name} ${request.lastName} — ${request.company}`,
       attachments: [emailHeaderAttachment()],

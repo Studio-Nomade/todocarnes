@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   title: "Todo Carnes | Soluciones cárnicas B2B",
   description: "Más de 70 años desarrollando soluciones cárnicas para la industria alimentaria en Chile.",
   alternates: { canonical: "/" },
-  openGraph: { title: "Todo Carnes — Más que carne", description: "Soluciones para abastecer, producir y vender mejor.", url: "/" },
+  openGraph: { title: "Todo Carnes — Más que carne", description: "Soluciones para abastecer, producir y vender.", url: "/" },
 };
 
 async function PublicCommercialTeam() {
