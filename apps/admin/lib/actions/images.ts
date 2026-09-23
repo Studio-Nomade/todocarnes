@@ -8,7 +8,7 @@ import { assertWithinDailyLimit } from "@/lib/images/daily-limit";
 import { ImageGenerationError } from "@/lib/images/errors";
 import { buildPrompt } from "@/lib/images/prompt-builder";
 import { getImageProvider } from "@/lib/images/provider";
-import { imageSlotSchema, type ProductImageSlot } from "@/lib/images/slots";
+import { allImageSlotSchema, imageSlotSchema, type ProductImageSlot } from "@/lib/images/slots";
 import type { ImageMutationResult } from "@/lib/images/types";
 import { validateAndConvertImage } from "@/lib/images/upload";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -308,6 +308,40 @@ export async function rejectImage(imageId: unknown): Promise<ImageMutationResult
     return { error: "No se pudo rechazar la imagen.", success: false };
   }
 
+  revalidatePath(`/products/${image.data.product_id}`);
+  return { id: image.data.id, success: true };
+}
+
+export async function moveImageToSlot(imageId: unknown, slot: unknown): Promise<ImageMutationResult> {
+  await requireRole([...roles]);
+  const parsed = z.object({ imageId: imageIdSchema, slot: allImageSlotSchema }).safeParse({ imageId, slot });
+  if (!parsed.success) {
+    return { error: "La imagen o el slot no son válidos.", success: false };
+  }
+
+  const admin = createAdminClient();
+  const imageResult = await admin
+    .from("product_images")
+    .select("id,product_id,slot")
+    .eq("id", parsed.data.imageId)
+    .single();
+  const image = z.object({ id: imageIdSchema, product_id: productIdSchema, slot: allImageSlotSchema }).safeParse(imageResult.data);
+  if (imageResult.error || !image.success) {
+    return { error: "No se encontró la imagen.", success: false };
+  }
+  if (image.data.slot === parsed.data.slot) {
+    return { id: image.data.id, success: true };
+  }
+
+  const moved = await admin
+    .from("product_images")
+    .update({ slot: parsed.data.slot, status: "pending" })
+    .eq("id", image.data.id);
+  if (moved.error) {
+    return { error: `No se pudo mover la imagen: ${moved.error.message}`, success: false };
+  }
+
+  revalidatePath("/products");
   revalidatePath(`/products/${image.data.product_id}`);
   return { id: image.data.id, success: true };
 }

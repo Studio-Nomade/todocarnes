@@ -3,6 +3,7 @@ import type { CategoryOption, CutOption } from "@/lib/products/types";
 import type { ProductImageRecord } from "@/lib/images/types";
 import type { ProductInput } from "@/lib/validators/product";
 import { ResponsiveCatalogFrame } from "@/components/templates/ResponsiveCatalogFrame";
+import { isOfficial } from "@/lib/images/origin";
 
 type ProductLivePreviewProps = {
   categories: CategoryOption[];
@@ -31,8 +32,10 @@ export function ProductLivePreview({ categories, cuts, images, product }: Produc
         </div>
         <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-navy">En vivo</span>
       </div>
-      <ResponsiveCatalogFrame maxScale={0.42}>
-        <ProductPageTemplate
+      <div className="relative">
+        {!isOfficial(images) ? <span className="absolute right-3 top-3 z-10 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900 shadow-sm">Foto no oficial</span> : null}
+        <ResponsiveCatalogFrame maxScale={0.42}>
+          <ProductPageTemplate
           product={{
             boxWeight: product.box_weight,
             brand: product.brand,
@@ -53,8 +56,9 @@ export function ProductLivePreview({ categories, cuts, images, product }: Produc
             units: product.units,
           }}
           scale={1}
-        />
-      </ResponsiveCatalogFrame>
+          />
+        </ResponsiveCatalogFrame>
+      </div>
       <p className="mt-3 text-xs leading-5 text-ink/50">Las vistas aprobadas aparecen automáticamente en esta ficha.</p>
     </aside>
   );
