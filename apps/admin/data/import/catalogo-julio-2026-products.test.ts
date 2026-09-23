@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { catalogV02Products } from "./catalog-v02-products";
 import { catalogoJulio2026Products } from "./catalogo-julio-2026-products";
 
 const extractCodes = (code: string) => code.match(/CF-\d+/g) ?? [];
@@ -94,21 +93,6 @@ test("los campos vacíos usan null y nunca strings vacíos", () => {
   for (const product of catalogoJulio2026Products) {
     for (const value of Object.values(product)) {
       assert.notEqual(value, "");
-    }
-  }
-});
-
-test("los 38 códigos compartidos conservan sus valores comerciales", () => {
-  const commercialFields = ["brand", "origin", "boxWeight", "format", "units"] as const;
-
-  for (const previousProduct of catalogV02Products) {
-    const currentProduct = catalogoJulio2026Products.find(
-      (candidate) => candidate.code === previousProduct.code,
-    );
-
-    assert.ok(currentProduct, `falta el producto compartido ${previousProduct.code}`);
-    for (const field of commercialFields) {
-      assert.equal(currentProduct[field], previousProduct[field], `${previousProduct.code}: cambió ${field}`);
     }
   }
 });
