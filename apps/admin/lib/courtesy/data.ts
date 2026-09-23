@@ -53,7 +53,7 @@ async function mapRows(rows: CourtesyRow[]): Promise<CourtesyRequestItem[]> {
 }
 
 export async function listCourtesyRequests(input: unknown): Promise<CourtesyListResult> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "commercial"]);
   const filters = courtesyFiltersSchema.parse(input);
   const from = (filters.page - 1) * COURTESY_PAGE_SIZE;
   let query = createAdminClient()
@@ -87,7 +87,7 @@ export async function listCourtesyRequests(input: unknown): Promise<CourtesyList
 }
 
 export async function listAllCourtesyRequests(): Promise<CourtesyRequestItem[]> {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "commercial"]);
   const batchSize = 1000;
   const rows: CourtesyRow[] = [];
 

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { parseEmailList, representativeCc } from "./senders";
+import { courtesyNotificationRecipients, parseEmailList, representativeCc } from "./senders";
 
 test("EMAIL_INTERNAL_TO acepta listas separadas por coma, punto y coma o espacios", () => {
   assert.deepEqual(
@@ -26,4 +26,15 @@ test("el CC de vendedores no repite correos ni incluye al destinatario principal
     "cliente@empresa.cl",
   );
   assert.deepEqual(cc, ["purbina@tdcarnes.cl", "fsalinas@tdcarnes.cl"]);
+});
+
+test("las solicitudes de cortesía incluyen siempre a amolina sin duplicarlo", () => {
+  assert.deepEqual(
+    courtesyNotificationRecipients(["frecabarren@tdcarnes.cl"]),
+    ["frecabarren@tdcarnes.cl", "amolina@tdcarnes.cl"],
+  );
+  assert.deepEqual(
+    courtesyNotificationRecipients(["amolina@tdcarnes.cl", "rjz@tdcarnes.cl"]),
+    ["amolina@tdcarnes.cl", "rjz@tdcarnes.cl"],
+  );
 });

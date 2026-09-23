@@ -87,7 +87,7 @@ export function ProcessMedia() {
           <h2 className="mt-4 text-3xl sm:text-4xl">¿Lo que necesitas no existe en un catálogo?</h2>
           <p className="mt-4 max-w-2xl leading-7 text-blue-50/80">Desarrollamos soluciones según las necesidades reales de cada operación.</p>
           <div aria-live="polite" className="mt-12">
-            <p className="text-5xl font-bold leading-none sm:text-6xl lg:text-7xl">{activeProcess.title}</p>
+            <p className="break-words text-[32px] font-bold leading-none sm:text-6xl lg:text-7xl">{activeProcess.title}</p>
             <p className="mt-5 max-w-xl text-lg leading-7 text-blue-50">{activeProcess.description}</p>
           </div>
         </div>
