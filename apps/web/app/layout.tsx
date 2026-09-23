@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { PlausibleAnalytics } from "@/components/analytics/PlausibleAnalytics";
 import "./globals.css";
 
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="es-CL">
-      <body><a href="#contenido" className="skip-link">Saltar al contenido</a>{children}<PlausibleAnalytics /></body>
+      <body><a href="#contenido" className="skip-link">Saltar al contenido</a>{children}<PlausibleAnalytics /><Analytics /></body>
     </html>
   );
 }
