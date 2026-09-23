@@ -22,7 +22,7 @@ const dateFormatter = new Intl.DateTimeFormat("es-CL", {
 });
 
 export default async function CourtesyRequestsPage({ searchParams }: { searchParams: SearchParams }) {
-  await requireRole(["admin"]);
+  await requireRole(["admin", "commercial"]);
   const params = await searchParams;
   const result = await listCourtesyRequests(params);
 
