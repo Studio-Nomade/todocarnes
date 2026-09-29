@@ -29,7 +29,7 @@ export type CategoryProductEntry = { cut: string; id: string; title: string };
 
 export type CatalogPageSpec =
   | { kind: "cover"; pageNumber: number }
-  | { kind: "index"; pageNumber: number; entries: IndexEntry[] }
+  | { kind: "index"; pageNumber: number; entries: IndexEntry[]; includePackaging: boolean }
   | { kind: "services"; pageNumber: number; services: CatalogService[] }
   | { kind: "packaging"; pageNumber: number }
   | { kind: "divider"; pageNumber: number; category: CategoryName; products: CategoryProductEntry[] }
@@ -76,7 +76,12 @@ function distinctCuts(products: CatalogProduct[]): string[] {
  * corte agrupa visualmente vía el separador y la sub-nav, no el orden.
  * El número de página se asigna en este recorrido.
  */
-export function buildPages(products: CatalogProduct[], services: CatalogService[] = []): CatalogPageSpec[] {
+export function buildPages(
+  products: CatalogProduct[],
+  services: CatalogService[] = [],
+  options: { includePackaging?: boolean } = {},
+): CatalogPageSpec[] {
+  const includePackaging = options.includePackaging ?? true;
   // Agrupar por categoría, preservando el sort_order de la categoría.
   const byCategory = new Map<CategoryName, CatalogProduct[]>();
   for (const product of products) {
@@ -102,10 +107,12 @@ export function buildPages(products: CatalogProduct[], services: CatalogService[
   type Unnumbered = CatalogPageSpec extends infer T ? (T extends T ? Omit<T, "pageNumber"> : never) : never;
   const specs: Unnumbered[] = [
     { kind: "cover" },
-    { kind: "index", entries },
+    { kind: "index", entries, includePackaging },
     { kind: "services", services },
-    { kind: "packaging" },
   ];
+  if (includePackaging) {
+    specs.push({ kind: "packaging" });
+  }
 
   for (const [category, group] of orderedCategories) {
     const categoryCuts = distinctCuts(group);

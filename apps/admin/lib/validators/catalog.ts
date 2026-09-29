@@ -3,6 +3,7 @@ import { z } from "zod";
 const currentYear = new Date().getUTCFullYear();
 
 export const catalogSchema = z.object({
+  includePackaging: z.boolean().default(true),
   title: z.string().trim().min(1, "Ingresa un título.").max(160),
   month: z.coerce.number().int().min(1, "Elige un mes.").max(12),
   year: z.coerce.number().int().min(2024).max(currentYear + 2),

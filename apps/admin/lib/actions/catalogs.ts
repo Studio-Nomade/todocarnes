@@ -22,9 +22,10 @@ export async function createCatalog(input: unknown): Promise<CatalogMutationResu
   }
 
   const admin = createAdminClient();
+  const { includePackaging, ...catalog } = parsed.data;
   const result = await admin
     .from("catalogs")
-    .insert({ ...parsed.data, created_by: profile.id, status: "draft" })
+    .insert({ ...catalog, created_by: profile.id, include_packaging: includePackaging, status: "draft" })
     .select("id")
     .single();
   const created = idResultSchema.safeParse(result.data);
@@ -45,9 +46,10 @@ export async function updateCatalog(id: unknown, input: unknown): Promise<Catalo
   }
 
   const admin = createAdminClient();
+  const { includePackaging, ...catalog } = parsed.data;
   const result = await admin
     .from("catalogs")
-    .update({ ...parsed.data, updated_at: new Date().toISOString() })
+    .update({ ...catalog, include_packaging: includePackaging, updated_at: new Date().toISOString() })
     .eq("id", parsedId.data)
     .select("id")
     .single();

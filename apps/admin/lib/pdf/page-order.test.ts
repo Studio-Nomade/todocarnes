@@ -37,6 +37,21 @@ test("catálogo vacío: incluye portada, índice, servicios, maquila y cierre", 
   assert.equal(index.kind === "index" && index.entries.length, 0);
 });
 
+test("omite maquila y su acceso en el índice cuando el catálogo lo desactiva", () => {
+  const pages = buildPages([], [], { includePackaging: false });
+  assert.deepEqual(
+    pages.map((page) => page.kind),
+    ["cover", "index", "services", "closing"],
+  );
+  assert.deepEqual(
+    pages.map((page) => page.pageNumber),
+    [1, 2, 3, 4],
+  );
+  const index = pages[1];
+  assert.ok(index.kind === "index");
+  assert.equal(index.includePackaging, false);
+});
+
 test("una categoría: portada, índice, separador, fichas, cierre en orden", () => {
   const pages = buildPages([
     product({ id: "a", cut: "Costillar", cutSortOrder: 0, title: "A" }),

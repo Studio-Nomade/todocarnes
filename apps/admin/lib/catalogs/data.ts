@@ -13,6 +13,7 @@ const catalogRowSchema = z.object({
   client_logo_path: z.string().nullable(),
   client_name: z.string().nullable(),
   id: z.string().uuid(),
+  include_packaging: z.boolean(),
   title: z.string(),
   month: z.number().int(),
   year: z.number().int(),
@@ -53,7 +54,7 @@ export async function listCatalogs(): Promise<CatalogRecord[]> {
   const admin = createAdminClient();
   const result = await admin
     .from("catalogs")
-    .select("id,title,month,year,status,client_name,client_logo_path,updated_at,catalog_items(count)")
+    .select("id,title,month,year,status,client_name,client_logo_path,include_packaging,updated_at,catalog_items(count)")
     .order("year", { ascending: false })
     .order("month", { ascending: false });
   if (result.error) {
@@ -68,6 +69,7 @@ export async function listCatalogs(): Promise<CatalogRecord[]> {
     clientLogoUrl: null,
     clientName: row.client_name,
     id: row.id,
+    includePackaging: row.include_packaging,
     itemCount: row.catalog_items[0]?.count ?? 0,
     month: row.month,
     status: toStatus(row.status),
@@ -81,7 +83,7 @@ export async function getCatalog(id: string): Promise<CatalogRecord | null> {
   const admin = createAdminClient();
   const result = await admin
     .from("catalogs")
-    .select("id,title,month,year,status,client_name,client_logo_path,updated_at,catalog_items(count)")
+    .select("id,title,month,year,status,client_name,client_logo_path,include_packaging,updated_at,catalog_items(count)")
     .eq("id", id)
     .maybeSingle();
   if (result.error) {
@@ -101,6 +103,7 @@ export async function getCatalog(id: string): Promise<CatalogRecord | null> {
     clientLogoUrl: signedLogo?.data?.signedUrl ?? null,
     clientName: row.client_name,
     id: row.id,
+    includePackaging: row.include_packaging,
     itemCount: row.catalog_items[0]?.count ?? 0,
     month: row.month,
     status: toStatus(row.status),

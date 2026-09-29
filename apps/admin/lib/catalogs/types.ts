@@ -5,6 +5,7 @@ export type CatalogRecord = {
   clientLogoUrl: string | null;
   clientName: string | null;
   id: string;
+  includePackaging: boolean;
   title: string;
   month: number;
   year: number;
