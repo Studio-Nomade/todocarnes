@@ -32,7 +32,7 @@ export default async function PrintPage({ params, searchParams }: PrintPageProps
     getCatalogProducts(catalogId),
     getServices(true),
   ]);
-  const pages = buildPages(products, services);
+  const pages = buildPages(products, services, { includePackaging: catalog.includePackaging });
 
   return (
     <>

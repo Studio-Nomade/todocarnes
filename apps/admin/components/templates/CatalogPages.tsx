@@ -32,7 +32,7 @@ function renderPage(page: CatalogPageSpec, meta: CatalogMeta, period: string, sc
     case "cover":
       return <CatalogCover month={meta.month} scale={scale} title={meta.title} year={meta.year} />;
     case "index":
-      return <CatalogIndex entries={page.entries} month={meta.month} pageNumber={page.pageNumber} scale={scale} year={meta.year} />;
+      return <CatalogIndex entries={page.entries} includePackaging={page.includePackaging} month={meta.month} pageNumber={page.pageNumber} scale={scale} year={meta.year} />;
     case "services":
       return <CatalogServices month={meta.month} pageNumber={page.pageNumber} scale={scale} services={page.services} year={meta.year} />;
     case "packaging":

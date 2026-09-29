@@ -24,7 +24,7 @@ export default async function CatalogPreviewPage({ params }: PreviewPageProps) {
     notFound();
   }
 
-  const pages = buildPages(products, services);
+  const pages = buildPages(products, services, { includePackaging: catalog.includePackaging });
   const meta = {
     clientLogoUrl: catalog.clientLogoUrl,
     clientName: catalog.clientName,
