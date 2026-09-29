@@ -16,6 +16,7 @@ export function CatalogCreateForm() {
   const [title, setTitle] = useState("");
   const [month, setMonth] = useState(now.getUTCMonth() + 1);
   const [year, setYear] = useState(now.getUTCFullYear());
+  const [includePackaging, setIncludePackaging] = useState(true);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -23,7 +24,7 @@ export function CatalogCreateForm() {
     event.preventDefault();
     setError("");
     startTransition(async () => {
-      const result = await createCatalog({ month, title, year });
+      const result = await createCatalog({ includePackaging, month, title, year });
       if (!result.success) {
         setError(result.error);
         return;
@@ -53,6 +54,18 @@ export function CatalogCreateForm() {
             <option key={value} value={value}>{value}</option>
           ))}
         </select>
+      </label>
+      <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-ink/10 bg-gray-50 px-4 py-3 text-sm text-navy lg:col-span-3">
+        <input
+          checked={includePackaging}
+          className="mt-0.5 h-4 w-4 rounded border-ink/25 text-blue focus:ring-blue/30"
+          onChange={(event) => setIncludePackaging(event.target.checked)}
+          type="checkbox"
+        />
+        <span>
+          <span className="block font-semibold">Incluir Maquila de envasados</span>
+          <span className="mt-0.5 block text-xs font-normal text-ink/55">Añade el acceso en el índice y la diapositiva de envases personalizados.</span>
+        </span>
       </label>
       <button className="admin-button-primary h-11" disabled={isPending} type="submit">
         {isPending ? "Creando…" : "Crear catálogo"}

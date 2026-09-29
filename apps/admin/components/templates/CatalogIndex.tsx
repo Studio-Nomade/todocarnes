@@ -5,13 +5,14 @@ import { CategoryIcon } from "./parts/CategoryIcon";
 
 type CatalogIndexProps = {
   entries: IndexEntry[];
+  includePackaging: boolean;
   month: number;
   year: number;
   pageNumber: number;
   scale?: number;
 };
 
-export function CatalogIndex({ entries, month, year, pageNumber, scale }: CatalogIndexProps) {
+export function CatalogIndex({ entries, includePackaging, month, year, pageNumber, scale }: CatalogIndexProps) {
   return (
     <CatalogPage id="indice" scale={scale}>
       <div className="absolute inset-0 bg-white" />
@@ -24,7 +25,9 @@ export function CatalogIndex({ entries, month, year, pageNumber, scale }: Catalo
 
       <div className="absolute left-[120px] right-[120px] top-[270px] grid grid-cols-2 gap-x-12 gap-y-6">
         <IndexLink description="Capacidades y soluciones comerciales" href="#servicios" title="Servicios" />
-        <IndexLink description="Envases personalizados para tu marca" href="#maquila-envasados" title="Maquila de envasados" />
+        {includePackaging ? (
+          <IndexLink description="Envases personalizados para tu marca" href="#maquila-envasados" title="Maquila de envasados" />
+        ) : null}
         {entries.map((entry) => (
           <a className="flex gap-5 rounded-2xl p-3 transition hover:bg-blue-50" href={`#${categoryAnchor(entry.category)}`} key={entry.category}>
             <div className="flex h-[64px] w-[72px] shrink-0 items-center justify-center rounded-2xl bg-navy">

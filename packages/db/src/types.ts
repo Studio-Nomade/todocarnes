@@ -244,6 +244,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          include_packaging: boolean
           month: number
           status: string
           title: string
@@ -256,6 +257,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          include_packaging?: boolean
           month: number
           status?: string
           title: string
@@ -268,6 +270,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          include_packaging?: boolean
           month?: number
           status?: string
           title?: string
