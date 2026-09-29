@@ -74,7 +74,7 @@ export function ProductPageTemplate({
     <CatalogPage id={productId ? productAnchor(productId) : undefined} scale={scale}>
       <CatalogHeader activeCategory={product.category} activeCut={product.cut} cuts={product.cuts} />
       <div className="absolute left-0 top-[155px] h-[605px] w-[469px] bg-gray-50" />
-      <Image alt={product.title} className="absolute left-[469px] top-[155px] h-[425px] w-[971px] object-cover" height={700} priority={eagerImages} src={product.mainImage} width={1200} />
+      <Image alt={product.title} className="absolute left-[469px] top-[155px] h-[425px] w-[971px] bg-white object-contain" height={700} priority={eagerImages} src={product.mainImage} width={1200} />
       {product.secondaryImages.map((src, index) => (
         <Image
           alt={`Vista secundaria ${index + 1} de ${product.title}`}
