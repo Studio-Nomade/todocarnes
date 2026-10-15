@@ -15,6 +15,7 @@ export const navigationGroups: NavigationGroup[] = [
   { label: "Catálogo", items: [
     { href: "/catalogs", label: "Generador", roles: allRoles },
     { href: "/products", label: "Productos", roles: allRoles },
+    { href: "/products/cortes", label: "Categorías y cortes", roles: allRoles },
     { href: "/services", label: "Servicios", roles: allRoles },
   ] },
   { label: "Administración", items: [
@@ -28,5 +29,8 @@ export function navigationForRole(role: Role): NavigationGroup[] {
 }
 
 export function isNavigationItemActive(pathname: string, href: string): boolean {
+  if (href === "/products" && pathname.startsWith("/products/cortes")) {
+    return false;
+  }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
