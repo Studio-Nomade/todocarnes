@@ -17,7 +17,7 @@ export type CatalogRecord = {
 export type CatalogItemProduct = {
   productId: string;
   itemSortOrder: number;
-  category: "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
+  category: "Cerdo" | "Pollo" | "Vacuno" | "Trimming" | "Don Pancho";
   cut: string;
   title: string;
   status: "draft" | "active" | "inactive";

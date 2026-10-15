@@ -3,7 +3,7 @@ import type { ProductImageRecord } from "@/lib/images/types";
 
 export type CategoryOption = {
   id: string;
-  name: "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
+  name: "Cerdo" | "Pollo" | "Vacuno" | "Trimming" | "Don Pancho";
   slug: string;
   sort_order: number;
 };

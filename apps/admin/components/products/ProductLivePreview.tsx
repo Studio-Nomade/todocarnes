@@ -1,4 +1,4 @@
-import { ProductPageTemplate } from "@/components/templates/ProductPageTemplate";
+import { productTemplateFor } from "@/components/templates/productTemplateFor";
 import type { CategoryOption, CutOption } from "@/lib/products/types";
 import type { ProductImageRecord } from "@/lib/images/types";
 import type { ProductInput } from "@/lib/validators/product";
@@ -25,6 +25,7 @@ export function ProductLivePreview({ categories, cuts, images, product }: Produc
   const secondaryImages = (["secondary_1", "secondary_2", "secondary_3"] as const)
     .map(approvedUrl)
     .filter((url): url is string => Boolean(url));
+  const ProductTemplate = productTemplateFor(category);
 
   return (
     <aside className="lg:sticky lg:top-6 lg:self-start">
@@ -38,7 +39,7 @@ export function ProductLivePreview({ categories, cuts, images, product }: Produc
       <div className="relative">
         {!isOfficial(images) ? <span className="absolute right-3 top-3 z-10 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900 shadow-sm">Foto no oficial</span> : null}
         <ResponsiveCatalogFrame maxScale={0.42}>
-          <ProductPageTemplate
+          <ProductTemplate
           product={{
             availableSoon: product.available_soon,
             boxWeight: product.box_weight,
@@ -54,6 +55,7 @@ export function ProductLivePreview({ categories, cuts, images, product }: Produc
             secondaryImages,
             title: product.title,
             units: product.units,
+            uses: product.uses,
           }}
           scale={1}
           />

@@ -1,11 +1,11 @@
 import Image from "next/image";
 import { catalogPeriod } from "@/lib/catalogs/format";
-import { categoryAnchor, productAnchor, type CategoryProductEntry } from "@/lib/pdf/page-order";
+import { categoryAnchor, productAnchor, type CategoryName, type CategoryProductEntry } from "@/lib/pdf/page-order";
 import { CatalogPage } from "./CatalogPage";
 import { CategoryIcon } from "./parts/CategoryIcon";
 
 type CategoryDividerProps = {
-  category: "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
+  category: CategoryName;
   products: CategoryProductEntry[];
   month: number;
   year: number;

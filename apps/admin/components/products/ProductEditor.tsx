@@ -32,7 +32,7 @@ export function ProductEditor({
   function updateField<Key extends keyof ProductInput>(key: Key, value: ProductInput[Key]) {
     setProduct((current) => {
       if (key === "category_id" && value !== current.category_id) {
-        return { ...current, category_id: String(value), cut_id: "" };
+        return { ...current, category_id: String(value), cut_id: "", uses: [] };
       }
       return { ...current, [key]: value };
     });

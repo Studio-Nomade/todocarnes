@@ -24,7 +24,7 @@ const roles = ["admin", "commercial"] as const;
 
 const categorySchema = z.object({
   id: z.string().uuid(),
-  name: z.enum(["Cerdo", "Pollo", "Vacuno", "Trimming"]),
+  name: z.enum(["Cerdo", "Pollo", "Vacuno", "Trimming", "Don Pancho"]),
   slug: z.string(),
   sort_order: z.number(),
 });
@@ -50,6 +50,7 @@ const databaseProductSchema = productSchema.extend({
   notes: productSchema.shape.notes.nullable().transform((value) => value ?? ""),
   origin: productSchema.shape.origin.nullable().transform((value) => value ?? ""),
   units: productSchema.shape.units.nullable().transform((value) => value ?? ""),
+  uses: productSchema.shape.uses.default([]),
   updated_at: z.string(),
 });
 
@@ -66,12 +67,13 @@ const nullableFields = [
 ] as const;
 
 function databasePayload(input: ProductInput) {
-  const payload: Record<string, string | boolean | null> = {
+  const payload: Record<string, string | string[] | boolean | null> = {
     available_soon: input.available_soon,
     category_id: input.category_id,
     cut_id: input.cut_id,
     status: input.status,
     title: input.title,
+    uses: input.uses,
   };
 
   for (const field of nullableFields) {

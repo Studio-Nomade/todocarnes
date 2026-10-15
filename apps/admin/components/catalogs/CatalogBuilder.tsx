@@ -15,7 +15,7 @@ import {
 import type { CatalogItemProduct } from "@/lib/catalogs/types";
 import { CatalogCategoryCard } from "./CatalogCategoryCard";
 
-const CATEGORY_ORDER = ["Cerdo", "Pollo", "Vacuno", "Trimming"] as const;
+const CATEGORY_ORDER = ["Cerdo", "Pollo", "Vacuno", "Trimming", "Don Pancho"] as const;
 type AvailableProduct = {
   id: string;
   title: string;

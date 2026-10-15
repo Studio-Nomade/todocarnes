@@ -18,6 +18,7 @@ const emptyProduct: ProductInput = {
   status: "draft",
   title: "",
   units: "",
+  uses: [],
 };
 
 export default async function NewProductPage() {
