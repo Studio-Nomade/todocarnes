@@ -29,7 +29,9 @@ export default async function CatalogBuilderPage({ params }: BuilderPageProps) {
     .filter((product) => product.status === "active" && !selectedIds.has(product.id))
     .map((product) => ({
       category: product.category.name,
+      categorySortOrder: product.category.sort_order,
       cut: product.cut.name,
+      cutSortOrder: product.cut.sort_order,
       hasMainImage: product.hasMainImage,
       id: product.id,
       imageCount: product.imageCount,
