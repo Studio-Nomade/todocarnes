@@ -109,11 +109,11 @@ export function CatalogCategoryCard({
                 <p className="text-xs text-ink/55">{item.cut}</p>
               </div>
               <span className={`w-fit shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
-                item.hasApprovedImages
-                  ? "bg-emerald-50 text-emerald-700"
-                  : "bg-amber-50 text-amber-700"
+                item.hasMainImage
+                  ? "bg-gray-100 text-ink/65"
+                  : "bg-red-50 text-red-700"
               }`}>
-                {item.hasApprovedImages ? "4 imágenes" : "sin imágenes"}
+                {item.hasMainImage ? `${item.imageCount} de 4 fotos` : "Sin foto principal"}
               </span>
               <button
                 className="justify-self-end text-xs font-semibold text-red-700 hover:underline disabled:opacity-50 sm:shrink-0"

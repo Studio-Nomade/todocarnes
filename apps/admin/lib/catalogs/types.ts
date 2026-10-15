@@ -21,7 +21,8 @@ export type CatalogItemProduct = {
   cut: string;
   title: string;
   status: "draft" | "active" | "inactive";
-  hasApprovedImages: boolean;
+  hasMainImage: boolean;
+  imageCount: number;
 };
 
 export type CatalogMutationResult =

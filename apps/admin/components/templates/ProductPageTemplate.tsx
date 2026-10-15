@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { productAnchor } from "@/lib/pdf/page-order";
+import { secondaryLayout } from "@/lib/pdf/secondary-layout";
 import { CatalogPage } from "./CatalogPage";
 import { CatalogHeader } from "./parts/CatalogHeader";
 import { ProductFieldRow } from "./parts/ProductFieldRow";
@@ -22,7 +23,7 @@ export type ProductPageData = {
   format?: string | null;
   units?: string | null;
   mainImage: string;
-  secondaryImages: [string, string, string];
+  secondaryImages: string[];
 };
 
 type ProductPageTemplateProps = {
@@ -69,12 +70,14 @@ export function ProductPageTemplate({
     units: product.units,
   };
   const multipleVariants = hasMultipleVariants(variantValues);
+  const secondaryPositions = secondaryLayout(product.secondaryImages.length as 0 | 1 | 2 | 3);
+  const mainImageHeight = product.secondaryImages.length === 0 ? "h-[605px]" : "h-[425px]";
 
   return (
     <CatalogPage id={productId ? productAnchor(productId) : undefined} scale={scale}>
       <CatalogHeader activeCategory={product.category} activeCut={product.cut} cuts={product.cuts} />
       <div className="absolute left-0 top-[155px] h-[605px] w-[469px] bg-gray-50" />
-      <Image alt={product.title} className="absolute left-[469px] top-[155px] h-[425px] w-[971px] bg-white object-contain" height={700} priority={eagerImages} src={product.mainImage} width={1200} />
+      <Image alt={product.title} className={`absolute left-[469px] top-[155px] w-[971px] bg-white object-contain ${mainImageHeight}`} height={700} priority={eagerImages} src={product.mainImage} width={1200} />
       {product.secondaryImages.map((src, index) => (
         <Image
           alt={`Vista secundaria ${index + 1} de ${product.title}`}
@@ -83,7 +86,7 @@ export function ProductPageTemplate({
           key={`${src}-${index}`}
           priority={eagerImages}
           src={src}
-          style={{ left: [510, 802, 1094][index] }}
+          style={{ left: secondaryPositions[index]?.left }}
           width={1200}
         />
       ))}

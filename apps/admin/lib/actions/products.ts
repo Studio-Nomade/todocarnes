@@ -100,6 +100,7 @@ function parseProductRows(
   categories: CategoryOption[],
   cuts: CutOption[],
   mainImageByProduct = new Map<string, string>(),
+  imageCountByProduct = new Map<string, number>(),
 ): ProductRecord[] {
   const products = z.array(databaseProductSchema).parse(rows);
   const categoryById = new Map(categories.map((category) => [category.id, category]));
@@ -117,6 +118,8 @@ function parseProductRows(
       ...product,
       category,
       cut,
+      hasMainImage: mainImageByProduct.has(product.id),
+      imageCount: imageCountByProduct.get(product.id) ?? 0,
       mainImageUrl: mainImageByProduct.get(product.id) ?? null,
     };
   });
@@ -265,28 +268,34 @@ export async function listProducts(filters: unknown = {}): Promise<ProductListRe
   const imageResult = productIds.length
     ? await admin
         .from("product_images")
-        .select("product_id,storage_path")
+        .select("product_id,slot,storage_path")
         .in("product_id", productIds)
-        .eq("slot", "main")
         .eq("status", "approved")
     : { data: [], error: null };
   if (imageResult.error) {
     throw new Error("No se pudieron cargar las miniaturas de los productos.");
   }
   const imageRows = z.array(
-    z.object({ product_id: z.string().uuid(), storage_path: z.string().min(1) }),
+    z.object({ product_id: z.string().uuid(), slot: z.string(), storage_path: z.string().min(1) }),
   ).parse(imageResult.data);
   const mainImageByProduct = new Map(
-    imageRows.map((image) => [
+    imageRows.filter((image) => image.slot === "main").map((image) => [
       image.product_id,
       admin.storage.from("product-images").getPublicUrl(image.storage_path).data.publicUrl,
     ]),
   );
+  const imageCountByProduct = new Map<string, number>();
+  for (const image of imageRows) {
+    if (["main", "secondary_1", "secondary_2", "secondary_3"].includes(image.slot)) {
+      imageCountByProduct.set(image.product_id, (imageCountByProduct.get(image.product_id) ?? 0) + 1);
+    }
+  }
   const allProducts = parseProductRows(
     productResult.data,
     categories,
     cuts,
     mainImageByProduct,
+    imageCountByProduct,
   );
   const query = parsedFilters.q.toLocaleLowerCase("es");
   const products = allProducts.filter((product) => {

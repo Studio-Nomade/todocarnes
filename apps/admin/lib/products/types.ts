@@ -20,7 +20,9 @@ export type ProductRecord = ProductInput & {
   category: CategoryOption;
   created_at: string;
   cut: CutOption;
+  hasMainImage: boolean;
   id: string;
+  imageCount: number;
   mainImageUrl: string | null;
   status: ProductStatus;
   updated_at: string;

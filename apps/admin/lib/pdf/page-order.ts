@@ -20,7 +20,7 @@ export type CatalogProduct = {
   format: string | null;
   units: string | null;
   mainImage: string;
-  secondaryImages: [string, string, string];
+  secondaryImages: string[];
 };
 
 export type IndexEntry = { category: CategoryName; cuts: string[] };
