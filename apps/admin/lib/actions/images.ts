@@ -6,8 +6,9 @@ import { z } from "zod";
 import { requireRole } from "@/lib/auth/requireRole";
 import { assertWithinDailyLimit } from "@/lib/images/daily-limit";
 import { ImageGenerationError } from "@/lib/images/errors";
+import { IMAGE_ENGINE_UNAVAILABLE } from "@/lib/images/config";
 import { buildPrompt } from "@/lib/images/prompt-builder";
-import { getImageProvider } from "@/lib/images/provider";
+import { getImageGenerationAvailability, getImageProvider } from "@/lib/images/provider";
 import { allImageSlotSchema, imageSlotSchema, type ProductImageSlot } from "@/lib/images/slots";
 import type { ImageMutationResult } from "@/lib/images/types";
 import { validateAndConvertImage } from "@/lib/images/upload";
@@ -137,7 +138,6 @@ export async function uploadSourceImage(
   if (!parsed.success) {
     return { error: "Selecciona una imagen JPG, PNG o WebP.", success: false };
   }
-
   try {
     const buffer = await validateAndConvertImage(parsed.data.file);
     const id = await storeImage({
@@ -192,6 +192,9 @@ export async function generateProductImage(
   const parsed = generationSchema.safeParse({ productId, slot });
   if (!parsed.success) {
     return { error: "El producto o el slot no son válidos.", success: false };
+  }
+  if (!getImageGenerationAvailability().enabled) {
+    return { error: IMAGE_ENGINE_UNAVAILABLE, success: false };
   }
 
   const admin = createAdminClient();

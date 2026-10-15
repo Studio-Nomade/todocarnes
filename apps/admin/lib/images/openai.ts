@@ -2,10 +2,10 @@ import "server-only";
 
 import OpenAI, { toFile } from "openai";
 import sharp from "sharp";
+import { resolveImageModel } from "./config";
 import { ImageGenerationError, humanizeOpenAIError, openAIErrorLog } from "./errors";
 import type { ImageProvider } from "./provider";
 
-const MODEL = "gpt-image-1";
 const REQUEST_TIMEOUT_MS = 100_000;
 
 function openAIClient(): OpenAI {
@@ -25,7 +25,7 @@ export async function getOpenAIConnectionStatus(): Promise<boolean> {
     return false;
   }
   try {
-    await openAIClient().models.retrieve(MODEL, { timeout: 8_000 });
+    await openAIClient().models.retrieve(resolveImageModel(), { timeout: 8_000 });
     return true;
   } catch {
     return false;
@@ -34,6 +34,7 @@ export async function getOpenAIConnectionStatus(): Promise<boolean> {
 
 export class OpenAIImageProvider implements ImageProvider {
   async generate({ prompt, sourceImage }: Parameters<ImageProvider["generate"]>[0]) {
+    const model = resolveImageModel();
     if (!sourceImage) {
       throw new ImageGenerationError(
         "Sube una imagen fuente antes de generar.",
@@ -45,7 +46,7 @@ export class OpenAIImageProvider implements ImageProvider {
       const response = await openAIClient().images.edit({
         image: await toFile(sourceImage, "source.webp", { type: "image/webp" }),
         input_fidelity: "high",
-        model: MODEL,
+        model,
         output_compression: 90,
         output_format: "webp",
         prompt,
@@ -62,7 +63,7 @@ export class OpenAIImageProvider implements ImageProvider {
         .webp({ quality: 90 })
         .toBuffer();
 
-      return { buffer, model: MODEL };
+      return { buffer, model };
     } catch (error: unknown) {
       if (error instanceof ImageGenerationError) {
         throw error;
@@ -70,7 +71,7 @@ export class OpenAIImageProvider implements ImageProvider {
       throw new ImageGenerationError(
         humanizeOpenAIError(error),
         openAIErrorLog(error),
-        MODEL,
+        model,
       );
     }
   }
