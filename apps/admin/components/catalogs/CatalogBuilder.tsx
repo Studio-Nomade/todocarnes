@@ -15,7 +15,14 @@ import type { CatalogItemProduct } from "@/lib/catalogs/types";
 import { CatalogCategoryCard } from "./CatalogCategoryCard";
 
 const CATEGORY_ORDER = ["Cerdo", "Pollo", "Vacuno", "Trimming"] as const;
-type AvailableProduct = { id: string; title: string; category: string; cut: string };
+type AvailableProduct = {
+  id: string;
+  title: string;
+  category: string;
+  cut: string;
+  hasMainImage: boolean;
+  imageCount: number;
+};
 type CatalogBuilderProps = {
   catalogId: string;
   initialItems: CatalogItemProduct[];
@@ -94,7 +101,8 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
         {
           category: product.category as CatalogItemProduct["category"],
           cut: product.cut,
-          hasApprovedImages: false,
+          hasMainImage: product.hasMainImage,
+          imageCount: product.imageCount,
           itemSortOrder: maxOrder + 1,
           productId: product.id,
           status: "active",
@@ -119,7 +127,14 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
       if (removed) {
         setPool((current) => [
           ...current,
-          { category: removed.category, cut: removed.cut, id: removed.productId, title: removed.title },
+          {
+            category: removed.category,
+            cut: removed.cut,
+            hasMainImage: removed.hasMainImage,
+            id: removed.productId,
+            imageCount: removed.imageCount,
+            title: removed.title,
+          },
         ]);
       }
     });

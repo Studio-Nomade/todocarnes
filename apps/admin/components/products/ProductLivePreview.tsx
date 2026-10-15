@@ -21,7 +21,10 @@ export function ProductLivePreview({ categories, cuts, images, product }: Produc
     .filter((item) => item.category_id === product.category_id)
     .map((item) => item.name);
   const approvedUrl = (slot: ProductImageRecord["slot"]) =>
-    images.find((image) => image.slot === slot && image.status === "approved")?.url ?? placeholder;
+    images.find((image) => image.slot === slot && image.status === "approved")?.url;
+  const secondaryImages = (["secondary_1", "secondary_2", "secondary_3"] as const)
+    .map(approvedUrl)
+    .filter((url): url is string => Boolean(url));
 
   return (
     <aside className="lg:sticky lg:top-6 lg:self-start">
@@ -45,13 +48,9 @@ export function ProductLivePreview({ categories, cuts, images, product }: Produc
             cuts: categoryCuts,
             eyebrow: product.eyebrow,
             format: product.format,
-            mainImage: approvedUrl("main"),
+            mainImage: approvedUrl("main") ?? placeholder,
             origin: product.origin,
-            secondaryImages: [
-              approvedUrl("secondary_1"),
-              approvedUrl("secondary_2"),
-              approvedUrl("secondary_3"),
-            ],
+            secondaryImages,
             title: product.title,
             units: product.units,
           }}
