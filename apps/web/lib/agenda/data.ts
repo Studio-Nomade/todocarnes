@@ -40,7 +40,7 @@ export async function getAgendaPageData(): Promise<AgendaPageData> {
       id: eventResult.data.id,
       name: eventResult.data.name,
       location: eventResult.data.location ?? "Stand Todo Carnes — Feria Food & Service 2026",
-      days: eventResult.data.days,
+      days: eventResult.data.days ?? [],
       slotTimes: eventResult.data.slot_times,
       slotMinutes: eventResult.data.slot_minutes,
     },

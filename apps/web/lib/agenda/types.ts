@@ -2,6 +2,7 @@ import type { Database } from "@todocarnes/db";
 
 export type CommercialArea = Database["public"]["Enums"]["area_comercial"];
 export type ContactOrigin = Database["public"]["Enums"]["contact_origin"];
+export type BookingModality = "videollamada" | "oficina" | "visita";
 
 export type PublicRepresentative = {
   id: string;
@@ -22,6 +23,15 @@ export type AgendaEvent = {
   days: string[];
   slotTimes: string[];
   slotMinutes: number;
+};
+
+export type PermanentAgendaEvent = Omit<AgendaEvent, "days"> & {
+  blackoutDates: string[];
+  days: null;
+  horizonDays: number;
+  kind: "permanent";
+  minNoticeHours: number;
+  weekdays: number[];
 };
 
 export type AgendaSlot = {

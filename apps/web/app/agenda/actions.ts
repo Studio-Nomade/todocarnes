@@ -65,6 +65,7 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
     if (
       !rep ||
       !event ||
+      !event.days ||
       !event.days.includes(parsed.data.day) ||
       !event.slot_times.includes(normalizedTime)
     ) {
