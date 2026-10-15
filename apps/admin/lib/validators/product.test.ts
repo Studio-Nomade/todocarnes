@@ -16,10 +16,16 @@ const baseProduct = {
   status: "draft" as const,
   title: "Producto",
   units: "",
+  uses: [],
 };
 
 test("usa disponible pronto desactivado por defecto", () => {
   assert.equal(productSchema.parse(baseProduct).available_soon, false);
+});
+
+test("acepta usos sugeridos sin duplicados", () => {
+  assert.deepEqual(productSchema.parse({ ...baseProduct, uses: ["parrilla", "olla"] }).uses, ["parrilla", "olla"]);
+  assert.equal(productSchema.safeParse({ ...baseProduct, uses: ["parrilla", "parrilla"] }).success, false);
 });
 
 test("convierte filtros GET vacíos en valores opcionales", () => {

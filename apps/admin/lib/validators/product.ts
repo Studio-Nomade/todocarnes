@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PRODUCT_USES } from "@/lib/products/uses";
 
 const optionalText = (max: number) => z.string().trim().max(max);
 const optionalFilter = <Schema extends z.ZodType>(schema: Schema) =>
@@ -18,6 +19,10 @@ export const productSchema = z.object({
   box_weight: optionalText(240),
   format: optionalText(240),
   units: optionalText(240),
+  uses: z.array(z.enum(PRODUCT_USES)).default([]).refine(
+    (uses) => new Set(uses).size === uses.length,
+    "Los usos sugeridos no pueden repetirse.",
+  ),
   status: productStatusSchema.default("draft"),
   month_tag: optionalText(80),
   notes: optionalText(1000),

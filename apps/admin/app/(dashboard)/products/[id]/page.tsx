@@ -37,6 +37,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
     status: product.status,
     title: product.title,
     units: product.units,
+    uses: product.uses,
   };
 
   return (

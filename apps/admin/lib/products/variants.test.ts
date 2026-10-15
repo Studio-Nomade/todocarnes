@@ -23,6 +23,7 @@ const product = {
   status: "active",
   title: "Producto",
   units: "8 unidades",
+  uses: [],
 } satisfies ProductInput;
 
 test("descarta filas de variante completamente vacías al serializar", () => {

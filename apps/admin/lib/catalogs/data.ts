@@ -2,11 +2,12 @@ import "server-only";
 
 import { z } from "zod";
 import type { CatalogProduct } from "@/lib/pdf/page-order";
+import { PRODUCT_USES } from "@/lib/products/uses";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { CatalogItemProduct, CatalogRecord, CatalogStatus } from "./types";
 
 const placeholder = "/placeholders/product-placeholder.svg";
-const categoryName = z.enum(["Cerdo", "Pollo", "Vacuno", "Trimming"]);
+const categoryName = z.enum(["Cerdo", "Pollo", "Vacuno", "Trimming", "Don Pancho"]);
 const imageSlot = z.enum(["main", "secondary_1", "secondary_2", "secondary_3"]);
 
 const catalogRowSchema = z.object({
@@ -34,6 +35,7 @@ const itemRowSchema = z.object({
     box_weight: z.string().nullable(),
     format: z.string().nullable(),
     units: z.string().nullable(),
+    uses: z.array(z.enum(PRODUCT_USES)).default([]),
     status: z.enum(["draft", "active", "inactive"]),
     categories: z.object({ name: categoryName, sort_order: z.number().int() }),
     cuts: z.object({ name: z.string(), sort_order: z.number().int() }),
@@ -121,7 +123,7 @@ export async function getCatalogItems(catalogId: string): Promise<CatalogItemPro
     admin
       .from("catalog_items")
       .select(
-        "product_id,sort_order,products(title,eyebrow,code,brand,origin,box_weight,format,units,status,available_soon,categories(name,sort_order),cuts(name,sort_order))",
+        "product_id,sort_order,products(title,eyebrow,code,brand,origin,box_weight,format,units,uses,status,available_soon,categories(name,sort_order),cuts(name,sort_order))",
       )
       .eq("catalog_id", catalogId)
       .order("sort_order"),
@@ -149,7 +151,7 @@ export async function getCatalogProducts(catalogId: string): Promise<CatalogProd
   const itemsResult = await admin
     .from("catalog_items")
     .select(
-      "product_id,sort_order,products(title,eyebrow,code,brand,origin,box_weight,format,units,status,available_soon,categories(name,sort_order),cuts(name,sort_order))",
+      "product_id,sort_order,products(title,eyebrow,code,brand,origin,box_weight,format,units,uses,status,available_soon,categories(name,sort_order),cuts(name,sort_order))",
     )
     .eq("catalog_id", catalogId)
     .order("sort_order");
@@ -199,6 +201,7 @@ export async function getCatalogProducts(catalogId: string): Promise<CatalogProd
       .filter((url): url is string => Boolean(url)),
     title: item.products.title,
     units: item.products.units,
+    uses: item.products.uses,
   }));
 }
 

@@ -19,6 +19,7 @@ function product(overrides: Partial<CatalogProduct>): CatalogProduct {
     boxWeight: null,
     format: null,
     units: null,
+    uses: [],
     mainImage: "x",
     secondaryImages: ["x", "x", "x"],
   };
@@ -36,6 +37,11 @@ test("catálogo vacío: incluye portada, índice, servicios, maquila y cierre", 
   );
   const index = pages[1];
   assert.equal(index.kind === "index" && index.entries.length, 0);
+});
+
+test("normaliza el ancla de Don Pancho", async () => {
+  const { categoryAnchor } = await import("./page-order");
+  assert.equal(categoryAnchor("Don Pancho"), "categoria-don-pancho");
 });
 
 test("omite maquila y su acceso en el índice cuando el catálogo lo desactiva", () => {
@@ -87,6 +93,20 @@ test("categorías se ordenan por categorySortOrder", () => {
   assert.deepEqual(
     dividers.map((d) => (d.kind === "divider" ? d.category : "")),
     ["Cerdo", "Vacuno"],
+  );
+});
+
+test("ordena las cinco categorías y deja Don Pancho al final", () => {
+  const pages = buildPages([
+    product({ id: "dp", category: "Don Pancho", categorySortOrder: 4 }),
+    product({ id: "t", category: "Trimming", categorySortOrder: 3 }),
+    product({ id: "v", category: "Vacuno", categorySortOrder: 2 }),
+    product({ id: "p", category: "Pollo", categorySortOrder: 1 }),
+    product({ id: "c", category: "Cerdo", categorySortOrder: 0 }),
+  ]);
+  assert.deepEqual(
+    pages.filter((page) => page.kind === "divider").map((page) => page.kind === "divider" ? page.category : ""),
+    ["Cerdo", "Pollo", "Vacuno", "Trimming", "Don Pancho"],
   );
 });
 

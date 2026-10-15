@@ -1,6 +1,6 @@
 import type { CatalogItemProduct } from "@/lib/catalogs/types";
 
-const CATEGORY_ORDER = ["Cerdo", "Pollo", "Vacuno", "Trimming"] as const;
+const CATEGORY_ORDER = ["Cerdo", "Pollo", "Vacuno", "Trimming", "Don Pancho"] as const;
 
 export function sortCatalogItems(items: CatalogItemProduct[]): CatalogItemProduct[] {
   return [...items].sort((a, b) => {

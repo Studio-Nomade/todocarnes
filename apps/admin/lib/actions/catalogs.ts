@@ -13,6 +13,16 @@ import type { CatalogMutationResult } from "@/lib/catalogs/types";
 const roles = ["admin", "commercial"] as const;
 const idResultSchema = z.object({ id: z.string().uuid() });
 const clientNameSchema = z.string().trim().max(120);
+const activeProductSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string(),
+  categories: z.object({ sort_order: z.number().int() }),
+  cuts: z.object({ sort_order: z.number().int() }),
+});
+
+type AddAllActiveResult =
+  | { error: string; success: false }
+  | { added: number; success: true };
 
 export async function createCatalog(input: unknown): Promise<CatalogMutationResult> {
   const profile = await requireRole([...roles]);
@@ -140,6 +150,67 @@ export async function addProductToCatalog(
 
   revalidatePath(`/catalogs/${parsedCatalog.data}`);
   return { id: created.data.id, success: true };
+}
+
+export async function addAllActiveProductsToCatalog(
+  catalogId: unknown,
+): Promise<AddAllActiveResult> {
+  await requireRole([...roles]);
+  const parsedCatalog = catalogIdSchema.safeParse(catalogId);
+  if (!parsedCatalog.success) {
+    return { error: "El catálogo no es válido.", success: false };
+  }
+
+  const admin = createAdminClient();
+  const [productsResult, existingResult, maxResult] = await Promise.all([
+    admin
+      .from("products")
+      .select("id,title,categories(sort_order),cuts(sort_order)")
+      .eq("status", "active"),
+    admin.from("catalog_items").select("product_id").eq("catalog_id", parsedCatalog.data),
+    admin
+      .from("catalog_items")
+      .select("sort_order")
+      .eq("catalog_id", parsedCatalog.data)
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+  if (productsResult.error || existingResult.error || maxResult.error) {
+    return { error: "No se pudieron cargar los productos activos.", success: false };
+  }
+
+  const existingIds = new Set(
+    z.array(z.object({ product_id: z.string().uuid() })).parse(existingResult.data)
+      .map((item) => item.product_id),
+  );
+  const products = z.array(activeProductSchema).parse(productsResult.data)
+    .filter((product) => !existingIds.has(product.id))
+    .sort((left, right) =>
+      left.categories.sort_order - right.categories.sort_order ||
+      left.cuts.sort_order - right.cuts.sort_order ||
+      left.title.localeCompare(right.title, "es"),
+    );
+  if (products.length === 0) {
+    return { added: 0, success: true };
+  }
+
+  const maxOrder = z.object({ sort_order: z.number().int() }).safeParse(maxResult.data);
+  const firstOrder = (maxOrder.success ? maxOrder.data.sort_order : -1) + 1;
+  const result = await admin.from("catalog_items").upsert(
+    products.map((product, index) => ({
+      catalog_id: parsedCatalog.data,
+      product_id: product.id,
+      sort_order: firstOrder + index,
+    })),
+    { ignoreDuplicates: true, onConflict: "catalog_id,product_id" },
+  );
+  if (result.error) {
+    return { error: "No se pudieron agregar los productos activos.", success: false };
+  }
+
+  revalidatePath(`/catalogs/${parsedCatalog.data}`);
+  return { added: products.length, success: true };
 }
 
 export async function removeProductFromCatalog(

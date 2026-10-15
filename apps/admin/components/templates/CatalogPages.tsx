@@ -7,7 +7,7 @@ import { CatalogIndex } from "./CatalogIndex";
 import { CatalogPackaging } from "./CatalogPackaging";
 import { CatalogServices } from "./CatalogServices";
 import { CategoryDivider } from "./CategoryDivider";
-import { ProductPageTemplate } from "./ProductPageTemplate";
+import { productTemplateFor } from "./productTemplateFor";
 import { ResponsiveCatalogFrame } from "./ResponsiveCatalogFrame";
 
 type CatalogMeta = {
@@ -41,9 +41,10 @@ function renderPage(page: CatalogPageSpec, meta: CatalogMeta, period: string, sc
       return (
         <CategoryDivider category={page.category} month={meta.month} pageNumber={page.pageNumber} products={page.products} scale={scale} year={meta.year} />
       );
-    case "product":
+    case "product": {
+      const ProductTemplate = productTemplateFor(page.product.category);
       return (
-        <ProductPageTemplate
+        <ProductTemplate
           eagerImages={!scale}
           pageNumber={page.pageNumber}
           period={period}
@@ -63,10 +64,12 @@ function renderPage(page: CatalogPageSpec, meta: CatalogMeta, period: string, sc
             secondaryImages: page.product.secondaryImages,
             title: page.product.title,
             units: page.product.units,
+            uses: page.product.uses,
           }}
           scale={scale}
         />
       );
+    }
     case "closing":
       return <CatalogClosing month={meta.month} scale={scale} year={meta.year} />;
   }
