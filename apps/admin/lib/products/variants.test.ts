@@ -9,6 +9,7 @@ import {
 } from "./variants";
 
 const product = {
+  available_soon: false,
   box_weight: "8 KG",
   brand: "",
   category_id: "11111111-1111-4111-8111-111111111111",

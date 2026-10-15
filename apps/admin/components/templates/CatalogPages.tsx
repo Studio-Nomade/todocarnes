@@ -49,6 +49,7 @@ function renderPage(page: CatalogPageSpec, meta: CatalogMeta, period: string, sc
           period={period}
           productId={page.product.id}
           product={{
+            availableSoon: page.product.availableSoon,
             boxWeight: page.product.boxWeight,
             brand: page.product.brand,
             category: page.product.category,

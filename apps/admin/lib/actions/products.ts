@@ -38,6 +38,7 @@ const cutSchema = z.object({
 });
 
 const databaseProductSchema = productSchema.extend({
+  available_soon: z.boolean().default(false),
   box_weight: productSchema.shape.box_weight.nullable().transform((value) => value ?? ""),
   brand: productSchema.shape.brand.nullable().transform((value) => value ?? ""),
   code: productSchema.shape.code.nullable().transform((value) => value ?? ""),
@@ -65,7 +66,8 @@ const nullableFields = [
 ] as const;
 
 function databasePayload(input: ProductInput) {
-  const payload: Record<string, string | null> = {
+  const payload: Record<string, string | boolean | null> = {
+    available_soon: input.available_soon,
     category_id: input.category_id,
     cut_id: input.cut_id,
     status: input.status,
@@ -187,22 +189,54 @@ export async function updateProduct(id: unknown, input: unknown): Promise<Produc
 }
 
 export async function deactivateProduct(id: unknown): Promise<ProductMutationResult> {
+  await requireRole([...roles]);
+  return setProductStatus(id, "inactive");
+}
+
+export async function setProductStatus(
+  id: unknown,
+  status: unknown,
+): Promise<ProductMutationResult> {
   const profile = await requireRole([...roles]);
   const parsedId = productIdSchema.safeParse(id);
-  if (!parsedId.success) {
-    return { error: parsedId.error.issues[0]?.message ?? "El producto no es válido.", success: false };
+  const parsedStatus = z.enum(["active", "inactive"]).safeParse(status);
+  if (!parsedId.success || !parsedStatus.success) {
+    return {
+      error: !parsedId.success
+        ? parsedId.error.issues[0]?.message ?? "El producto no es válido."
+        : "El estado no es válido.",
+      success: false,
+    };
   }
 
   const admin = createAdminClient();
+  if (parsedStatus.data === "active") {
+    const mainImage = await admin
+      .from("product_images")
+      .select("id")
+      .eq("product_id", parsedId.data)
+      .eq("slot", "main")
+      .eq("status", "approved")
+      .maybeSingle();
+    if (mainImage.error) {
+      return { error: "No se pudo validar la imagen principal.", success: false };
+    }
+    if (!mainImage.data) {
+      return {
+        error: "Agrega y aprueba la imagen principal antes de activar.",
+        success: false,
+      };
+    }
+  }
   const result = await admin
     .from("products")
-    .update({ status: "inactive", updated_by: profile.id })
+    .update({ status: parsedStatus.data, updated_by: profile.id })
     .eq("id", parsedId.data)
     .select("id")
     .single();
 
   if (result.error || !result.data) {
-    return { error: result.error?.message ?? "No se pudo desactivar el producto.", success: false };
+    return { error: result.error?.message ?? "No se pudo cambiar el estado del producto.", success: false };
   }
 
   revalidatePath("/products");
@@ -308,6 +342,7 @@ export async function listProducts(filters: unknown = {}): Promise<ProductListRe
       (!parsedFilters.category || product.category_id === parsedFilters.category) &&
       (!parsedFilters.cut || product.cut_id === parsedFilters.cut) &&
       (!parsedFilters.brand || product.brand === parsedFilters.brand) &&
+      (!parsedFilters.availableSoon || product.available_soon) &&
       (!parsedFilters.status || product.status === parsedFilters.status)
     );
   });

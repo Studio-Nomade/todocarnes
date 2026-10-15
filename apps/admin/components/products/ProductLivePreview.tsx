@@ -40,6 +40,7 @@ export function ProductLivePreview({ categories, cuts, images, product }: Produc
         <ResponsiveCatalogFrame maxScale={0.42}>
           <ProductPageTemplate
           product={{
+            availableSoon: product.available_soon,
             boxWeight: product.box_weight,
             brand: product.brand,
             category,

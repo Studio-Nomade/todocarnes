@@ -25,6 +25,7 @@ const itemRowSchema = z.object({
   product_id: z.string().uuid(),
   sort_order: z.number().int(),
   products: z.object({
+    available_soon: z.boolean().default(false),
     title: z.string(),
     eyebrow: z.string().nullable(),
     code: z.string().nullable(),
@@ -120,7 +121,7 @@ export async function getCatalogItems(catalogId: string): Promise<CatalogItemPro
     admin
       .from("catalog_items")
       .select(
-        "product_id,sort_order,products(title,eyebrow,code,brand,origin,box_weight,format,units,status,categories(name,sort_order),cuts(name,sort_order))",
+        "product_id,sort_order,products(title,eyebrow,code,brand,origin,box_weight,format,units,status,available_soon,categories(name,sort_order),cuts(name,sort_order))",
       )
       .eq("catalog_id", catalogId)
       .order("sort_order"),
@@ -148,7 +149,7 @@ export async function getCatalogProducts(catalogId: string): Promise<CatalogProd
   const itemsResult = await admin
     .from("catalog_items")
     .select(
-      "product_id,sort_order,products(title,eyebrow,code,brand,origin,box_weight,format,units,status,categories(name,sort_order),cuts(name,sort_order))",
+      "product_id,sort_order,products(title,eyebrow,code,brand,origin,box_weight,format,units,status,available_soon,categories(name,sort_order),cuts(name,sort_order))",
     )
     .eq("catalog_id", catalogId)
     .order("sort_order");
@@ -179,6 +180,7 @@ export async function getCatalogProducts(catalogId: string): Promise<CatalogProd
   const imageFor = (productId: string, slot: string) => urlBySlot.get(`${productId}:${slot}`);
 
   return items.map((item) => ({
+    availableSoon: item.products.available_soon,
     boxWeight: item.products.box_weight,
     brand: item.products.brand,
     category: item.products.categories.name,
