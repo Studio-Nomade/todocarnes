@@ -14,6 +14,7 @@ function first(value: string | string[] | undefined) {
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
   const values = {
+    availableSoon: first(params.availableSoon),
     brand: first(params.brand),
     category: first(params.category),
     cut: first(params.cut),

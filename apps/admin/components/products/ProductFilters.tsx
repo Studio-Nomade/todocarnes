@@ -8,6 +8,7 @@ type ProductFiltersProps = ProductOptions & {
     cut?: string;
     q?: string;
     status?: string;
+    availableSoon?: string;
   };
 };
 
@@ -25,7 +26,7 @@ export function ProductFilters({
     : [];
 
   return (
-    <form className="grid gap-3 rounded-xl border border-ink/10 bg-white p-4 shadow-sm lg:grid-cols-[2fr_repeat(4,1fr)_auto]" method="get">
+    <form className="grid gap-3 rounded-xl border border-ink/10 bg-white p-4 shadow-sm lg:grid-cols-[2fr_repeat(5,1fr)_auto]" method="get">
       <input aria-label="Buscar productos" className={controlClass} defaultValue={values.q} name="q" placeholder="Buscar por código o nombre" />
       <select aria-label="Categoría" className={controlClass} defaultValue={values.category} name="category">
         <option value="">Todas las categorías</option>
@@ -48,6 +49,10 @@ export function ProductFilters({
         <option value="draft">Borrador</option>
         <option value="active">Activo</option>
         <option value="inactive">Inactivo</option>
+      </select>
+      <select aria-label="Disponibilidad" className={controlClass} defaultValue={values.availableSoon} name="availableSoon">
+        <option value="">Cualquier disponibilidad</option>
+        <option value="true">Disponible pronto</option>
       </select>
       <div className="flex items-center gap-3">
         <button className="admin-button-primary h-10 flex-1 px-4 lg:flex-none" type="submit">Filtrar</button>

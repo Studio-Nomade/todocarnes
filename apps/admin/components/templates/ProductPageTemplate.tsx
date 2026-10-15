@@ -11,6 +11,7 @@ import {
 } from "./parts/ProductVariantTable";
 
 export type ProductPageData = {
+  availableSoon: boolean;
   category: "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
   cut: string;
   cuts: string[];
@@ -90,8 +91,13 @@ export function ProductPageTemplate({
           width={1200}
         />
       ))}
-      <div className="absolute left-11 top-[181px] w-[380px]">
-        <div className="text-[20px] font-normal uppercase leading-6 text-blue">{product.eyebrow || "—"}</div>
+      <div className="absolute left-11 top-[181px] flex w-[380px] items-center gap-3">
+        {product.availableSoon ? (
+          <span className="shrink-0 rounded-full bg-blue-50 px-3 py-1 text-[13px] font-semibold uppercase tracking-[0.08em] text-blue">
+            Disponible pronto
+          </span>
+        ) : null}
+        <div className="min-w-0 truncate text-[20px] font-normal uppercase leading-6 text-blue">{product.eyebrow || "—"}</div>
       </div>
       <h1 className={`absolute left-11 top-[226px] flex h-[112px] w-[380px] items-center break-words font-semibold uppercase text-navy ${titleSize}`}>
         {product.title || "—"}

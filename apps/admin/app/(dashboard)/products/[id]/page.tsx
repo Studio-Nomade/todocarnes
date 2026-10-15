@@ -23,6 +23,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
   }
 
   const initialProduct: ProductInput = {
+    available_soon: product.available_soon,
     box_weight: product.box_weight,
     brand: product.brand,
     category_id: product.category_id,

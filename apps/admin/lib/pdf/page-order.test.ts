@@ -4,6 +4,7 @@ import { buildPages, type CatalogProduct } from "./page-order";
 
 function product(overrides: Partial<CatalogProduct>): CatalogProduct {
   return {
+    availableSoon: false,
     id: overrides.id ?? "p",
     category: overrides.category ?? "Cerdo",
     categorySortOrder: overrides.categorySortOrder ?? 0,

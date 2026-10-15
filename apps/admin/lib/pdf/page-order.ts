@@ -5,6 +5,7 @@
 export type CategoryName = "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
 
 export type CatalogProduct = {
+  availableSoon: boolean;
   id: string;
   category: CategoryName;
   categorySortOrder: number;

@@ -82,6 +82,20 @@ export function ProductFormFields({
             <option value="inactive">Inactivo</option>
           </select>
         </label>
+        <label className="flex items-start gap-3 rounded-lg border border-ink/10 bg-gray-50 px-4 py-3 text-sm text-navy">
+          <input
+            checked={product.available_soon}
+            className="mt-0.5 h-4 w-4 accent-blue"
+            onChange={(event) => onChange("available_soon", event.target.checked)}
+            type="checkbox"
+          />
+          <span>
+            <span className="font-medium">Disponible pronto</span>
+            <span className="mt-1 block text-xs font-normal leading-5 text-ink/55">
+              Se muestra en la ficha del catálogo. El producto tiene que estar activo para aparecer.
+            </span>
+          </span>
+        </label>
         <label className="text-sm font-medium text-navy">
           Mes / campaña
           <input className={inputClass} maxLength={80} onChange={(event) => onChange("month_tag", event.target.value)} placeholder="Ej. Julio 2026" value={product.month_tag} />
