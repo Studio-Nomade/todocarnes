@@ -1,6 +1,6 @@
 import "server-only";
 
-import { z } from "zod";
+import { isImageGenerationEnabled, resolveImageProvider } from "./config";
 import { MockImageProvider } from "./mock";
 import { OpenAIImageProvider } from "./openai";
 import type { ImageSlot } from "./slots";
@@ -13,14 +13,16 @@ export interface ImageProvider {
   }): Promise<{ buffer: Buffer; model: string }>;
 }
 
-const providerSchema = z.enum(["mock", "openai"]).default("mock");
-
 export function getImageProvider(): ImageProvider {
-  const provider = providerSchema.parse(process.env.IMAGE_PROVIDER);
+  const provider = resolveImageProvider();
 
   if (provider === "openai") {
     return new OpenAIImageProvider();
   }
 
   return new MockImageProvider();
+}
+
+export function getImageGenerationAvailability(): { enabled: boolean } {
+  return { enabled: isImageGenerationEnabled() };
 }

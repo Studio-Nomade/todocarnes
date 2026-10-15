@@ -1,3 +1,5 @@
+import { resolveImageModel } from "./config";
+
 const DEFAULT_MESSAGE = "No se pudo generar la imagen. Intenta nuevamente o avisa al administrador.";
 
 type ErrorDetails = {
@@ -45,7 +47,7 @@ export class ImageGenerationError extends Error {
   readonly logMessage: string;
   readonly model: string;
 
-  constructor(message: string, logMessage: string, model = "gpt-image-1") {
+  constructor(message: string, logMessage: string, model = resolveImageModel()) {
     super(message);
     this.name = "ImageGenerationError";
     this.logMessage = logMessage;

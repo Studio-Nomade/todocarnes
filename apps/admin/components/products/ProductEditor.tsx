@@ -13,6 +13,7 @@ import { ProductImageGallery } from "./ProductImageGallery";
 
 type ProductEditorProps = ProductOptions & {
   initialProduct: ProductInput;
+  imageGenerationEnabled?: boolean;
   images?: ProductImageRecord[];
   productId?: string;
 };
@@ -20,6 +21,7 @@ type ProductEditorProps = ProductOptions & {
 export function ProductEditor({
   categories,
   cuts,
+  imageGenerationEnabled = true,
   images = [],
   initialProduct,
   productId,
@@ -77,7 +79,7 @@ export function ProductEditor({
         </form>
         <ProductLivePreview categories={categories} cuts={cuts} images={images} product={product} />
       </div>
-      {productId ? <ProductImageGallery images={images} productId={productId} /> : null}
+      {productId ? <ProductImageGallery imageGenerationEnabled={imageGenerationEnabled} images={images} productId={productId} /> : null}
     </div>
   );
 }
