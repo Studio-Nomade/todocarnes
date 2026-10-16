@@ -1,12 +1,14 @@
 import Image from "next/image";
+import type { CategoryName } from "@/lib/pdf/page-order";
 
 type CategoryIconProps = {
-  category: "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
+  category: CategoryName;
   tone?: "dark" | "light";
 };
 
 const categoryIcons = {
   Cerdo: "/categories/cerdo.png",
+  "Don Pancho": "/categories/don-pancho.png",
   Pollo: "/categories/pollo.png",
   Trimming: "/categories/trimming.png",
   Vacuno: "/categories/vacuno.png",

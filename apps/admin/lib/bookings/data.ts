@@ -8,7 +8,7 @@ import type { BookingAgenda, BookingItem } from "./types";
 import { bookingFiltersSchema } from "./validation";
 
 const eventSchema = z.object({
-  days: z.array(z.string()),
+  days: z.array(z.string()).nullable().transform((days) => days ?? []),
   id: z.string().uuid(),
   location: z.string().nullable(),
   name: z.string(),

@@ -41,46 +41,61 @@ export type Database = {
     Tables: {
       booking_events: {
         Row: {
+          blackout_dates: string[]
           created_at: string
-          days: string[]
+          days: string[] | null
           end_date: string | null
+          horizon_days: number
           id: string
           is_active: boolean
+          kind: string
           location: string | null
+          min_notice_hours: number
           name: string
           slot_minutes: number
           slot_times: string[]
           slug: string
           start_date: string | null
           updated_at: string
+          weekdays: number[]
         }
         Insert: {
+          blackout_dates?: string[]
           created_at?: string
-          days: string[]
+          days?: string[] | null
           end_date?: string | null
+          horizon_days?: number
           id?: string
           is_active?: boolean
+          kind?: string
           location?: string | null
+          min_notice_hours?: number
           name: string
           slot_minutes?: number
           slot_times: string[]
           slug: string
           start_date?: string | null
           updated_at?: string
+          weekdays?: number[]
         }
         Update: {
+          blackout_dates?: string[]
           created_at?: string
-          days?: string[]
+          days?: string[] | null
           end_date?: string | null
+          horizon_days?: number
           id?: string
           is_active?: boolean
+          kind?: string
           location?: string | null
+          min_notice_hours?: number
           name?: string
           slot_minutes?: number
           slot_times?: string[]
           slug?: string
           start_date?: string | null
           updated_at?: string
+          weekdays?: number[]
         }
         Relationships: []
       }
@@ -95,6 +110,8 @@ export type Database = {
           event_id: string
           ics_uid: string
           id: string
+          location_detail: string | null
+          modality: string | null
           name: string
           phone: string | null
           rep_id: string
@@ -113,6 +130,8 @@ export type Database = {
           event_id: string
           ics_uid?: string
           id?: string
+          location_detail?: string | null
+          modality?: string | null
           name: string
           phone?: string | null
           rep_id: string
@@ -131,6 +150,8 @@ export type Database = {
           event_id?: string
           ics_uid?: string
           id?: string
+          location_detail?: string | null
+          modality?: string | null
           name?: string
           phone?: string | null
           rep_id?: string

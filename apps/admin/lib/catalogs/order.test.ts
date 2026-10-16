@@ -11,7 +11,8 @@ function product(
   return {
     category,
     cut: "Corte",
-    hasApprovedImages: true,
+    hasMainImage: true,
+    imageCount: 4,
     itemSortOrder,
     productId,
     status: "active",

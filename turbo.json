@@ -16,6 +16,7 @@
         "EMAIL_INTERNAL_TO",
         "LANDING_RATE_LIMIT_SALT",
         "IMAGE_PROVIDER",
+        "IMAGE_MODEL",
         "PRINT_TOKEN",
         "APP_URL",
         "OPENAI_API_KEY"

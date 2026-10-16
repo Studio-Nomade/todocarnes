@@ -11,9 +11,11 @@ const slotLabels = {
 } as const;
 
 export function ProductImageGallery({
+  imageGenerationEnabled,
   images,
   productId,
 }: {
+  imageGenerationEnabled: boolean;
   images: ProductImageRecord[];
   productId: string;
 }) {
@@ -32,6 +34,7 @@ export function ProductImageGallery({
       </div>
       <div className="max-w-md">
         <ImageSlotCard
+          generationEnabled
           images={sourceImages}
           label="Imagen fuente"
           productId={productId}
@@ -42,6 +45,7 @@ export function ProductImageGallery({
       <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {imageSlots.map((slot) => (
           <ImageSlotCard
+            generationEnabled={imageGenerationEnabled}
             images={images.filter((image) => image.slot === slot)}
             key={slot}
             label={slotLabels[slot]}

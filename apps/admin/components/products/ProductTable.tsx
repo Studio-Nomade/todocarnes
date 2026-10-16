@@ -15,7 +15,11 @@ const statusStyles = {
   inactive: "bg-gray-100 text-ink/55",
 } as const;
 
-export function ProductTable({ products }: { products: ProductRecord[] }) {
+export function ProductTable({
+  products,
+}: {
+  products: ProductRecord[];
+}) {
   if (products.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-ink/20 bg-white px-6 py-16 text-center">
@@ -45,6 +49,9 @@ export function ProductTable({ products }: { products: ProductRecord[] }) {
               <span className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold ${statusStyles[product.status]}`}>
                 {statusLabels[product.status]}
               </span>
+              {product.available_soon ? (
+                <span className="shrink-0 rounded-full bg-blue-50 px-2 py-1 text-[11px] font-semibold text-blue">Disponible pronto</span>
+              ) : null}
               <span aria-hidden className="text-lg text-blue group-open:rotate-45">＋</span>
             </summary>
             <div className="border-t border-ink/10 bg-gray-50/70 p-4">
@@ -56,7 +63,7 @@ export function ProductTable({ products }: { products: ProductRecord[] }) {
               </dl>
               <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-ink/10 pt-4">
                 <Link className="text-sm font-semibold text-blue hover:underline" href={`/products/${product.id}`}>Editar ficha</Link>
-                <ProductActions id={product.id} inactive={product.status === "inactive"} />
+                <ProductActions id={product.id} status={product.status} />
               </div>
             </div>
           </details>
@@ -96,7 +103,12 @@ export function ProductTable({ products }: { products: ProductRecord[] }) {
               <td className="px-4 py-3">{product.cut.name}</td>
               <td className="px-4 py-3">{product.brand || "—"}</td>
               <td className="px-4 py-3">
-                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[product.status]}`}>{statusLabels[product.status]}</span>
+                <div className="flex flex-col items-start gap-1.5">
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[product.status]}`}>{statusLabels[product.status]}</span>
+                  {product.available_soon ? (
+                    <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue">Disponible pronto</span>
+                  ) : null}
+                </div>
               </td>
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
@@ -114,7 +126,7 @@ export function ProductTable({ products }: { products: ProductRecord[] }) {
                       Editar
                     </span>
                   </Link>
-                  <ProductActions compact id={product.id} inactive={product.status === "inactive"} />
+                  <ProductActions compact id={product.id} status={product.status} />
                 </div>
               </td>
             </tr>

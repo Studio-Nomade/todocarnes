@@ -1,5 +1,8 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { productAnchor } from "@/lib/pdf/page-order";
+import { secondaryLayout } from "@/lib/pdf/secondary-layout";
+import type { ProductUse } from "@/lib/products/uses";
 import { CatalogPage } from "./CatalogPage";
 import { CatalogHeader } from "./parts/CatalogHeader";
 import { ProductFieldRow } from "./parts/ProductFieldRow";
@@ -10,7 +13,8 @@ import {
 } from "./parts/ProductVariantTable";
 
 export type ProductPageData = {
-  category: "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
+  availableSoon: boolean;
+  category: "Cerdo" | "Pollo" | "Vacuno" | "Trimming" | "Don Pancho";
   cut: string;
   cuts: string[];
   eyebrow: string;
@@ -21,17 +25,19 @@ export type ProductPageData = {
   boxWeight?: string | null;
   format?: string | null;
   units?: string | null;
+  uses: ProductUse[];
   mainImage: string;
-  secondaryImages: [string, string, string];
+  secondaryImages: string[];
 };
 
-type ProductPageTemplateProps = {
+export type ProductPageTemplateProps = {
   eagerImages?: boolean;
   product: ProductPageData;
   scale?: number;
   period?: string;
   pageNumber?: number;
   productId?: string;
+  overlay?: ReactNode;
 };
 
 const fields = [
@@ -50,6 +56,7 @@ export function ProductPageTemplate({
   period,
   pageNumber,
   productId,
+  overlay,
 }: ProductPageTemplateProps) {
   const titleLength = product.title.length;
   const titleSize =
@@ -69,12 +76,15 @@ export function ProductPageTemplate({
     units: product.units,
   };
   const multipleVariants = hasMultipleVariants(variantValues);
+  const secondaryPositions = secondaryLayout(product.secondaryImages.length as 0 | 1 | 2 | 3);
+  const mainImageHeight = product.secondaryImages.length === 0 ? "h-[605px]" : "h-[425px]";
 
   return (
     <CatalogPage id={productId ? productAnchor(productId) : undefined} scale={scale}>
       <CatalogHeader activeCategory={product.category} activeCut={product.cut} cuts={product.cuts} />
+      {overlay}
       <div className="absolute left-0 top-[155px] h-[605px] w-[469px] bg-gray-50" />
-      <Image alt={product.title} className="absolute left-[469px] top-[155px] h-[425px] w-[971px] bg-white object-contain" height={700} priority={eagerImages} src={product.mainImage} width={1200} />
+      <Image alt={product.title} className={`absolute left-[469px] top-[155px] w-[971px] bg-white object-contain ${mainImageHeight}`} height={700} priority={eagerImages} src={product.mainImage} width={1200} />
       {product.secondaryImages.map((src, index) => (
         <Image
           alt={`Vista secundaria ${index + 1} de ${product.title}`}
@@ -83,12 +93,17 @@ export function ProductPageTemplate({
           key={`${src}-${index}`}
           priority={eagerImages}
           src={src}
-          style={{ left: [510, 802, 1094][index] }}
+          style={{ left: secondaryPositions[index]?.left }}
           width={1200}
         />
       ))}
-      <div className="absolute left-11 top-[181px] w-[380px]">
-        <div className="text-[20px] font-normal uppercase leading-6 text-blue">{product.eyebrow || "—"}</div>
+      <div className="absolute left-11 top-[181px] flex w-[380px] items-center gap-3">
+        {product.availableSoon ? (
+          <span className="shrink-0 rounded-full bg-blue-50 px-3 py-1 text-[13px] font-semibold uppercase tracking-[0.08em] text-blue">
+            Disponible pronto
+          </span>
+        ) : null}
+        <div className="min-w-0 truncate text-[20px] font-normal uppercase leading-6 text-blue">{product.eyebrow || "—"}</div>
       </div>
       <h1 className={`absolute left-11 top-[226px] flex h-[112px] w-[380px] items-center break-words font-semibold uppercase text-navy ${titleSize}`}>
         {product.title || "—"}

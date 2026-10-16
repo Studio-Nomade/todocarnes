@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import {
+  addAllActiveProductsToCatalog,
   addProductToCatalog,
   removeProductFromCatalog,
   reorderCatalogItems,
@@ -14,8 +15,17 @@ import {
 import type { CatalogItemProduct } from "@/lib/catalogs/types";
 import { CatalogCategoryCard } from "./CatalogCategoryCard";
 
-const CATEGORY_ORDER = ["Cerdo", "Pollo", "Vacuno", "Trimming"] as const;
-type AvailableProduct = { id: string; title: string; category: string; cut: string };
+const CATEGORY_ORDER = ["Cerdo", "Pollo", "Vacuno", "Trimming", "Don Pancho"] as const;
+type AvailableProduct = {
+  id: string;
+  title: string;
+  category: string;
+  categorySortOrder: number;
+  cut: string;
+  cutSortOrder: number;
+  hasMainImage: boolean;
+  imageCount: number;
+};
 type CatalogBuilderProps = {
   catalogId: string;
   initialItems: CatalogItemProduct[];
@@ -94,7 +104,8 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
         {
           category: product.category as CatalogItemProduct["category"],
           cut: product.cut,
-          hasApprovedImages: false,
+          hasMainImage: product.hasMainImage,
+          imageCount: product.imageCount,
           itemSortOrder: maxOrder + 1,
           productId: product.id,
           status: "active",
@@ -102,6 +113,41 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
         },
       ]);
       setPool((current) => current.filter((item) => item.id !== product.id));
+      setToAdd("");
+    });
+  }
+
+  function addAllProducts() {
+    if (pool.length === 0 || !window.confirm(`Se agregarán ${pool.length} productos activos al catálogo.`)) {
+      return;
+    }
+    setError("");
+    startTransition(async () => {
+      const result = await addAllActiveProductsToCatalog(catalogId);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      const orderedPool = [...pool].sort((left, right) =>
+        left.categorySortOrder - right.categorySortOrder ||
+        left.cutSortOrder - right.cutSortOrder ||
+        left.title.localeCompare(right.title, "es"),
+      );
+      const firstOrder = items.reduce((max, item) => Math.max(max, item.itemSortOrder), -1) + 1;
+      setItems((current) => [
+        ...current,
+        ...orderedPool.map((product, index) => ({
+          category: product.category as CatalogItemProduct["category"],
+          cut: product.cut,
+          hasMainImage: product.hasMainImage,
+          imageCount: product.imageCount,
+          itemSortOrder: firstOrder + index,
+          productId: product.id,
+          status: "active" as const,
+          title: product.title,
+        })),
+      ]);
+      setPool([]);
       setToAdd("");
     });
   }
@@ -119,7 +165,16 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
       if (removed) {
         setPool((current) => [
           ...current,
-          { category: removed.category, cut: removed.cut, id: removed.productId, title: removed.title },
+          {
+            category: removed.category,
+            categorySortOrder: CATEGORY_ORDER.indexOf(removed.category),
+            cut: removed.cut,
+            cutSortOrder: 0,
+            hasMainImage: removed.hasMainImage,
+            id: removed.productId,
+            imageCount: removed.imageCount,
+            title: removed.title,
+          },
         ]);
       }
     });
@@ -175,6 +230,14 @@ export function CatalogBuilder({ catalogId, initialItems, available }: CatalogBu
       <aside className="min-w-0 max-w-full rounded-xl border border-ink/10 bg-white p-5 shadow-sm xl:sticky xl:top-6">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-navy">Agregar productos</h2>
         <p className="mt-1 text-xs text-ink/55">Solo productos activos.</p>
+        <button
+          className="admin-button-primary mt-4 w-full px-4 py-2.5"
+          disabled={pool.length === 0 || isPending}
+          onClick={addAllProducts}
+          type="button"
+        >
+          Agregar todos los activos ({pool.length})
+        </button>
         {pool.length === 0 ? (
           <p className="mt-4 text-sm text-ink/50">No quedan productos activos por agregar.</p>
         ) : (

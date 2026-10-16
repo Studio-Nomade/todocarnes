@@ -1,10 +1,13 @@
+import type { ProductUse } from "@/lib/products/uses";
+
 // Orden de páginas del catálogo. Función PURA: entra data, sale un array de
 // páginas con su número asignado. Sin DB, sin fetch, sin Date. Es la única
 // pieza de M5 con test unitario obligatorio — por eso vive aislada de todo IO.
 
-export type CategoryName = "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
+export type CategoryName = "Cerdo" | "Pollo" | "Vacuno" | "Trimming" | "Don Pancho";
 
 export type CatalogProduct = {
+  availableSoon: boolean;
   id: string;
   category: CategoryName;
   categorySortOrder: number;
@@ -19,8 +22,9 @@ export type CatalogProduct = {
   boxWeight: string | null;
   format: string | null;
   units: string | null;
+  uses: ProductUse[];
   mainImage: string;
-  secondaryImages: [string, string, string];
+  secondaryImages: string[];
 };
 
 export type IndexEntry = { category: CategoryName; cuts: string[] };
@@ -36,7 +40,8 @@ export type CatalogPageSpec =
   | { kind: "product"; pageNumber: number; product: CatalogProduct; categoryCuts: string[] }
   | { kind: "closing"; pageNumber: number };
 
-export const categoryAnchor = (category: CategoryName) => `categoria-${category.toLowerCase()}`;
+export const categoryAnchor = (category: CategoryName) =>
+  `categoria-${category.toLocaleLowerCase("es").replace(/\s+/g, "-")}`;
 export const productAnchor = (productId: string) => `producto-${productId}`;
 
 export function pageAnchor(page: CatalogPageSpec): string {

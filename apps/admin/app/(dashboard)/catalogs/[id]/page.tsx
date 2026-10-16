@@ -27,7 +27,16 @@ export default async function CatalogBuilderPage({ params }: BuilderPageProps) {
   const selectedIds = new Set(items.map((item) => item.productId));
   const available = catalog_products.products
     .filter((product) => product.status === "active" && !selectedIds.has(product.id))
-    .map((product) => ({ category: product.category.name, cut: product.cut.name, id: product.id, title: product.title }));
+    .map((product) => ({
+      category: product.category.name,
+      categorySortOrder: product.category.sort_order,
+      cut: product.cut.name,
+      cutSortOrder: product.cut.sort_order,
+      hasMainImage: product.hasMainImage,
+      id: product.id,
+      imageCount: product.imageCount,
+      title: product.title,
+    }));
 
   return (
     <section className="space-y-6">

@@ -7,6 +7,8 @@ import { approveImage, generateProductImage, moveImageToSlot, rejectImage, uploa
 import { allImageSlots, type ProductImageSlot } from "@/lib/images/slots";
 import type { ProductImageRecord } from "@/lib/images/types";
 
+const IMAGE_ENGINE_UNAVAILABLE = "El motor de imágenes todavía no está configurado";
+
 const statusLabels = { approved: "Aprobada", pending: "Pendiente", rejected: "Rechazada" } as const;
 const statusStyles = {
   approved: "bg-emerald-50 text-emerald-700",
@@ -37,12 +39,14 @@ function sortedImages(images: ProductImageRecord[]): ProductImageRecord[] {
 }
 
 export function ImageSlotCard({
+  generationEnabled,
   images,
   label,
   productId,
   slot,
   sourceAvailable,
 }: {
+  generationEnabled: boolean;
   images: ProductImageRecord[];
   label: string;
   productId: string;
@@ -116,10 +120,13 @@ export function ImageSlotCard({
         {displayed?.status === "pending" && approved ? <p className="mt-2 text-xs text-ink/50">La aprobada actual se mantiene hasta que apruebes esta candidata.</p> : null}
         {isPending ? <p className="mt-3 rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-navy">{pendingMessage}</p> : null}
         {error ? <p className="mt-3 text-sm font-medium text-red-700" role="alert">{error}</p> : null}
+        {slot !== "source" && !generationEnabled ? (
+          <p className="mt-3 text-sm text-ink/55">{IMAGE_ENGINE_UNAVAILABLE}</p>
+        ) : null}
 
         <div className="mt-4 flex flex-wrap gap-2">
           {slot !== "source" ? (
-            <button className="admin-button-primary px-3 py-2 text-xs" disabled={!sourceAvailable || isPending} onClick={() => run(() => generateProductImage(productId, slot), "Generando, ~1 min…")} title={sourceAvailable ? "Generar una nueva vista" : "Sube una imagen fuente antes de generar"} type="button">
+            <button className="admin-button-primary px-3 py-2 text-xs" disabled={!generationEnabled || !sourceAvailable || isPending} onClick={() => run(() => generateProductImage(productId, slot), "Generando, ~1 min…")} title={!generationEnabled ? IMAGE_ENGINE_UNAVAILABLE : sourceAvailable ? "Generar una nueva vista" : "Sube una imagen fuente antes de generar"} type="button">
               {displayed ? "Regenerar" : "Generar"}
             </button>
           ) : null}

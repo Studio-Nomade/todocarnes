@@ -4,6 +4,7 @@ import { listProducts } from "@/lib/actions/products";
 import type { ProductInput } from "@/lib/validators/product";
 
 const emptyProduct: ProductInput = {
+  available_soon: false,
   box_weight: "",
   brand: "",
   category_id: "",
@@ -17,6 +18,7 @@ const emptyProduct: ProductInput = {
   status: "draft",
   title: "",
   units: "",
+  uses: [],
 };
 
 export default async function NewProductPage() {

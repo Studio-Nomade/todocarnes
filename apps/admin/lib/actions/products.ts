@@ -24,7 +24,7 @@ const roles = ["admin", "commercial"] as const;
 
 const categorySchema = z.object({
   id: z.string().uuid(),
-  name: z.enum(["Cerdo", "Pollo", "Vacuno", "Trimming"]),
+  name: z.enum(["Cerdo", "Pollo", "Vacuno", "Trimming", "Don Pancho"]),
   slug: z.string(),
   sort_order: z.number(),
 });
@@ -38,6 +38,7 @@ const cutSchema = z.object({
 });
 
 const databaseProductSchema = productSchema.extend({
+  available_soon: z.boolean().default(false),
   box_weight: productSchema.shape.box_weight.nullable().transform((value) => value ?? ""),
   brand: productSchema.shape.brand.nullable().transform((value) => value ?? ""),
   code: productSchema.shape.code.nullable().transform((value) => value ?? ""),
@@ -49,6 +50,7 @@ const databaseProductSchema = productSchema.extend({
   notes: productSchema.shape.notes.nullable().transform((value) => value ?? ""),
   origin: productSchema.shape.origin.nullable().transform((value) => value ?? ""),
   units: productSchema.shape.units.nullable().transform((value) => value ?? ""),
+  uses: productSchema.shape.uses.default([]),
   updated_at: z.string(),
 });
 
@@ -65,11 +67,13 @@ const nullableFields = [
 ] as const;
 
 function databasePayload(input: ProductInput) {
-  const payload: Record<string, string | null> = {
+  const payload: Record<string, string | string[] | boolean | null> = {
+    available_soon: input.available_soon,
     category_id: input.category_id,
     cut_id: input.cut_id,
     status: input.status,
     title: input.title,
+    uses: input.uses,
   };
 
   for (const field of nullableFields) {
@@ -100,6 +104,7 @@ function parseProductRows(
   categories: CategoryOption[],
   cuts: CutOption[],
   mainImageByProduct = new Map<string, string>(),
+  imageCountByProduct = new Map<string, number>(),
 ): ProductRecord[] {
   const products = z.array(databaseProductSchema).parse(rows);
   const categoryById = new Map(categories.map((category) => [category.id, category]));
@@ -117,6 +122,8 @@ function parseProductRows(
       ...product,
       category,
       cut,
+      hasMainImage: mainImageByProduct.has(product.id),
+      imageCount: imageCountByProduct.get(product.id) ?? 0,
       mainImageUrl: mainImageByProduct.get(product.id) ?? null,
     };
   });
@@ -184,22 +191,54 @@ export async function updateProduct(id: unknown, input: unknown): Promise<Produc
 }
 
 export async function deactivateProduct(id: unknown): Promise<ProductMutationResult> {
+  await requireRole([...roles]);
+  return setProductStatus(id, "inactive");
+}
+
+export async function setProductStatus(
+  id: unknown,
+  status: unknown,
+): Promise<ProductMutationResult> {
   const profile = await requireRole([...roles]);
   const parsedId = productIdSchema.safeParse(id);
-  if (!parsedId.success) {
-    return { error: parsedId.error.issues[0]?.message ?? "El producto no es válido.", success: false };
+  const parsedStatus = z.enum(["active", "inactive"]).safeParse(status);
+  if (!parsedId.success || !parsedStatus.success) {
+    return {
+      error: !parsedId.success
+        ? parsedId.error.issues[0]?.message ?? "El producto no es válido."
+        : "El estado no es válido.",
+      success: false,
+    };
   }
 
   const admin = createAdminClient();
+  if (parsedStatus.data === "active") {
+    const mainImage = await admin
+      .from("product_images")
+      .select("id")
+      .eq("product_id", parsedId.data)
+      .eq("slot", "main")
+      .eq("status", "approved")
+      .maybeSingle();
+    if (mainImage.error) {
+      return { error: "No se pudo validar la imagen principal.", success: false };
+    }
+    if (!mainImage.data) {
+      return {
+        error: "Agrega y aprueba la imagen principal antes de activar.",
+        success: false,
+      };
+    }
+  }
   const result = await admin
     .from("products")
-    .update({ status: "inactive", updated_by: profile.id })
+    .update({ status: parsedStatus.data, updated_by: profile.id })
     .eq("id", parsedId.data)
     .select("id")
     .single();
 
   if (result.error || !result.data) {
-    return { error: result.error?.message ?? "No se pudo desactivar el producto.", success: false };
+    return { error: result.error?.message ?? "No se pudo cambiar el estado del producto.", success: false };
   }
 
   revalidatePath("/products");
@@ -265,28 +304,34 @@ export async function listProducts(filters: unknown = {}): Promise<ProductListRe
   const imageResult = productIds.length
     ? await admin
         .from("product_images")
-        .select("product_id,storage_path")
+        .select("product_id,slot,storage_path")
         .in("product_id", productIds)
-        .eq("slot", "main")
         .eq("status", "approved")
     : { data: [], error: null };
   if (imageResult.error) {
     throw new Error("No se pudieron cargar las miniaturas de los productos.");
   }
   const imageRows = z.array(
-    z.object({ product_id: z.string().uuid(), storage_path: z.string().min(1) }),
+    z.object({ product_id: z.string().uuid(), slot: z.string(), storage_path: z.string().min(1) }),
   ).parse(imageResult.data);
   const mainImageByProduct = new Map(
-    imageRows.map((image) => [
+    imageRows.filter((image) => image.slot === "main").map((image) => [
       image.product_id,
       admin.storage.from("product-images").getPublicUrl(image.storage_path).data.publicUrl,
     ]),
   );
+  const imageCountByProduct = new Map<string, number>();
+  for (const image of imageRows) {
+    if (["main", "secondary_1", "secondary_2", "secondary_3"].includes(image.slot)) {
+      imageCountByProduct.set(image.product_id, (imageCountByProduct.get(image.product_id) ?? 0) + 1);
+    }
+  }
   const allProducts = parseProductRows(
     productResult.data,
     categories,
     cuts,
     mainImageByProduct,
+    imageCountByProduct,
   );
   const query = parsedFilters.q.toLocaleLowerCase("es");
   const products = allProducts.filter((product) => {
@@ -299,6 +344,7 @@ export async function listProducts(filters: unknown = {}): Promise<ProductListRe
       (!parsedFilters.category || product.category_id === parsedFilters.category) &&
       (!parsedFilters.cut || product.cut_id === parsedFilters.cut) &&
       (!parsedFilters.brand || product.brand === parsedFilters.brand) &&
+      (!parsedFilters.availableSoon || product.available_soon) &&
       (!parsedFilters.status || product.status === parsedFilters.status)
     );
   });

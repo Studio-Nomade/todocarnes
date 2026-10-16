@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PRODUCT_USES } from "@/lib/products/uses";
 
 const optionalText = (max: number) => z.string().trim().max(max);
 const optionalFilter = <Schema extends z.ZodType>(schema: Schema) =>
@@ -7,6 +8,7 @@ const optionalFilter = <Schema extends z.ZodType>(schema: Schema) =>
 export const productStatusSchema = z.enum(["draft", "active", "inactive"]);
 
 export const productSchema = z.object({
+  available_soon: z.boolean().default(false),
   category_id: z.string().uuid("Selecciona una categoría."),
   cut_id: z.string().uuid("Selecciona un corte."),
   eyebrow: optionalText(120),
@@ -17,6 +19,10 @@ export const productSchema = z.object({
   box_weight: optionalText(240),
   format: optionalText(240),
   units: optionalText(240),
+  uses: z.array(z.enum(PRODUCT_USES)).default([]).refine(
+    (uses) => new Set(uses).size === uses.length,
+    "Los usos sugeridos no pueden repetirse.",
+  ),
   status: productStatusSchema.default("draft"),
   month_tag: optionalText(80),
   notes: optionalText(1000),
@@ -25,6 +31,7 @@ export const productSchema = z.object({
 export const productIdSchema = z.string().uuid("El producto no es válido.");
 
 export const productFiltersSchema = z.object({
+  availableSoon: optionalFilter(z.enum(["true"])),
   brand: z.string().trim().max(120).optional().default(""),
   category: optionalFilter(z.string().uuid()),
   cut: optionalFilter(z.string().uuid()),

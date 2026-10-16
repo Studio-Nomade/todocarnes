@@ -2,11 +2,12 @@ import "server-only";
 
 import { z } from "zod";
 import type { CatalogProduct } from "@/lib/pdf/page-order";
+import { PRODUCT_USES } from "@/lib/products/uses";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { CatalogItemProduct, CatalogRecord, CatalogStatus } from "./types";
 
 const placeholder = "/placeholders/product-placeholder.svg";
-const categoryName = z.enum(["Cerdo", "Pollo", "Vacuno", "Trimming"]);
+const categoryName = z.enum(["Cerdo", "Pollo", "Vacuno", "Trimming", "Don Pancho"]);
 const imageSlot = z.enum(["main", "secondary_1", "secondary_2", "secondary_3"]);
 
 const catalogRowSchema = z.object({
@@ -25,6 +26,7 @@ const itemRowSchema = z.object({
   product_id: z.string().uuid(),
   sort_order: z.number().int(),
   products: z.object({
+    available_soon: z.boolean().default(false),
     title: z.string(),
     eyebrow: z.string().nullable(),
     code: z.string().nullable(),
@@ -33,6 +35,7 @@ const itemRowSchema = z.object({
     box_weight: z.string().nullable(),
     format: z.string().nullable(),
     units: z.string().nullable(),
+    uses: z.array(z.enum(PRODUCT_USES)).default([]),
     status: z.enum(["draft", "active", "inactive"]),
     categories: z.object({ name: categoryName, sort_order: z.number().int() }),
     cuts: z.object({ name: z.string(), sort_order: z.number().int() }),
@@ -120,11 +123,11 @@ export async function getCatalogItems(catalogId: string): Promise<CatalogItemPro
     admin
       .from("catalog_items")
       .select(
-        "product_id,sort_order,products(title,eyebrow,code,brand,origin,box_weight,format,units,status,categories(name,sort_order),cuts(name,sort_order))",
+        "product_id,sort_order,products(title,eyebrow,code,brand,origin,box_weight,format,units,uses,status,available_soon,categories(name,sort_order),cuts(name,sort_order))",
       )
       .eq("catalog_id", catalogId)
       .order("sort_order"),
-    approvedImageProductIds(catalogId),
+    approvedImageSummary(catalogId),
   ]);
   if (itemsResult.error) {
     throw new Error("No se pudieron cargar los productos del catálogo.");
@@ -133,7 +136,8 @@ export async function getCatalogItems(catalogId: string): Promise<CatalogItemPro
   return z.array(itemRowSchema).parse(itemsResult.data).map((row) => ({
     category: row.products.categories.name,
     cut: row.products.cuts.name,
-    hasApprovedImages: approvedResult.has(row.product_id),
+    hasMainImage: approvedResult.get(row.product_id)?.hasMainImage ?? false,
+    imageCount: approvedResult.get(row.product_id)?.imageCount ?? 0,
     itemSortOrder: row.sort_order,
     productId: row.product_id,
     status: row.products.status,
@@ -147,7 +151,7 @@ export async function getCatalogProducts(catalogId: string): Promise<CatalogProd
   const itemsResult = await admin
     .from("catalog_items")
     .select(
-      "product_id,sort_order,products(title,eyebrow,code,brand,origin,box_weight,format,units,status,categories(name,sort_order),cuts(name,sort_order))",
+      "product_id,sort_order,products(title,eyebrow,code,brand,origin,box_weight,format,units,uses,status,available_soon,categories(name,sort_order),cuts(name,sort_order))",
     )
     .eq("catalog_id", catalogId)
     .order("sort_order");
@@ -175,9 +179,10 @@ export async function getCatalogProducts(catalogId: string): Promise<CatalogProd
     url.searchParams.set("v", image.updated_at);
     urlBySlot.set(`${image.product_id}:${image.slot}`, url.toString());
   }
-  const imageFor = (productId: string, slot: string) => urlBySlot.get(`${productId}:${slot}`) ?? placeholder;
+  const imageFor = (productId: string, slot: string) => urlBySlot.get(`${productId}:${slot}`);
 
   return items.map((item) => ({
+    availableSoon: item.products.available_soon,
     boxWeight: item.products.box_weight,
     brand: item.products.brand,
     category: item.products.categories.name,
@@ -189,26 +194,27 @@ export async function getCatalogProducts(catalogId: string): Promise<CatalogProd
     format: item.products.format,
     id: item.product_id,
     itemSortOrder: item.sort_order,
-    mainImage: imageFor(item.product_id, "main"),
+    mainImage: imageFor(item.product_id, "main") ?? placeholder,
     origin: item.products.origin,
-    secondaryImages: [
-      imageFor(item.product_id, "secondary_1"),
-      imageFor(item.product_id, "secondary_2"),
-      imageFor(item.product_id, "secondary_3"),
-    ],
+    secondaryImages: (["secondary_1", "secondary_2", "secondary_3"] as const)
+      .map((slot) => imageFor(item.product_id, slot))
+      .filter((url): url is string => Boolean(url)),
     title: item.products.title,
     units: item.products.units,
+    uses: item.products.uses,
   }));
 }
 
-async function approvedImageProductIds(catalogId: string): Promise<Set<string>> {
+async function approvedImageSummary(
+  catalogId: string,
+): Promise<Map<string, { hasMainImage: boolean; imageCount: number }>> {
   const admin = createAdminClient();
   const result = await admin
     .from("catalog_items")
     .select("product_id,products(product_images(slot,status))")
     .eq("catalog_id", catalogId);
   if (result.error) {
-    return new Set();
+    return new Map();
   }
   const schema = z.array(
     z.object({
@@ -220,16 +226,18 @@ async function approvedImageProductIds(catalogId: string): Promise<Set<string>> 
   );
   const parsed = schema.safeParse(result.data);
   if (!parsed.success) {
-    return new Set();
+    return new Map();
   }
-  const ready = new Set<string>();
+  const summaries = new Map<string, { hasMainImage: boolean; imageCount: number }>();
   for (const row of parsed.data) {
     const approved = new Set(
       row.products.product_images.filter((i) => i.status === "approved").map((i) => i.slot),
     );
-    if (["main", "secondary_1", "secondary_2", "secondary_3"].every((slot) => approved.has(slot))) {
-      ready.add(row.product_id);
-    }
+    const catalogSlots = ["main", "secondary_1", "secondary_2", "secondary_3"];
+    summaries.set(row.product_id, {
+      hasMainImage: approved.has("main"),
+      imageCount: catalogSlots.filter((slot) => approved.has(slot)).length,
+    });
   }
-  return ready;
+  return summaries;
 }

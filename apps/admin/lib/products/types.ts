@@ -3,7 +3,7 @@ import type { ProductImageRecord } from "@/lib/images/types";
 
 export type CategoryOption = {
   id: string;
-  name: "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
+  name: "Cerdo" | "Pollo" | "Vacuno" | "Trimming" | "Don Pancho";
   slug: string;
   sort_order: number;
 };
@@ -20,7 +20,9 @@ export type ProductRecord = ProductInput & {
   category: CategoryOption;
   created_at: string;
   cut: CutOption;
+  hasMainImage: boolean;
   id: string;
+  imageCount: number;
   mainImageUrl: string | null;
   status: ProductStatus;
   updated_at: string;

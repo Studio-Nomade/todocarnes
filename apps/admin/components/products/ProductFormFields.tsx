@@ -2,6 +2,7 @@
 
 import type { CategoryOption, CutOption } from "@/lib/products/types";
 import type { ProductInput } from "@/lib/validators/product";
+import { PRODUCT_USES, PRODUCT_USE_LABELS } from "@/lib/products/uses";
 import { ProductVariantEditor } from "./ProductVariantEditor";
 
 type ProductFormFieldsProps = {
@@ -21,6 +22,7 @@ export function ProductFormFields({
   product,
 }: ProductFormFieldsProps) {
   const availableCuts = cuts.filter((cut) => cut.category_id === product.category_id);
+  const isDonPancho = categories.find((category) => category.id === product.category_id)?.name === "Don Pancho";
 
   return (
     <div className="space-y-5">
@@ -73,6 +75,30 @@ export function ProductFormFields({
 
       <ProductVariantEditor onChange={onChange} product={product} />
 
+      {isDonPancho ? (
+        <fieldset className="rounded-lg border border-ink/10 bg-gray-50 p-4">
+          <legend className="px-1 text-sm font-medium text-navy">Usos sugeridos</legend>
+          <div className="mt-2 flex flex-wrap gap-4">
+            {PRODUCT_USES.map((use) => (
+              <label className="flex items-center gap-2 text-sm text-ink" key={use}>
+                <input
+                  checked={product.uses.includes(use)}
+                  className="h-4 w-4 accent-blue"
+                  onChange={(event) => onChange(
+                    "uses",
+                    event.target.checked
+                      ? [...product.uses, use]
+                      : product.uses.filter((item) => item !== use),
+                  )}
+                  type="checkbox"
+                />
+                {PRODUCT_USE_LABELS[use]}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="text-sm font-medium text-navy">
           Estado
@@ -81,6 +107,20 @@ export function ProductFormFields({
             <option value="active">Activo</option>
             <option value="inactive">Inactivo</option>
           </select>
+        </label>
+        <label className="flex items-start gap-3 rounded-lg border border-ink/10 bg-gray-50 px-4 py-3 text-sm text-navy">
+          <input
+            checked={product.available_soon}
+            className="mt-0.5 h-4 w-4 accent-blue"
+            onChange={(event) => onChange("available_soon", event.target.checked)}
+            type="checkbox"
+          />
+          <span>
+            <span className="font-medium">Disponible pronto</span>
+            <span className="mt-1 block text-xs font-normal leading-5 text-ink/55">
+              Se muestra en la ficha del catálogo. El producto tiene que estar activo para aparecer.
+            </span>
+          </span>
         </label>
         <label className="text-sm font-medium text-navy">
           Mes / campaña

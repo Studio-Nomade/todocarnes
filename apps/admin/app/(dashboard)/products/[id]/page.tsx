@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductEditor } from "@/components/products/ProductEditor";
 import { getProduct, listProducts } from "@/lib/actions/products";
+import { getImageGenerationAvailability } from "@/lib/images/provider";
 import type { ProductInput } from "@/lib/validators/product";
 
 export const maxDuration = 120;
@@ -23,6 +24,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
   }
 
   const initialProduct: ProductInput = {
+    available_soon: product.available_soon,
     box_weight: product.box_weight,
     brand: product.brand,
     category_id: product.category_id,
@@ -36,7 +38,9 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
     status: product.status,
     title: product.title,
     units: product.units,
+    uses: product.uses,
   };
+  const imageGenerationEnabled = getImageGenerationAvailability().enabled;
 
   return (
     <section>
@@ -53,6 +57,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
         categories={options.categories}
         cuts={options.cuts}
         images={product.images}
+        imageGenerationEnabled={imageGenerationEnabled}
         initialProduct={initialProduct}
         productId={product.id}
       />

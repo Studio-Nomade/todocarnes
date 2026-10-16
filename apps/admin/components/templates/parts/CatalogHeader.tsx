@@ -1,15 +1,16 @@
 import Image from "next/image";
+import type { CategoryName } from "@/lib/pdf/page-order";
 import { CategoryIcon } from "./CategoryIcon";
 import { CutsNav } from "./CutsNav";
 
 type CatalogHeaderProps = {
-  activeCategory: "Cerdo" | "Pollo" | "Vacuno" | "Trimming";
+  activeCategory: CategoryName;
   activeCut: string;
   cuts: string[];
 };
 
-const categories = ["Cerdo", "Pollo", "Vacuno", "Trimming"] as const;
-const widths = [136, 151, 152, 186];
+const categories = ["Cerdo", "Pollo", "Vacuno", "Trimming", "Don Pancho"] as const;
+const widths = [115, 115, 115, 125, 155];
 
 export function CatalogHeader({ activeCategory, activeCut, cuts }: CatalogHeaderProps) {
   return (

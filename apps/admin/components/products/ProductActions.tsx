@@ -3,17 +3,20 @@
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useState, useTransition } from "react";
-import { deactivateProduct, duplicateProduct } from "@/lib/actions/products";
+import { duplicateProduct, setProductStatus } from "@/lib/actions/products";
+import type { ProductStatus } from "@/lib/validators/product";
 
 type ProductActionsProps = {
   compact?: boolean;
   id: string;
-  inactive: boolean;
+  onStatusChange?: (status: ProductStatus) => void;
+  status: ProductStatus;
 };
 
-export function ProductActions({ compact = false, id, inactive }: ProductActionsProps) {
+export function ProductActions({ compact = false, id, onStatusChange, status }: ProductActionsProps) {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [optimisticStatus, setOptimisticStatus] = useState(status);
   const [isPending, startTransition] = useTransition();
 
   function duplicate() {
@@ -28,17 +31,23 @@ export function ProductActions({ compact = false, id, inactive }: ProductActions
     });
   }
 
-  function deactivate() {
-    if (!window.confirm("¿Quieres desactivar este producto? Seguirá disponible en la base.")) {
+  function toggleStatus() {
+    const previousStatus = optimisticStatus;
+    const nextStatus = optimisticStatus === "active" ? "inactive" : "active";
+    const action = nextStatus === "active" ? "activar" : "desactivar";
+    if (!window.confirm(`¿Quieres ${action} este producto?`)) {
       return;
     }
     setError("");
+    setOptimisticStatus(nextStatus);
     startTransition(async () => {
-      const result = await deactivateProduct(id);
+      const result = await setProductStatus(id, nextStatus);
       if (!result.success) {
+        setOptimisticStatus(previousStatus);
         setError(result.error);
         return;
       }
+      onStatusChange?.(nextStatus);
       router.refresh();
     });
   }
@@ -52,16 +61,14 @@ export function ProductActions({ compact = false, id, inactive }: ProductActions
         label="Duplicar"
         onClick={duplicate}
       />
-      {!inactive ? (
-        <ActionButton
-          compact={compact}
-          danger
-          disabled={isPending}
-          icon={<DeactivateIcon />}
-          label="Desactivar"
-          onClick={deactivate}
-        />
-      ) : null}
+      <ActionButton
+        compact={compact}
+        danger={optimisticStatus === "active"}
+        disabled={isPending}
+        icon={optimisticStatus === "active" ? <DeactivateIcon /> : <ActivateIcon />}
+        label={optimisticStatus === "active" ? "Desactivar" : "Activar"}
+        onClick={toggleStatus}
+      />
       {error ? <span className="w-full text-xs text-red-700">{error}</span> : null}
     </div>
   );
@@ -120,6 +127,15 @@ function DeactivateIcon() {
     <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.8" />
       <path d="m7 7 10 10" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
+function ActivateIcon() {
+  return (
+    <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.8" />
+      <path d="m8.5 12 2.2 2.2 4.8-5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
     </svg>
   );
 }
