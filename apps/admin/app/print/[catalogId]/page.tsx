@@ -3,6 +3,7 @@ import { CatalogPages } from "@/components/templates/CatalogPages";
 import { PrintReadySignal } from "@/components/templates/PrintReadySignal";
 import { getCatalog, getCatalogProducts } from "@/lib/catalogs/data";
 import { buildPages } from "@/lib/pdf/page-order";
+import { printImageConfigFromEnv } from "@/lib/pdf/print-image";
 import { isValidPrintToken } from "@/lib/pdf/print-token";
 import { getServices } from "@/lib/services/data";
 import "@/styles/print.css";
@@ -33,6 +34,7 @@ export default async function PrintPage({ params, searchParams }: PrintPageProps
     getServices(true),
   ]);
   const pages = buildPages(products, services, { includePackaging: catalog.includePackaging });
+  const print = printImageConfigFromEnv(process.env) ?? undefined;
 
   return (
     <>
@@ -45,6 +47,7 @@ export default async function PrintPage({ params, searchParams }: PrintPageProps
           year: catalog.year,
         }}
         pages={pages}
+        print={print}
       />
       <PrintReadySignal />
     </>

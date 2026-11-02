@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { productAnchor } from "@/lib/pdf/page-order";
+import { printImageUrl, type PrintImageConfig } from "@/lib/pdf/print-image";
 import { secondaryLayout } from "@/lib/pdf/secondary-layout";
 import type { ProductUse } from "@/lib/products/uses";
 import { CatalogPage } from "./CatalogPage";
@@ -38,6 +39,8 @@ export type ProductPageTemplateProps = {
   pageNumber?: number;
   productId?: string;
   overlay?: ReactNode;
+  // Presente solo en /print: las fotos salen por /api/print-image como JPEG al tamaño de la lámina.
+  print?: PrintImageConfig;
 };
 
 const fields = [
@@ -57,6 +60,7 @@ export function ProductPageTemplate({
   pageNumber,
   productId,
   overlay,
+  print,
 }: ProductPageTemplateProps) {
   const titleLength = product.title.length;
   const titleSize =
@@ -84,19 +88,37 @@ export function ProductPageTemplate({
       <CatalogHeader activeCategory={product.category} activeCut={product.cut} cuts={product.cuts} />
       {overlay}
       <div className="absolute left-0 top-[155px] h-[605px] w-[469px] bg-gray-50" />
-      <Image alt={product.title} className={`absolute left-[469px] top-[155px] w-[971px] bg-white object-contain ${mainImageHeight}`} height={700} priority={eagerImages} src={product.mainImage} width={1200} />
-      {product.secondaryImages.map((src, index) => (
-        <Image
-          alt={`Vista secundaria ${index + 1} de ${product.title}`}
-          className="absolute top-[591px] h-[169px] w-[272px] object-cover"
-          height={700}
-          key={`${src}-${index}`}
-          priority={eagerImages}
-          src={src}
-          style={{ left: secondaryPositions[index]?.left }}
-          width={1200}
-        />
-      ))}
+      {print ? (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img alt={product.title} className={`absolute left-[469px] top-[155px] w-[971px] bg-white object-contain ${mainImageHeight}`} src={printImageUrl(product.mainImage, print, 971)} />
+        </>
+      ) : (
+        <Image alt={product.title} className={`absolute left-[469px] top-[155px] w-[971px] bg-white object-contain ${mainImageHeight}`} height={700} priority={eagerImages} src={product.mainImage} width={1200} />
+      )}
+      {product.secondaryImages.map((src, index) =>
+        print ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            alt={`Vista secundaria ${index + 1} de ${product.title}`}
+            className="absolute top-[591px] h-[169px] w-[272px] object-cover"
+            key={`${src}-${index}`}
+            src={printImageUrl(src, print, 272)}
+            style={{ left: secondaryPositions[index]?.left }}
+          />
+        ) : (
+          <Image
+            alt={`Vista secundaria ${index + 1} de ${product.title}`}
+            className="absolute top-[591px] h-[169px] w-[272px] object-cover"
+            height={700}
+            key={`${src}-${index}`}
+            priority={eagerImages}
+            src={src}
+            style={{ left: secondaryPositions[index]?.left }}
+            width={1200}
+          />
+        ),
+      )}
       <div className="absolute left-11 top-[181px] flex w-[380px] items-center gap-3">
         {product.availableSoon ? (
           <span className="shrink-0 rounded-full bg-blue-50 px-3 py-1 text-[13px] font-semibold uppercase tracking-[0.08em] text-blue">
