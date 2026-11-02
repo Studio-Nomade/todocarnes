@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { catalogPeriod } from "@/lib/catalogs/format";
+import { printImageUrl, type PrintImageConfig } from "@/lib/pdf/print-image";
 import { categoryAnchor, productAnchor, type CategoryName, type CategoryProductEntry } from "@/lib/pdf/page-order";
 import { CatalogPage } from "./CatalogPage";
 import { CategoryIcon } from "./parts/CategoryIcon";
@@ -11,21 +12,27 @@ type CategoryDividerProps = {
   year: number;
   pageNumber: number;
   scale?: number;
+  print?: PrintImageConfig;
 };
 
-export function CategoryDivider({ category, products, month, year, pageNumber, scale }: CategoryDividerProps) {
+export function CategoryDivider({ category, products, month, year, pageNumber, scale, print }: CategoryDividerProps) {
   const compactProducts = products.length > 10;
 
   return (
     <CatalogPage id={categoryAnchor(category)} scale={scale}>
-      <Image
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover"
-        height={941}
-        priority
-        src="/brand/divider-bg.webp"
-        width={1672}
-      />
+      {print ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img alt="" className="absolute inset-0 h-full w-full object-cover" src={printImageUrl("/brand/divider-bg.webp", print, 1440)} />
+      ) : (
+        <Image
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          height={941}
+          priority
+          src="/brand/divider-bg.webp"
+          width={1672}
+        />
+      )}
 
       <div className="absolute left-[120px] top-1/2 max-w-[560px] -translate-y-1/2">
         <div className="flex h-[180px] w-[180px] items-center justify-center rounded-[40px] bg-white/5 text-blue-mid">

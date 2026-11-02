@@ -1,6 +1,7 @@
 import { Fragment, type ReactNode } from "react";
 import { catalogPeriod } from "@/lib/catalogs/format";
 import type { CatalogPageSpec } from "@/lib/pdf/page-order";
+import type { PrintImageConfig } from "@/lib/pdf/print-image";
 import { CatalogClosing } from "./CatalogClosing";
 import { CatalogCover } from "./CatalogCover";
 import { CatalogIndex } from "./CatalogIndex";
@@ -25,21 +26,23 @@ type CatalogPagesProps = {
   // framed: cada página en un contenedor de tamaño escalado (para el preview en pantalla).
   // sin framed: secciones 1440×810 crudas que Playwright pagina con break-after (para el PDF).
   framed?: boolean;
+  // Solo en /print: fotos como JPEG al tamaño de lámina (ver lib/pdf/print-image.ts).
+  print?: PrintImageConfig;
 };
 
-function renderPage(page: CatalogPageSpec, meta: CatalogMeta, period: string, scale?: number): ReactNode {
+function renderPage(page: CatalogPageSpec, meta: CatalogMeta, period: string, scale?: number, print?: PrintImageConfig): ReactNode {
   switch (page.kind) {
     case "cover":
-      return <CatalogCover month={meta.month} scale={scale} title={meta.title} year={meta.year} />;
+      return <CatalogCover month={meta.month} print={print} scale={scale} title={meta.title} year={meta.year} />;
     case "index":
       return <CatalogIndex entries={page.entries} includePackaging={page.includePackaging} month={meta.month} pageNumber={page.pageNumber} scale={scale} year={meta.year} />;
     case "services":
       return <CatalogServices month={meta.month} pageNumber={page.pageNumber} scale={scale} services={page.services} year={meta.year} />;
     case "packaging":
-      return <CatalogPackaging clientLogoUrl={meta.clientLogoUrl} clientName={meta.clientName} month={meta.month} pageNumber={page.pageNumber} scale={scale} year={meta.year} />;
+      return <CatalogPackaging clientLogoUrl={meta.clientLogoUrl} clientName={meta.clientName} month={meta.month} pageNumber={page.pageNumber} print={print} scale={scale} year={meta.year} />;
     case "divider":
       return (
-        <CategoryDivider category={page.category} month={meta.month} pageNumber={page.pageNumber} products={page.products} scale={scale} year={meta.year} />
+        <CategoryDivider category={page.category} month={meta.month} pageNumber={page.pageNumber} print={print} products={page.products} scale={scale} year={meta.year} />
       );
     case "product": {
       const ProductTemplate = productTemplateFor(page.product.category);
@@ -66,6 +69,7 @@ function renderPage(page: CatalogPageSpec, meta: CatalogMeta, period: string, sc
             units: page.product.units,
             uses: page.product.uses,
           }}
+          print={print}
           scale={scale}
         />
       );
@@ -76,14 +80,14 @@ function renderPage(page: CatalogPageSpec, meta: CatalogMeta, period: string, sc
 }
 
 // Mapea la secuencia pura de page-order a las plantillas concretas.
-export function CatalogPages({ meta, pages, scale, framed = false }: CatalogPagesProps) {
+export function CatalogPages({ meta, pages, scale, framed = false, print }: CatalogPagesProps) {
   const period = catalogPeriod(meta.month, meta.year);
 
   return (
     <>
       {pages.map((page) => {
         if (!framed) {
-          const element = renderPage(page, meta, period, scale);
+          const element = renderPage(page, meta, period, scale, print);
           // Fragment: sin nodo DOM, para que las <section> queden hermanas
           // directas y break-after:page + :last-of-type funcionen en el PDF.
           return <Fragment key={`${page.kind}-${page.pageNumber}`}>{element}</Fragment>;

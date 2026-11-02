@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { catalogPeriod } from "@/lib/catalogs/format";
+import { printImageUrl, type PrintImageConfig } from "@/lib/pdf/print-image";
 import { CatalogPage } from "./CatalogPage";
 import { ClientLogo } from "./parts/ClientLogo";
 
@@ -14,11 +15,12 @@ type CatalogPackagingProps = {
   clientName?: string | null;
   month: number;
   pageNumber: number;
+  print?: PrintImageConfig;
   scale?: number;
   year: number;
 };
 
-export function CatalogPackaging({ clientLogoUrl, clientName, month, pageNumber, scale, year }: CatalogPackagingProps) {
+export function CatalogPackaging({ clientLogoUrl, clientName, month, pageNumber, print, scale, year }: CatalogPackagingProps) {
   return (
     <CatalogPage id="maquila-envasados" scale={scale}>
       <div className="absolute inset-0 bg-navy" />
@@ -37,7 +39,12 @@ export function CatalogPackaging({ clientLogoUrl, clientName, month, pageNumber,
         {packages.map((item) => (
           <article key={item.label}>
             <div className="relative h-[355px] overflow-hidden rounded-[24px] bg-white">
-              <Image alt={item.label} className="object-cover" fill priority sizes="410px" src={item.image} />
+              {print ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img alt={item.label} className="absolute inset-0 h-full w-full object-cover" src={printImageUrl(item.image, print, 410)} />
+              ) : (
+                <Image alt={item.label} className="object-cover" fill priority sizes="410px" src={item.image} />
+              )}
               <ClientLogo
                 className={`absolute left-1/2 top-1/2 h-[32%] -translate-x-1/2 -translate-y-1/2 ${item.logoWidth}`}
                 clientName={clientName}
