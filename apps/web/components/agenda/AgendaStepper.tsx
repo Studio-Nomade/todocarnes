@@ -1,4 +1,4 @@
-const steps = ["Selecciona día y horario", "Completa tus datos", "Revisa tu reserva", "¡Listo! Te esperamos"];
+const steps = ["Modalidad, día y horario", "Completa tus datos", "Revisa tu reserva", "Reunión agendada"];
 
 export function AgendaStepper({ current }: { current: number }) {
   return (

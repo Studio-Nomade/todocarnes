@@ -5,7 +5,7 @@ import { CommercialAreas } from "@/components/landing/CommercialAreas";
 import { CommercialTeam } from "@/components/landing/CommercialTeam";
 import { LandingContactForm } from "@/components/landing/LandingContactForm";
 import { DonPancho } from "@/components/landing/DonPancho";
-import { FoodServiceBanner } from "@/components/landing/FoodServiceBanner";
+import { AgendaSection } from "@/components/landing/AgendaSection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingHero } from "@/components/landing/LandingHero";
@@ -35,9 +35,9 @@ async function PublicContactForm() {
   return <LandingContactForm configured={team.configured} />;
 }
 
-async function PublicFoodServiceBanner() {
+async function PublicAgenda() {
   const data = await getAgendaPageData();
-  return <FoodServiceBanner eventName={data.event.name} />;
+  return <AgendaSection data={data} />;
 }
 
 export default function HomePage() {
@@ -54,9 +54,9 @@ export default function HomePage() {
         <Capacity />
         <Suspense fallback={<div className="min-h-96 bg-gray-50" aria-label="Cargando equipo comercial" />}><PublicCommercialTeam /></Suspense>
         <ProcessSteps />
-        <Suspense fallback={<div className="min-h-64" aria-label="Cargando evento Food Service" />}><PublicFoodServiceBanner /></Suspense>
         <DonPancho />
         <Suspense fallback={<div className="min-h-96 bg-blue-50" aria-label="Cargando formulario de contacto" />}><PublicContactForm /></Suspense>
+        <Suspense fallback={<div className="min-h-96 bg-white" aria-label="Cargando agenda" />}><PublicAgenda /></Suspense>
       </main>
       <LandingFooter />
     </>

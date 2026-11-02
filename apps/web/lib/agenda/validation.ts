@@ -36,6 +36,8 @@ export const bookingInputSchema = z.object({
   phone: phoneSchema,
   topics: z.string().trim().max(1000),
   cameFrom: z.enum(contactOrigins).or(z.literal("")),
+  modality: z.enum(["videollamada", "oficina", "visita"]),
+  locationDetail: z.string().trim().max(240),
 });
 
 export const agendaLeadInputSchema = z.object({

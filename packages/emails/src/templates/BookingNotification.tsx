@@ -13,6 +13,7 @@ export type BookingNotificationProps = {
   timeLabel: string;
   durationMinutes: number;
   location: string;
+  modality?: string | null;
   topics?: string | null;
   cameFrom?: string | null;
   logoUrl?: string;
@@ -33,10 +34,11 @@ export function BookingNotification(props: BookingNotificationProps) {
         { label: "Área", value: props.area },
         { label: "Representante", value: props.representativeName },
         { label: "Evento", value: props.eventName },
+        { label: "Modalidad", value: props.modality },
         { label: "Fecha", value: props.dateLabel },
         { label: "Hora", value: props.timeLabel },
         { label: "Duración", value: `${props.durationMinutes} minutos` },
-        { label: "Lugar / stand", value: props.location },
+        { label: "Lugar", value: props.location },
         { label: "Temas", value: props.topics },
         { label: "Cómo llegó", value: props.cameFrom },
       ]}

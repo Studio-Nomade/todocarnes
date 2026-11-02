@@ -4,11 +4,16 @@ import { z } from "zod";
 import { requireRole } from "@/lib/auth/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { bookingStatuses } from "./constants";
+import { upcomingAgendaDays } from "./days";
 import type { BookingAgenda, BookingItem } from "./types";
 import { bookingFiltersSchema } from "./validation";
 
 const eventSchema = z.object({
-  days: z.array(z.string()).nullable().transform((days) => days ?? []),
+  blackout_dates: z.array(z.string()).default([]),
+  days: z.array(z.string()).nullable(),
+  horizon_days: z.number().int().positive().default(14),
+  kind: z.enum(["event", "permanent"]).default("event"),
+  weekdays: z.array(z.number().int()).default([1, 2, 3, 4, 5]),
   id: z.string().uuid(),
   location: z.string().nullable(),
   name: z.string(),
@@ -24,6 +29,8 @@ const bookingRowSchema = z.object({
   day: z.string(),
   email: z.string().email(),
   id: z.string().uuid(),
+  location_detail: z.string().nullable().default(null),
+  modality: z.string().nullable().default(null),
   name: z.string(),
   phone: z.string().nullable(),
   rep_id: z.string().uuid(),
@@ -38,13 +45,17 @@ export async function getBookingAgenda(input: unknown): Promise<BookingAgenda | 
   const profile = await requireRole(["admin", "commercial"]);
   const filters = bookingFiltersSchema.parse(input);
   const admin = createAdminClient();
-  const eventResult = await admin.from("booking_events").select("id,name,location,days,slot_times,slot_minutes").eq("is_active", true).order("start_date", { ascending: true }).limit(1).maybeSingle();
+  const eventResult = await admin.from("booking_events").select("id,name,location,days,slot_times,slot_minutes,kind,weekdays,horizon_days,blackout_dates").eq("is_active", true).order("start_date", { ascending: true }).limit(1).maybeSingle();
   if (eventResult.error) throw new Error("No se pudo cargar el evento.");
   if (!eventResult.data) return null;
   const eventRow = eventSchema.parse(eventResult.data);
-  const selectedDay = filters.day && eventRow.days.includes(filters.day) ? filters.day : undefined;
+  // Agenda permanente: la grilla son los días hábiles de la ventana vigente, no una lista fija.
+  const days = eventRow.kind === "permanent"
+    ? upcomingAgendaDays({ blackoutDates: eventRow.blackout_dates, horizonDays: eventRow.horizon_days, now: new Date(), weekdays: eventRow.weekdays })
+    : (eventRow.days ?? []);
+  const selectedDay = filters.day && (eventRow.kind === "permanent" || days.includes(filters.day)) ? filters.day : undefined;
 
-  let query = admin.from("bookings").select("id,rep_id,name,company,cargo,email,phone,day,slot_time,topics,came_from,status,created_at").eq("event_id", eventRow.id).order("day").order("slot_time").order("created_at");
+  let query = admin.from("bookings").select("id,rep_id,name,company,cargo,email,phone,day,slot_time,topics,came_from,modality,location_detail,status,created_at").eq("event_id", eventRow.id).order("day").order("slot_time").order("created_at");
   if (profile.role === "commercial") query = query.eq("rep_id", profile.id);
   else if (filters.repId) query = query.eq("rep_id", filters.repId);
   if (selectedDay) query = query.eq("day", selectedDay);
@@ -63,6 +74,8 @@ export async function getBookingAgenda(input: unknown): Promise<BookingAgenda | 
     day: row.day,
     email: row.email,
     id: row.id,
+    locationDetail: row.location_detail,
+    modality: row.modality,
     name: row.name,
     phone: row.phone,
     repId: row.rep_id,
@@ -73,7 +86,7 @@ export async function getBookingAgenda(input: unknown): Promise<BookingAgenda | 
   }));
   return {
     bookings,
-    event: { days: eventRow.days, id: eventRow.id, location: eventRow.location, name: eventRow.name, slotMinutes: eventRow.slot_minutes, slotTimes: eventRow.slot_times },
+    event: { days, id: eventRow.id, location: eventRow.location, name: eventRow.name, slotMinutes: eventRow.slot_minutes, slotTimes: eventRow.slot_times },
     selectedDay,
     selectedRepId: profile.role === "commercial" ? profile.id : filters.repId,
   };
