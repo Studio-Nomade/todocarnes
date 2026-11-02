@@ -12,6 +12,8 @@ export type BookingEmailData = {
   area?: string | null;
   topics?: string | null;
   cameFrom?: string | null;
+  /** videollamada | oficina | visita (reservas de la agenda permanente). */
+  modality?: string | null;
   icsUid: string;
   start: Date;
 };

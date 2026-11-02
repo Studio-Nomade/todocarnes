@@ -16,6 +16,7 @@ export type PublicRepresentative = {
   bio: string;
 };
 
+/** Lo que consume la sección de agenda: los días ya vienen calculados para la ventana vigente. */
 export type AgendaEvent = {
   id: string;
   name: string;
@@ -44,7 +45,6 @@ export type AgendaPageData = {
   event: AgendaEvent;
   representatives: PublicRepresentative[];
   configured: boolean;
-  courtesyConfigured: boolean;
   notice?: string;
 };
 
@@ -56,6 +56,8 @@ export type BookingFormState = {
   phone: string;
   topics: string;
   cameFrom: ContactOrigin | "";
+  modality: BookingModality | "";
+  locationDetail: string;
 };
 
 export type CreateBookingInput = BookingFormState & {
@@ -68,15 +70,3 @@ export type CreateBookingInput = BookingFormState & {
 export type CreateBookingResult =
   | { ok: true; bookingId: string; emailSent: boolean }
   | { ok: false; error: "invalid_data" | "invalid_selection" | "slot_taken" | "server_error" };
-
-export type AgendaLeadFormState = {
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-  message: string;
-};
-
-export type CreateAgendaLeadResult =
-  | { ok: true; leadId: string; emailSent: boolean }
-  | { ok: false; error: "invalid_data" | "server_error" };

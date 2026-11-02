@@ -6,7 +6,7 @@ import { zonedDateTimeToUtc } from "./timezone";
 const event: AvailabilityEvent = {
   blackoutDates: [],
   days: null,
-  horizonDays: 10,
+  horizonDays: 14,
   kind: "permanent",
   minNoticeHours: 24,
   slotTimes: ["10:00:00", "11:00:00", "12:00:00", "15:00:00", "16:00:00"],
@@ -28,10 +28,12 @@ test("el jueves a las 15 solo deja bloques del viernes desde las 15", () => {
   assert.deepEqual(availableSlots(event, "2026-10-16", at("2026-10-15", "15:00:00")), ["15:00:00", "16:00:00"]);
 });
 
-test("el horizonte se cuenta en días hábiles disponibles", () => {
+test("la ventana son dos semanas calendario desde hoy", () => {
   const days = availableDays(event, at("2026-10-19", "08:00:00"));
-  assert.equal(days.length, 10);
-  assert.equal(days.at(-1), "2026-11-02");
+  // Del lunes 19 (sin anticipación suficiente) al domingo 1 de noviembre: 9 días hábiles.
+  assert.equal(days.length, 9);
+  assert.equal(days[0], "2026-10-20");
+  assert.equal(days.at(-1), "2026-10-30");
 });
 
 test("un evento de fechas fijas conserva sus días y bloques", () => {

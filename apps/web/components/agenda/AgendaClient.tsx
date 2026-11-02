@@ -1,42 +1,40 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createBooking, getAvailability } from "@/app/agenda/actions";
-import type { AgendaPageData, AgendaSlot, BookingFormState, PublicRepresentative } from "@/lib/agenda/types";
+import { createBooking, getAvailability } from "@/app/actions/agenda";
+import type { AgendaPageData, AgendaSlot, BookingFormState, BookingModality, PublicRepresentative } from "@/lib/agenda/types";
 import { buildWhatsAppHref } from "@/lib/agenda/whatsapp";
 import { AgendaStepper } from "./AgendaStepper";
 import { BookingForm } from "./BookingForm";
 import { BookingSummary } from "./BookingSummary";
+import { ModalityPicker } from "./ModalityPicker";
 import { RepresentativeGrid } from "./RepresentativeGrid";
 import { SectionHeading } from "./SiteChrome";
 import { SlotPicker } from "./SlotPicker";
 import { SuccessState } from "./SuccessState";
-import { ContactDirect } from "./ContactDirect";
-import { HowItWorks } from "./HowItWorks";
 import { dayLabel } from "./SlotPicker";
 
-const EMPTY_FORM: BookingFormState = { name: "", company: "", cargo: "", email: "", phone: "", topics: "", cameFrom: "" };
+const EMPTY_FORM: BookingFormState = { name: "", company: "", cargo: "", email: "", phone: "", topics: "", cameFrom: "", modality: "", locationDetail: "" };
 
 function fallbackSlots(data: AgendaPageData): AgendaSlot[] {
   return data.event.days.flatMap((day) => data.event.slotTimes.map((slotTime) => ({ day, slotTime, taken: false })));
 }
 
 function errorMessage(error: "invalid_data" | "invalid_selection" | "slot_taken" | "server_error") {
-  if (error === "slot_taken") return "Ese horario acaba de ocuparse. Elegí otro para continuar.";
+  if (error === "slot_taken") return "Ese horario acaba de ocuparse. Elige otro para continuar.";
   if (error === "invalid_data") return "Revisa los campos requeridos y el teléfono antes de confirmar.";
-  if (error === "invalid_selection") return "La selección ya no está disponible. Vuelve a elegir vendedor y horario.";
+  if (error === "invalid_selection") return "La selección ya no está disponible. Vuelve a elegir día y horario.";
   return "No pudimos confirmar la reserva. Inténtalo nuevamente en unos minutos.";
 }
 
 export function AgendaClient({ data }: { data: AgendaPageData }) {
-  if (!data.representatives.length) {
+  if (!data.representatives.length || !data.event.days.length) {
     return (
-      <section className="mx-auto max-w-3xl px-5 py-20 text-center sm:px-8">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">Agenda comercial</p>
-        <h2 className="mt-3 font-display text-4xl text-navy">Próximamente podrás reservar tu reunión.</h2>
-        <p className="mx-auto mt-5 max-w-xl text-ink/65">Aún no hay vendedores públicos disponibles para este evento. Puedes volver más tarde o escribirnos desde el formulario general de contacto.</p>
+      <div className="mx-auto max-w-3xl py-10 text-center">
+        <h3 className="font-display text-3xl text-navy">Próximamente podrás reservar tu reunión.</h3>
+        <p className="mx-auto mt-5 max-w-xl text-ink/65">Por ahora no hay horarios disponibles. Puedes escribirnos desde el formulario de contacto y te responderemos a la brevedad.</p>
         {data.notice ? <p className="mt-6 rounded-xl border border-blue-mid bg-blue-50 px-5 py-4 text-sm text-navy">{data.notice}</p> : null}
-      </section>
+      </div>
     );
   }
 
@@ -77,37 +75,41 @@ function ConfiguredAgendaClient({ data }: { data: AgendaPageData }) {
     return () => { active = false; };
   }, [data.configured, data.event.id, representative.id]);
 
+  const modalityReady = form.modality !== "" && (form.modality !== "visita" || form.locationDetail.trim().length > 0);
   const formReady = useMemo(() => Boolean(form.name.trim() && form.company.trim() && form.cargo.trim() && form.email.includes("@") && form.phone.replace(/\D/g, "").length === 9), [form]);
-  const currentStep = completed ? 4 : formReady && slotTime ? 3 : slotTime ? 2 : 1;
+  const selectionReady = modalityReady && Boolean(slotTime);
+  const currentStep = completed ? 4 : formReady && selectionReady ? 3 : selectionReady ? 2 : 1;
   const whatsappHref = buildWhatsAppHref({ representative, dayLabel: dayLabel(day), slotTime, customerName: form.name });
 
   function selectRepresentative(rep: PublicRepresentative) {
     setRepresentative(rep); setDay(data.event.days[0]); setSlotTime(null); setError(null);
   }
 
+  function update(field: keyof BookingFormState, value: string) {
+    setForm((current) => ({ ...current, [field]: value }));
+  }
+
   async function confirm() {
-    if (!slotTime || !data.configured) return;
+    if (!slotTime || !data.configured || !modalityReady) return;
     setPending(true); setError(null);
     const result = await createBooking({ ...form, eventId: data.event.id, repId: representative.id, day, slotTime });
     setPending(false);
     if (result.ok) { setEmailWarning(!result.emailSent); setCompleted(true); return; }
     setError(errorMessage(result.error));
-    if (result.error === "slot_taken") { setSlotTime(null); await refreshAvailability(representative); }
+    if (result.error === "slot_taken" || result.error === "invalid_selection") { setSlotTime(null); await refreshAvailability(representative); }
   }
 
-  if (completed && slotTime) return <><AgendaStepper current={4}/><SuccessState event={data.event} representative={representative} day={day} slotTime={slotTime} emailWarning={emailWarning}/></>;
+  if (completed && slotTime) return <><AgendaStepper current={4}/><SuccessState representative={representative} day={day} slotTime={slotTime} modality={form.modality as BookingModality} locationDetail={form.locationDetail} emailWarning={emailWarning}/></>;
 
   return (
     <>
       <AgendaStepper current={currentStep}/>
-      <section id="reserva" className="mx-auto max-w-6xl scroll-mt-4 px-5 pb-14 sm:px-8">
-        <div id="equipo"><SectionHeading eyebrow="Nuestro equipo" title="Elige el área que mejor se ajusta a tu negocio">Selecciona con quién te gustaría agendar tu reunión en la feria.</SectionHeading><RepresentativeGrid representatives={data.representatives} selectedId={representative.id} onSelect={selectRepresentative}/></div>
+      <div id="reserva" className="scroll-mt-24 pb-6">
+        <div><SectionHeading eyebrow="Nuestro equipo" title="Elige con quién quieres reunirte">Selecciona el área y la persona que mejor se ajusta a tu negocio.</SectionHeading><RepresentativeGrid representatives={data.representatives} selectedId={representative.id} onSelect={selectRepresentative}/></div>
         {data.notice && <p className="mt-5 rounded-xl border border-blue-mid bg-blue-50 px-5 py-4 text-sm text-navy">{data.notice}</p>}
-        <div className="mt-14"><SectionHeading eyebrow="Paso 1 de 4" title="Selecciona día y horario">Elige el día y horario que más te acomode para tu reunión presencial en nuestro stand.</SectionHeading><SlotPicker days={data.event.days} slots={slots} selectedDay={day} selectedTime={slotTime} loading={loadingSlots} onDay={(value) => { setDay(value); setSlotTime(null); }} onTime={(value) => { setSlotTime(value); setError(null); }}/></div>
-        <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]"><div><SectionHeading eyebrow="Paso 2 de 4" title="Completa tus datos">Con esta información podremos confirmar tu reunión en la feria.</SectionHeading><BookingForm value={form} onChange={(field, value) => setForm((current) => ({ ...current, [field]: value }))}/></div><BookingSummary event={data.event} representative={representative} day={day} slotTime={slotTime} whatsappHref={whatsappHref} pending={pending} error={error} disabled={!formReady || !slotTime || !data.configured} onConfirm={confirm}/></div>
-      </section>
-      <HowItWorks/>
-      <ContactDirect representative={representative} configured={data.configured}/>
+        <div className="mt-14"><SectionHeading eyebrow="Paso 1 de 4" title="Modalidad, día y horario">Reuniones de {data.event.slotMinutes} minutos, de lunes a viernes, dentro de las próximas dos semanas.</SectionHeading><ModalityPicker value={form.modality} locationDetail={form.locationDetail} onChange={(value) => { update("modality", value); setError(null); }} onLocationDetail={(value) => update("locationDetail", value)}/><SlotPicker days={data.event.days} slots={slots} selectedDay={day} selectedTime={slotTime} loading={loadingSlots} onDay={(value) => { setDay(value); setSlotTime(null); }} onTime={(value) => { setSlotTime(value); setError(null); }}/></div>
+        <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]"><div><SectionHeading eyebrow="Paso 2 de 4" title="Completa tus datos">Con esta información confirmamos tu reunión y te enviamos los detalles.</SectionHeading><BookingForm value={form} onChange={update}/></div><BookingSummary event={data.event} representative={representative} day={day} slotTime={slotTime} modality={form.modality} locationDetail={form.locationDetail} whatsappHref={whatsappHref} pending={pending} error={error} disabled={!formReady || !selectionReady || !data.configured} onConfirm={confirm}/></div>
+      </div>
     </>
   );
 }

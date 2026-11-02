@@ -1,4 +1,5 @@
-import type { AgendaEvent, CommercialArea, ContactOrigin } from "./types";
+import { availableDays } from "./availability";
+import type { AgendaEvent, BookingModality, CommercialArea, ContactOrigin } from "./types";
 
 export const AREA_LABELS: Record<CommercialArea, string> = {
   food_service: "Food Service",
@@ -19,12 +20,34 @@ export const ORIGIN_OPTIONS: { value: ContactOrigin; label: string }[] = [
   { value: "otro", label: "Otro medio" },
 ];
 
+export const MODALITY_OPTIONS: { value: BookingModality; label: string; description: string }[] = [
+  { value: "videollamada", label: "Videollamada", description: "Te enviamos el enlace por correo." },
+  { value: "oficina", label: "Reunión en nuestras oficinas", description: "Coordinamos la dirección contigo." },
+  { value: "visita", label: "Visita a tu empresa", description: "Indícanos dónde te visitamos." },
+];
+
+export const MODALITY_LABELS: Record<BookingModality, string> = Object.fromEntries(
+  MODALITY_OPTIONS.map((option) => [option.value, option.label]),
+) as Record<BookingModality, string>;
+
+/** Texto de "lugar" que viaja en el correo, el .ics y el resumen según la modalidad elegida. */
+export function modalityLocation(modality: BookingModality | "", locationDetail: string): string {
+  if (modality === "videollamada") return "Videollamada (te enviaremos el enlace)";
+  if (modality === "oficina") return "Oficinas de Todo Carnes (dirección por confirmar)";
+  if (modality === "visita") return locationDetail.trim() ? `Visita en ${locationDetail.trim()}` : "Visita a tu empresa";
+  return "Por confirmar";
+}
+
+/** Configuración de respaldo cuando no hay base de datos: misma agenda, sin reservas reales. */
 export const FALLBACK_EVENT: AgendaEvent = {
   id: "00000000-0000-4000-8000-000000000000",
-  name: "Feria Food & Service 2026",
-  location: "Stand 2-A100 — Feria Food & Service 2026",
-  days: ["2026-09-29", "2026-09-30", "2026-10-01"],
-  slotTimes: ["11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00"],
+  name: "Agenda comercial Todo Carnes",
+  location: "Videollamada, oficina o visita",
+  days: availableDays(
+    { blackoutDates: [], days: null, horizonDays: 14, kind: "permanent", minNoticeHours: 24, slotTimes: ["10:00:00"], weekdays: [1, 2, 3, 4, 5] },
+    new Date(),
+  ),
+  slotTimes: ["09:00:00", "10:00:00", "11:00:00", "12:00:00", "14:00:00", "15:00:00", "16:00:00", "17:00:00"],
   slotMinutes: 30,
 };
 

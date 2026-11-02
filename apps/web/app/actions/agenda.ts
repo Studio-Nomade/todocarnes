@@ -1,11 +1,16 @@
 "use server";
 
+import { areasLabel, modalityLocation } from "@/lib/agenda/constants";
+import { getPermanentAgendaData } from "@/lib/agenda/permanent";
+import { validatePermanentBookingSelection } from "@/lib/agenda/permanent-booking";
 import { createAgendaAdminClient } from "@/lib/agenda/server";
-import { areasLabel } from "@/lib/agenda/constants";
+import { buildSlotGrid } from "@/lib/agenda/slot-grid";
 import { zonedDateTimeToUtc } from "@/lib/agenda/timezone";
 import type { AgendaSlot, CreateBookingInput, CreateBookingResult } from "@/lib/agenda/types";
 import { availabilityInputSchema, bookingInputSchema, isSlotConflict } from "@/lib/agenda/validation";
 import { sendBookingConfirmation, sendBookingNotification } from "@todocarnes/emails/senders";
+
+const TIMEZONE = "America/Santiago";
 
 export async function getAvailability(input: {
   repId: string;
@@ -15,23 +20,26 @@ export async function getAvailability(input: {
   if (!parsed.success) return { ok: false };
 
   try {
+    const now = new Date();
+    const permanent = await getPermanentAgendaData(now);
+    if (!permanent || permanent.event.id !== parsed.data.eventId) return { ok: false };
+    const days = permanent.availableDays;
+    if (!days.length) return { ok: true, slots: [] };
+
     const client = createAgendaAdminClient();
-    const { data, error } = await client.rpc("available_slots", {
-      p_rep_id: parsed.data.repId,
-      p_event_id: parsed.data.eventId,
-    });
-    if (error) {
+    const booked = await client
+      .from("bookings")
+      .select("day,slot_time")
+      .eq("rep_id", parsed.data.repId)
+      .eq("event_id", permanent.event.id)
+      .neq("status", "cancelled")
+      .gte("day", days[0])
+      .lte("day", days[days.length - 1]);
+    if (booked.error) {
       console.error("[agenda] Falló la consulta de disponibilidad.");
       return { ok: false };
     }
-    return {
-      ok: true,
-      slots: data.map((slot) => ({
-        day: slot.day,
-        slotTime: slot.slot_time,
-        taken: slot.taken,
-      })),
-    };
+    return { ok: true, slots: buildSlotGrid(permanent.event, days, booked.data, now) };
   } catch {
     console.error("[agenda] Supabase no está configurado para consultar disponibilidad.");
     return { ok: false };
@@ -43,8 +51,9 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
   if (!parsed.success) return { ok: false, error: "invalid_data" };
 
   try {
+    const now = new Date();
     const client = createAgendaAdminClient();
-    const [{ data: rep }, { data: event }] = await Promise.all([
+    const [{ data: rep }, permanent] = await Promise.all([
       client
         .from("profiles")
         .select("id,name,area,areas,contact_email")
@@ -53,60 +62,52 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
         .eq("is_public", true)
         .eq("status", "active")
         .maybeSingle(),
-      client
-        .from("booking_events")
-        .select("id,name,location,days,slot_times,slot_minutes")
-        .eq("id", parsed.data.eventId)
-        .eq("is_active", true)
-        .maybeSingle(),
+      getPermanentAgendaData(now),
     ]);
-
-    const normalizedTime = parsed.data.slotTime.length === 5 ? `${parsed.data.slotTime}:00` : parsed.data.slotTime;
-    if (
-      !rep ||
-      !event ||
-      !event.days ||
-      !event.days.includes(parsed.data.day) ||
-      !event.slot_times.includes(normalizedTime)
-    ) {
+    if (!rep || !permanent || permanent.event.id !== parsed.data.eventId) {
       return { ok: false, error: "invalid_selection" };
     }
 
-    const availability = await client.rpc("available_slots", {
-      p_rep_id: rep.id,
-      p_event_id: event.id,
-    });
-    if (availability.error) return { ok: false, error: "server_error" };
-    const selected = availability.data.find(
-      (slot) => slot.day === parsed.data.day && slot.slot_time === normalizedTime,
-    );
-    if (!selected || selected.taken) return { ok: false, error: "slot_taken" };
+    // La disponibilidad se recalcula en el servidor: día hábil, dentro de la ventana y con anticipación.
+    const selection = validatePermanentBookingSelection(permanent.event, {
+      day: parsed.data.day,
+      locationDetail: parsed.data.locationDetail,
+      modality: parsed.data.modality,
+      slotTime: parsed.data.slotTime,
+    }, now);
+    if (!selection.success) return { ok: false, error: "invalid_selection" };
+    const { day, modality, slotTime } = selection.data;
+    const locationDetail = parsed.data.locationDetail || null;
 
     const { data: booking, error } = await client
       .from("bookings")
       .insert({
-        event_id: event.id,
+        event_id: permanent.event.id,
         rep_id: rep.id,
         name: parsed.data.name,
         company: parsed.data.company,
         cargo: parsed.data.cargo,
         email: parsed.data.email,
         phone: parsed.data.phone,
-        day: parsed.data.day,
-        slot_time: normalizedTime,
+        day,
+        slot_time: slotTime,
         topics: parsed.data.topics || null,
         came_from: parsed.data.cameFrom || null,
+        modality,
+        location_detail: locationDetail,
         status: "confirmed",
       })
       .select("id,ics_uid")
       .single();
 
+    // El índice único (vendedor, evento, día, bloque) resuelve la carrera entre dos clientes.
     if (isSlotConflict(error)) return { ok: false, error: "slot_taken" };
     if (error || !booking) {
       console.error("[agenda] No fue posible crear la reserva.");
       return { ok: false, error: "server_error" };
     }
 
+    const location = modalityLocation(modality, parsed.data.locationDetail);
     const emailBooking = {
       name: parsed.data.name,
       company: parsed.data.company,
@@ -116,15 +117,16 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
       area: areasLabel(rep.areas, rep.area),
       topics: parsed.data.topics || null,
       cameFrom: parsed.data.cameFrom || null,
+      modality,
       icsUid: booking.ics_uid,
-      start: zonedDateTimeToUtc(parsed.data.day, normalizedTime, "America/Santiago"),
+      start: zonedDateTimeToUtc(day, slotTime, TIMEZONE),
     };
     const emailRep = { name: rep.name, email: rep.contact_email };
     const emailEvent = {
-      name: event.name,
-      location: event.location ?? "Stand 2-A100",
-      slotMinutes: event.slot_minutes,
-      timezone: "America/Santiago",
+      name: permanent.event.name,
+      location,
+      slotMinutes: permanent.event.slotMinutes,
+      timezone: TIMEZONE,
     };
     const [confirmation, notification] = await Promise.all([
       sendBookingConfirmation({ booking: emailBooking, rep: emailRep, event: emailEvent }),

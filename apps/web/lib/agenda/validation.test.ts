@@ -14,6 +14,8 @@ const validBooking = {
   phone: "9 1234 5678",
   topics: "Nuevos formatos",
   cameFrom: "redes_sociales",
+  modality: "videollamada",
+  locationDetail: "",
 };
 
 test("normaliza teléfonos chilenos sin duplicar el código país", () => {
