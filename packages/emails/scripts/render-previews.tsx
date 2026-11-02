@@ -30,11 +30,11 @@ const event = {
 };
 
 const previews = [
-  ["01-booking-confirmation.html", <BookingConfirmation area={contact.area} clientName={contact.name} dateLabel="martes, 29 de septiembre de 2026" durationMinutes={30} eventName={event.eventName} location={event.eventLocation} logoUrl={logoUrl} representativeName={contact.representativeName} timeLabel="11:00" />],
+  ["01-booking-confirmation.html", <BookingConfirmation area={contact.area} clientName={contact.name} dateLabel="martes, 3 de noviembre de 2026" durationMinutes={30} eventName="Agenda comercial Todo Carnes" location="Videollamada (te enviaremos el enlace)" logoUrl={logoUrl} modality="Videollamada" representativeName={contact.representativeName} timeLabel="11:00" />],
   ["02-courtesy-confirmation.html", <CourtesyConfirmation cargo="Jefa de compras" company={contact.company} eventLocation={event.eventLocation} eventName={event.eventName} lastName="Rojas" logoUrl={logoUrl} name={contact.name} rut="12.345.678-5" />],
   ["03-contact-ack-agenda.html", <ContactAckAgenda area={contact.area} logoUrl={logoUrl} name={contact.name} representativeName={contact.representativeName} />],
   ["04-contact-ack-landing.html", <ContactAckLanding area={contact.area} logoUrl={logoUrl} name={contact.name} />],
-  ["05-booking-notification.html", <BookingNotification {...contact} cameFrom="Invitación comercial" cargo="Jefa de compras" dateLabel="martes, 29 de septiembre de 2026" durationMinutes={30} eventName={event.eventName} location={event.eventLocation} logoUrl={logoUrl} timeLabel="11:00" topics="Formatos, abastecimiento y desarrollo" />],
+  ["05-booking-notification.html", <BookingNotification {...contact} cameFrom="Invitación comercial" cargo="Jefa de compras" dateLabel="martes, 3 de noviembre de 2026" durationMinutes={30} eventName="Agenda comercial Todo Carnes" location="Visita en Quilicura" logoUrl={logoUrl} modality="Visita a la empresa del cliente" timeLabel="11:00" topics="Formatos, abastecimiento y desarrollo" />],
   ["06-courtesy-notification.html", <CourtesyNotification {...contact} cargo="Jefa de compras" eventLocation={event.eventLocation} eventName={event.eventName} lastName="Rojas" logoUrl={logoUrl} rut="12.345.678-5" />],
   ["07-contact-notif-agenda.html", <ContactNotifAgenda {...contact} logoUrl={logoUrl} />],
   ["08-contact-notif-landing.html", <ContactNotifLanding {...contact} logoUrl={logoUrl} />],

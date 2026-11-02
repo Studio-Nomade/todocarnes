@@ -30,6 +30,7 @@ export async function getPermanentAgendaData(now = new Date()): Promise<{
   const result = await client.from("booking_events")
     .select("id,name,location,days,slot_times,slot_minutes,kind,weekdays,horizon_days,min_notice_hours,blackout_dates")
     .eq("slug", "agenda-comercial")
+    .eq("is_active", true)
     .maybeSingle();
   const parsed = permanentEventSchema.safeParse(result.data);
   if (result.error || !parsed.success) {

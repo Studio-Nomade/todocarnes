@@ -17,6 +17,8 @@ export type BookingItem = {
   day: string;
   email: string;
   id: string;
+  locationDetail: string | null;
+  modality: string | null;
   name: string;
   phone: string | null;
   repId: string;

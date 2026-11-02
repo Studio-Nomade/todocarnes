@@ -96,6 +96,16 @@ function failed(error: unknown): SendResult {
   return { ok: false, error: "No fue posible enviar el correo." };
 }
 
+const MODALITY_LABELS: Record<string, string> = {
+  oficina: "Reunión en oficinas de Todo Carnes",
+  videollamada: "Videollamada",
+  visita: "Visita a la empresa del cliente",
+};
+
+function modalityLabel(modality: string | null | undefined): string | null {
+  return modality ? (MODALITY_LABELS[modality] ?? modality) : null;
+}
+
 function dateParts(start: Date, timezone: string) {
   return {
     dateLabel: new Intl.DateTimeFormat("es-CL", { dateStyle: "full", timeZone: timezone }).format(start),
@@ -125,8 +135,8 @@ export async function sendBookingConfirmation({ booking, rep, event }: {
     const labels = dateParts(booking.start, timezone);
     const calendar = buildIcs({
       uid: booking.icsUid,
-      title: `Reunión Todo Carnes — ${event.name}`,
-      description: booking.topics ?? `Reunión comercial del área ${booking.area ?? "Todo Carnes"}.`,
+      title: `Reunión con Todo Carnes — ${rep.name}`,
+      description: [modalityLabel(booking.modality), booking.topics ?? `Reunión comercial del área ${booking.area ?? "Todo Carnes"}.`].filter(Boolean).join("\n"),
       location: event.location,
       start: booking.start,
       durationMinutes: event.slotMinutes,
@@ -139,7 +149,7 @@ export async function sendBookingConfirmation({ booking, rep, event }: {
       to: booking.email,
       cc: rep.email,
       replyTo: config.replyTo ?? rep.email,
-      subject: "Tu reunión en Food & Service 2026 está confirmada",
+      subject: "Tu reunión con Todo Carnes está confirmada",
       react: (
         <BookingConfirmation
           area={booking.area}
@@ -147,8 +157,9 @@ export async function sendBookingConfirmation({ booking, rep, event }: {
           dateLabel={labels.dateLabel}
           durationMinutes={event.slotMinutes}
           eventName={event.name}
-          location={event.location || "Stand 2-A100"}
+          location={event.location || "Por confirmar"}
           logoUrl={config.logoUrl}
+          modality={modalityLabel(booking.modality)}
           representativeName={rep.name}
           timeLabel={labels.timeLabel}
         />
@@ -192,8 +203,9 @@ export async function sendBookingNotification({ booking, rep, event }: {
           dateLabel={labels.dateLabel}
           durationMinutes={event.slotMinutes}
           eventName={event.name}
-          location={event.location || "Stand 2-A100"}
+          location={event.location || "Por confirmar"}
           logoUrl={config.logoUrl}
+          modality={modalityLabel(booking.modality)}
           representativeName={rep?.name}
           timeLabel={labels.timeLabel}
         />
@@ -223,7 +235,7 @@ export async function sendCourtesyConfirmation({ request, event }: {
       react: (
         <CourtesyConfirmation
           {...request}
-          eventLocation={event.location || "Stand 2-A100"}
+          eventLocation={event.location || "Por confirmar"}
           eventName={event.name}
           logoUrl={config.logoUrl}
         />
@@ -255,7 +267,7 @@ export async function sendCourtesyNotification({ request, event }: {
       react: (
         <CourtesyNotification
           {...request}
-          eventLocation={event.location || "Stand 2-A100"}
+          eventLocation={event.location || "Por confirmar"}
           eventName={event.name}
           logoUrl={config.logoUrl}
         />

@@ -25,11 +25,11 @@ const commonContact = {
 
 test("renderiza las ocho plantillas transaccionales con sus dos familias", async () => {
   const templates = await Promise.all([
-    render(<BookingConfirmation area="Food Service" clientName="Camila" dateLabel="martes, 29 de septiembre de 2026" durationMinutes={30} eventName="Feria Food & Service 2026" location="Espacio Riesco · Stand 2-A100" representativeName="Víctor Andrades" timeLabel="11:00" />),
+    render(<BookingConfirmation area="Food Service" clientName="Camila" dateLabel="martes, 3 de noviembre de 2026" durationMinutes={30} eventName="Agenda comercial Todo Carnes" location="Videollamada (te enviaremos el enlace)" modality="Videollamada" representativeName="Víctor Andrades" timeLabel="11:00" />),
     render(<CourtesyConfirmation cargo="Jefa de compras" company="Ejemplo SpA" eventLocation="Espacio Riesco · Stand 2-A100" eventName="Feria Food & Service 2026" lastName="Rojas" name="Camila" rut="12.345.678-5" />),
     render(<ContactAckAgenda area="Food Service" name="Camila" representativeName="Víctor Andrades" />),
     render(<ContactAckLanding area="Food Service" name="Camila" />),
-    render(<BookingNotification {...commonContact} cameFrom="Invitación" cargo="Jefa de compras" dateLabel="martes, 29 de septiembre de 2026" durationMinutes={30} eventName="Feria Food & Service 2026" location="Espacio Riesco · Stand 2-A100" timeLabel="11:00" topics="Formatos y abastecimiento" />),
+    render(<BookingNotification {...commonContact} cameFrom="Invitación" cargo="Jefa de compras" dateLabel="martes, 3 de noviembre de 2026" durationMinutes={30} eventName="Agenda comercial Todo Carnes" location="Visita en Quilicura" modality="Visita a la empresa del cliente" timeLabel="11:00" topics="Formatos y abastecimiento" />),
     render(<CourtesyNotification {...commonContact} cargo="Jefa de compras" eventLocation="Espacio Riesco · Stand 2-A100" eventName="Feria Food & Service 2026" lastName="Rojas" rut="12.345.678-5" />),
     render(<ContactNotifAgenda {...commonContact} />),
     render(<ContactNotifLanding {...commonContact} />),
@@ -41,12 +41,14 @@ test("renderiza las ocho plantillas transaccionales con sus dos familias", async
     assert.match(html, /Montserrat, Arial, sans-serif/);
     assert.match(html, /TodoCarnes/);
   }
-  assert.match(templates[0], /TodoCarnes \| Espacio Food Service/);
+  assert.match(templates[0], /Modalidad/);
+  assert.doesNotMatch(templates[0], /Espacio Food Service/);
   assert.match(templates[0], /archivo \.ics/);
   assert.match(templates[1], /te contactaremos/);
   assert.match(templates[2], /desde la agenda/);
   assert.match(templates[3], /Equipo de Food Service/);
   assert.match(templates[4], /Cómo llegó/);
+  assert.match(templates[4], /Visita en Quilicura/);
   assert.match(templates[5], /Teléfono/);
   assert.match(templates[6], /Agenda Food &amp; Service 2026/);
   assert.match(templates[7], /Landing Todo Carnes/);
