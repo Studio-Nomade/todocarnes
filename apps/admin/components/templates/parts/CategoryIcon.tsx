@@ -22,6 +22,7 @@ export function CategoryIcon({ category, tone = "light" }: CategoryIconProps) {
       className={`h-14 w-14 object-contain ${tone === "dark" ? "brightness-0" : ""}`}
       height={211}
       priority
+      sizes="56px"
       src={categoryIcons[category]}
       width={211}
     />

@@ -21,6 +21,7 @@ export function CatalogHeader({ activeCategory, activeCut, cuts }: CatalogHeader
           className="h-[67px] w-[67px] object-contain"
           height={4500}
           priority
+          sizes="80px"
           src="/brand/isologo_completo.png"
           width={4501}
         />
