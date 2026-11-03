@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
-import { areasLabel } from "@/lib/agenda/constants";
+import { representativeAreasLabel } from "@/lib/agenda/constants";
 import { createAgendaAdminClient, hasAgendaDatabaseConfig } from "@/lib/agenda/server";
 import type { CommercialArea, PublicRepresentative } from "@/lib/agenda/types";
 
@@ -28,7 +28,7 @@ export const getPublicRepresentatives = cache(async function getPublicRepresenta
       name: rep.name,
       area: rep.area,
       areas: rep.areas.length ? rep.areas : rep.area ? [rep.area as CommercialArea] : [],
-      areaLabel: areasLabel(rep.areas, rep.area),
+      areaLabel: representativeAreasLabel(rep.areas, rep.area),
       photoUrl: rep.photo_url,
       whatsapp: rep.whatsapp,
       contactEmail: rep.contact_email,

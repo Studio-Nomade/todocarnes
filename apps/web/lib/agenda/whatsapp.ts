@@ -13,6 +13,6 @@ export function buildWhatsAppHref({ representative, dayLabel, slotTime, customer
   if (!number) return null;
   const greeting = customerName?.trim() ? `Soy ${customerName.trim()}. ` : "";
   const tentative = slotTime ? ` Me interesa el ${dayLabel} a las ${slotTime.slice(0, 5)}.` : "";
-  const message = `Hola ${representative.name}. ${greeting}Quisiera agendar una reunión con el área ${representative.areaLabel} en Food & Service 2026.${tentative}`;
+  const message = `Hola ${representative.name}. ${greeting}Quisiera agendar una reunión con el área ${representative.areaLabel} de Todo Carnes.${tentative}`;
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
