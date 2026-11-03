@@ -28,4 +28,6 @@ test("construye un deep link con vendedor, área y horario tentativo", () => {
   assert.match(message, /Representante Test/);
   assert.match(message, /Food Service/);
   assert.match(message, /mié, 30 sept a las 13:00/);
+  assert.match(message, /de Todo Carnes/);
+  assert.doesNotMatch(message, /Food & Service 2026/);
 });
