@@ -1,6 +1,6 @@
 "use server";
 
-import { areasLabel, modalityLocation } from "@/lib/agenda/constants";
+import { modalityLocation, representativeAreasLabel } from "@/lib/agenda/constants";
 import { getPermanentAgendaData } from "@/lib/agenda/permanent";
 import { validatePermanentBookingSelection } from "@/lib/agenda/permanent-booking";
 import { createAgendaAdminClient } from "@/lib/agenda/server";
@@ -114,7 +114,7 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
       cargo: parsed.data.cargo,
       email: parsed.data.email,
       phone: parsed.data.phone,
-      area: areasLabel(rep.areas, rep.area),
+      area: representativeAreasLabel(rep.areas, rep.area),
       topics: parsed.data.topics || null,
       cameFrom: parsed.data.cameFrom || null,
       modality,

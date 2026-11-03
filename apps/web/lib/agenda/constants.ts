@@ -60,3 +60,17 @@ export function areasLabel(areas: readonly CommercialArea[] | null | undefined, 
   const list = areas?.length ? [...new Set(areas)] : fallback ? [fallback] : [];
   return list.length ? list.map((area) => AREA_LABELS[area]).join(" + ") : "Área comercial";
 }
+
+/**
+ * Áreas que aparecen en la etiqueta pública del vendedor: las líneas de negocio del sitio.
+ * Maquila y desarrollo, marca propia y "otro" existen para enrutar el contacto al vendedor
+ * correcto, no para describirlo frente al cliente.
+ */
+export const PUBLIC_LABEL_AREAS: readonly CommercialArea[] = ["mmpp_trimmings", "retail_ggcc", "food_service", "ventas_nacionales"];
+
+/** Etiqueta pública del vendedor: solo líneas de negocio; si no cubre ninguna, muestra todas sus áreas. */
+export function representativeAreasLabel(areas: readonly CommercialArea[] | null | undefined, fallback: CommercialArea | null = null) {
+  const list = areas?.length ? areas : fallback ? [fallback] : [];
+  const visible = list.filter((area) => PUBLIC_LABEL_AREAS.includes(area));
+  return areasLabel(visible.length ? visible : list);
+}
